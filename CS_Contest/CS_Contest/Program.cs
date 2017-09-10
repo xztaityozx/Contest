@@ -15,6 +15,10 @@ namespace CS_Contest {
 	using Ls = List<string>;
 	using Ll = List<long>;
 	using LLl = List<List<long>>;
+	using System.Collections;
+	using System.Threading;
+	using System.Diagnostics;
+
 	class Program {
 		static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -26,7 +30,6 @@ namespace CS_Contest {
 
 		private class Calc {
 			public void Solve() {
-				
 				return;
 			}
 			
@@ -101,20 +104,6 @@ namespace CS_Contest {
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
-
-		public class Vector2 {
-			public int X { get; set; }
-			public int Y { get; set; }
-			public Vector2() { X = 0; Y = 0; }
-			public Vector2(int x, int y) { X = x; Y = y; }
-			public int ManhattanDistance(Vector2 v2) {
-				return Utils.ManhattanDistance(X, Y, v2.X, v2.Y);
-			}
-			public static int ManhattanDistance(Vector2 v1, Vector2 v2) => v2.ManhattanDistance(v2);
-			public double Distance(Vector2 v2) => Sqrt(Pow(X - v2.X, 2) + Pow(Y - v2.Y, 2));
-			public static Vector2 Zero { get { return new Vector2(); } }
-			public void Clear() { X = 0; Y = 0; }
-		}
 
 		public struct IndexT<T> {
 			public T Value { get; set; }
