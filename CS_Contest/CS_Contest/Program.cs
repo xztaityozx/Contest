@@ -15,21 +15,55 @@ namespace CS_Contest {
 	using Ls = List<string>;
 	using Ll = List<long>;
 	using LLl = List<List<long>>;
-	using System.Collections;
-	using System.Threading;
-	using System.Diagnostics;
 
-	class Program {
-		static void Main(string[] args) {
+
+	internal class Program {
+		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
 			SetOut(sw);
 			new Calc().Solve();
 			Out.Flush();
-			return;
         }
 
 		private class Calc {
-			public void Solve() {
+			public void Solve()
+			{
+				int R, N, M;
+				ReadMulti(out N,out M,out R);
+
+				var costGraph=new Library.CostGraph(N);
+				var Root = ReadInts();
+				REP(M, x =>
+				{
+					int a, b, c;
+					ReadMulti(out a,out b,out c);
+					a--;
+					b--;
+					costGraph.Add(a,b,c);
+				});
+				costGraph.WarshallFloyd();
+
+				var ans = int.MaxValue;
+
+				foreach (var item in Root) {
+					var tmp = Root.Where(x => x != item).ToList();
+					var current = item;
+					long sum = 0;
+					while (tmp.Count>0) {
+						var min = long.MaxValue / 2;
+						var idx = 0;
+						foreach (var indexT in tmp.Select(x => costGraph[current, x]).ToIndexEnumerable()) {
+							if (indexT.Value >= min) continue;
+							min = indexT.Value;
+							idx = indexT.Index;
+						}
+						current = tmp[idx];
+						sum += min;
+						tmp.RemoveAt(idx);
+					}
+
+				}
+
 				return;
 			}
 			
@@ -93,8 +127,6 @@ namespace CS_Contest {
 				act(i);
 			}
 		}
-		public static void REP(long n, Action<int> act) => REP((int)n, act);
-		public static void RREP(long n, Action<int> act) => RREP((int)n, act);
 
 		public static void Yes() => "Yes".WL();
 		public static void No() => "No".WL();
@@ -112,7 +144,14 @@ namespace CS_Contest {
 		}
 		public static IEnumerable<IndexT<T>> ToIndexEnumerable<T>(this IEnumerable<T> list) => list.Select((x, i) => new IndexT<T>(x, i));
 
-		
+		public static Queue<T> ToQueue<T>(this IEnumerable<T> iEnumerable) {
+			var rt=new Queue<T>();
+			foreach (var item in iEnumerable) {
+				rt.Enqueue(item);
+			}
+			return rt;
+		}
+
 
 		public static Tuple<TKey, TSource> ToTuple<TKey, TSource>(this KeyValuePair<TKey, TSource> kvp) => new Tuple<TKey, TSource>(kvp.Key, kvp.Value);
 		public static IEnumerable<Tuple<TKey, TSource>> ToTupleList<TKey, TSource>(this Dictionary<TKey, TSource> d) => d.Select(_ => _.ToTuple());

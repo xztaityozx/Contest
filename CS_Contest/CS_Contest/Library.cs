@@ -13,7 +13,7 @@ namespace CS_Contest {
 
 			public UnionFind(int size) {
 				data = new int[size];
-				for (int i = 0; i < size; i++) data[i] = -1;
+				for (var i = 0; i < size; i++) data[i] = -1;
 			}
 
 			public bool Unite(int x, int y) {
@@ -44,7 +44,7 @@ namespace CS_Contest {
 		public class CostGraph {
 			private List<long>[] list;
 			private int Size;
-			private const long INF = long.MaxValue;
+			private const long INF = long.MaxValue / 2;
 			private List<List<Edge>> edge;
 			public struct Edge {
 				public int From { get; set; }
@@ -55,25 +55,35 @@ namespace CS_Contest {
 				public static bool operator >(Edge e1, Edge e2) => e1.Cost > e2.Cost;
 			}
 
-			public CostGraph(int size) {
-				Size = size + 1;
-				list = new List<long>[Size];
-				Utils.REP(Size, x => list[x] = new List<long>(Size));
-				Utils.REP(Size, i => { Utils.REP(Size, k => this[i, k] = i == k ? 0 : INF); });
-				edge = new List<List<Edge>>(Size);
+			public CostGraph(int size)
+			{
+				Size = size;
+				list = Enumerable.Range(0, Size).Select(x=>new List<long>()).ToArray();
+				Utils.REP(Size, i => { Utils.REP(Size, k =>
+				{
+					list[i].Add(i == k ? 0 : INF);
+				}); });
+				edge = Enumerable.Range(0, Size).Select(x => new List<Edge>()).ToList();
 			}
 
 			public void Add(int A,int B,long C,bool direction = true) {
 				this[A, B] = Min(this[A, B], C);
 				edge[A].Add(new Edge(A,B, C));
-				if (direction) { this[B, A] = this[A, B]; edge[B].Add(new Edge(B,A, C)); }
+				if (!direction) return;
+				this[B, A] = this[A, B]; edge[B].Add(new Edge(B,A, C));
 			}
 			public long this[int A,int B] {
-				get { return list[A][B]; }
-				set { list[A][B] = value; }
+				get => list[A][B];
+				set => list[A][B] = value;
 			}
+
+			public List<long> this[int index] {
+				get => list[index];
+				set => list[index] = value;
+			}
+
 			public void Clear() {
-				for (int i = 0; i < Size; i++) {
+				for (var i = 0; i < Size; i++) {
 					list[i].Clear();
 				}
 				edge.Clear();
@@ -87,18 +97,17 @@ namespace CS_Contest {
 			public long Dijkstra(int s,int t) {
 				var dist = Enumerable.Repeat(INF, Size).ToList();
 				dist[s] = 0;
-				PriorityQueue<Tuple<long, int>> priorityQueue = new PriorityQueue<Tuple<long, int>>();
+				var priorityQueue = new PriorityQueue<Tuple<long, int>>();
 				priorityQueue.Enqueue(new Tuple<long, int>(0, s));
 				while (priorityQueue.Count!=0) {
 					var src = priorityQueue.Dequeue();
 					if (dist[src.Item2] < src.Item1) continue;
 
-					for (int dest = 0; dest < Size; dest++) {
+					for (var dest = 0; dest < Size; dest++) {
 						var cost = this[src.Item2, dest];
-						if (cost != INF && dist[dest] > dist[src.Item2] + cost) {
-							dist[dest] = dist[src.Item2] + cost;
-							priorityQueue.Enqueue(new Tuple<long, int>(dist[dest], dest));
-						}
+						if (cost == INF || dist[dest] <= dist[src.Item2] + cost) continue;
+						dist[dest] = dist[src.Item2] + cost;
+						priorityQueue.Enqueue(new Tuple<long, int>(dist[dest], dest));
 					}
 				}
 				return dist[t];
@@ -120,8 +129,8 @@ namespace CS_Contest {
 			public Tuple<List<long>,bool> BellmanFord(int s,int n) {
 				var dist = Enumerable.Repeat(INF, Size).ToList();
 				dist[s] = 0;
-				for (int i = 0; i < n; i++) {
-					for (int v = 0; v < n; v++) {
+				for (var i = 0; i < n; i++) {
+					for (var v = 0; v < n; v++) {
 						foreach (var item in edge[v]) {
 							if (dist[v] != INF && dist[item.To] > dist[v] + item.Cost) {
 								dist[item.To] = dist[v] + item.Cost;
@@ -134,12 +143,12 @@ namespace CS_Contest {
 			}
 
 			public long Kruskal() {
-				List<Edge> sorted = new List<Edge>();
+				var sorted = new List<Edge>();
 				foreach (var item in edge) {
 					sorted.AddRange(item);
 				}
 				sorted=sorted.OrderBy(x => x).ToList();
-				UnionFind uf = new UnionFind();
+				var uf = new UnionFind();
 				long min_cost = 0;
 
 				foreach (var e in sorted) {
@@ -197,7 +206,7 @@ namespace CS_Contest {
 				return ret;
 			}
 			public T Peek() { return heap[0]; }
-			public int Count { get { return size; } }
+			public int Count => size;
 			public bool Any() { return size > 0; }
 		}
 
@@ -206,12 +215,12 @@ namespace CS_Contest {
 	public class Deque<T> {
 		T[] buf;
 		int offset, count, capacity;
-		public int Count { get { return count; } }
+		public int Count => count;
 		public Deque(int cap) { buf = new T[capacity = cap]; }
 		public Deque() { buf = new T[capacity = 16]; }
 		public T this[int index] {
-			get { return buf[getIndex(index)]; }
-			set { buf[getIndex(index)] = value; }
+			get => buf[getIndex(index)];
+			set => buf[getIndex(index)] = value;
 		}
 		private int getIndex(int index) {
 			if (index >= capacity)
@@ -249,20 +258,20 @@ namespace CS_Contest {
 		public void Insert(int index, T item) {
 			if (index > count) throw new IndexOutOfRangeException();
 			this.PushFront(item);
-			for (int i = 0; i < index; i++)
+			for (var i = 0; i < index; i++)
 				this[i] = this[i + 1];
 			this[index] = item;
 		}
 		public T RemoveAt(int index) {
 			if (index < 0 || index >= count) throw new IndexOutOfRangeException();
 			var ret = this[index];
-			for (int i = index; i > 0; i--)
+			for (var i = index; i > 0; i--)
 				this[i] = this[i - 1];
 			this.PopFront();
 			return ret;
 		}
 		private void Extend() {
-			T[] newBuffer = new T[capacity << 1];
+			var newBuffer = new T[capacity << 1];
 			if (offset > capacity - count) {
 				var len = buf.Length - offset;
 				Array.Copy(buf, offset, newBuffer, 0, len);
@@ -277,7 +286,7 @@ namespace CS_Contest {
 		{
 			get {
 				var a = new T[count];
-				for (int i = 0; i < count; i++)
+				for (var i = 0; i < count; i++)
 					a[i] = this[i];
 				return a;
 			}
@@ -318,8 +327,8 @@ namespace CS_Contest {
 
 		
 		public int this[int a] {
-			get { return graph[a]; }
-			set { graph[a] = value; }
+			get => graph[a];
+			set => graph[a] = value;
 		}
 	}
 
