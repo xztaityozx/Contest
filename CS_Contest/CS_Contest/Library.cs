@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static System.Math;
 
 namespace CS_Contest {
+
 	public static class Library {
+
 		public struct UnionFind {
 			private int[] data;
 
@@ -46,12 +45,18 @@ namespace CS_Contest {
 			private int Size;
 			private const long INF = long.MaxValue / 2;
 			private List<List<Edge>> edge;
+
 			public struct Edge {
 				public int From { get; set; }
 				public int To { get; set; }
 				public long Cost { get; set; }
-				public Edge(int f, int t, long c) { From = f; To = t; Cost = c; }
+
+				public Edge(int f, int t, long c) {
+					From = f; To = t; Cost = c;
+				}
+
 				public static bool operator <(Edge e1, Edge e2) => e1.Cost < e2.Cost;
+
 				public static bool operator >(Edge e1, Edge e2) => e1.Cost > e2.Cost;
 			}
 
@@ -72,6 +77,7 @@ namespace CS_Contest {
 				if (!direction) return;
 				this[B, A] = this[A, B]; edge[B].Add(new Edge(B, A, C));
 			}
+
 			public long this[int A, int B] {
 				get { return list[A][B]; }
 				set { list[A][B] = value; }
@@ -88,6 +94,7 @@ namespace CS_Contest {
 				}
 				edge.Clear();
 			}
+
 			/// <summary>
 			/// ダイクストラ
 			/// </summary>
@@ -120,6 +127,7 @@ namespace CS_Contest {
 					});
 				});
 			}
+
 			/// <summary>
 			/// べルマンフォード
 			/// </summary>
@@ -160,6 +168,7 @@ namespace CS_Contest {
 				return min_cost;
 			}
 		}
+
 		/// <summary>
 		/// 優先度付きキュー
 		/// </summary>
@@ -168,13 +177,21 @@ namespace CS_Contest {
 			private readonly List<T> heap;
 			private readonly Comparison<T> compare;
 			private int size;
-			public PriorityQueue() : this(Comparer<T>.Default) { }
-			public PriorityQueue(IComparer<T> comparer) : this(16, comparer.Compare) { }
-			public PriorityQueue(Comparison<T> comparison) : this(16, comparison) { }
+
+			public PriorityQueue() : this(Comparer<T>.Default) {
+			}
+
+			public PriorityQueue(IComparer<T> comparer) : this(16, comparer.Compare) {
+			}
+
+			public PriorityQueue(Comparison<T> comparison) : this(16, comparison) {
+			}
+
 			public PriorityQueue(int capacity, Comparison<T> comparison) {
 				this.heap = new List<T>(capacity);
 				this.compare = comparison;
 			}
+
 			public void Enqueue(T item) {
 				this.heap.Add(item);
 				var i = size++;
@@ -186,8 +203,8 @@ namespace CS_Contest {
 					i = p;
 				}
 				this.heap[i] = item;
-
 			}
+
 			public T Dequeue() {
 				var ret = this.heap[0];
 				var x = this.heap[--size];
@@ -205,24 +222,37 @@ namespace CS_Contest {
 				heap.RemoveAt(size);
 				return ret;
 			}
-			public T Peek() { return heap[0]; }
+
+			public T Peek() {
+				return heap[0];
+			}
+
 			public int Count => size;
-			public bool Any() { return size > 0; }
+
+			public bool Any() {
+				return size > 0;
+			}
 		}
-
-
 	}
 
 	public class Deque<T> {
-		T[] buf;
-		int offset, count, capacity;
+		private T[] buf;
+		private int offset, count, capacity;
 		public int Count => count;
-		public Deque(int cap) { buf = new T[capacity = cap]; }
-		public Deque() { buf = new T[capacity = 16]; }
+
+		public Deque(int cap) {
+			buf = new T[capacity = cap];
+		}
+
+		public Deque() {
+			buf = new T[capacity = 16];
+		}
+
 		public T this[int index] {
 			get => buf[getIndex(index)];
 			set => buf[getIndex(index)] = value;
 		}
+
 		private int getIndex(int index) {
 			if (index >= capacity)
 				throw new IndexOutOfRangeException("out of range");
@@ -231,12 +261,14 @@ namespace CS_Contest {
 				ret -= capacity;
 			return ret;
 		}
+
 		public void PushFront(T item) {
 			if (count == capacity) Extend();
 			if (--offset < 0) offset += buf.Length;
 			buf[offset] = item;
 			++count;
 		}
+
 		public T PopFront() {
 			if (count == 0)
 				throw new InvalidOperationException("collection is empty");
@@ -245,17 +277,20 @@ namespace CS_Contest {
 			if (offset >= capacity) offset -= capacity;
 			return ret;
 		}
+
 		public void PushBack(T item) {
 			if (count == capacity) Extend();
 			var id = count++ + offset;
 			if (id >= capacity) id -= capacity;
 			buf[id] = item;
 		}
+
 		public T PopBack() {
 			if (count == 0)
 				throw new InvalidOperationException("collection is empty");
 			return buf[getIndex(--count)];
 		}
+
 		public void Insert(int index, T item) {
 			if (index > count) throw new IndexOutOfRangeException();
 			this.PushFront(item);
@@ -263,6 +298,7 @@ namespace CS_Contest {
 				this[i] = this[i + 1];
 			this[index] = item;
 		}
+
 		public T RemoveAt(int index) {
 			if (index < 0 || index >= count) throw new IndexOutOfRangeException();
 			var ret = this[index];
@@ -271,6 +307,7 @@ namespace CS_Contest {
 			this.PopFront();
 			return ret;
 		}
+
 		private void Extend() {
 			var newBuffer = new T[capacity << 1];
 			if (offset > capacity - count) {
@@ -283,6 +320,7 @@ namespace CS_Contest {
 			offset = 0;
 			capacity <<= 1;
 		}
+
 		public T[] Items//デバッグ時に中身を調べるためのプロパティ
 		{
 			get {
@@ -294,44 +332,42 @@ namespace CS_Contest {
 		}
 	}
 
-	public class XDictionary<TKey, TSource> :Dictionary<TKey,TSource>, IEnumerable<KeyValuePair<TKey, TSource>> {
-		new public TSource  this [TKey index] {
+	public class XDictionary<TKey, TSource> : Dictionary<TKey, TSource>, IEnumerable<KeyValuePair<TKey, TSource>> {
+
+		new public TSource this[TKey index] {
 			get { if (ContainsKey(index)) { return this[index]; } else { return default(TSource); } }
 			set { if (ContainsKey(index)) { this[index] = value; } else { Add(index, value); } }
 		}
+
 		/// <summary>
 		/// Keyの追加を試みます
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="src"></param>
 		/// <returns></returns>
-		public bool TryAdd(TKey key,TSource src) {
+		public bool TryAdd(TKey key, TSource src) {
 			if (ContainsKey(key)) return false;
 			Add(key, src);
 			return true;
 		}
 	}
 
-
 	public class Graph {
 		private List<int> graph;
-		
 
 		public Graph(int size) {
 			size++;
 			graph = new List<int>(size);
 		}
-		public void Add(int A,int B) {
+
+		public void Add(int A, int B) {
 			graph[A] = B;
 			graph[B] = A;
 		}
 
-		
 		public int this[int a] {
 			get => graph[a];
 			set => graph[a] = value;
 		}
 	}
-
-	
 }
