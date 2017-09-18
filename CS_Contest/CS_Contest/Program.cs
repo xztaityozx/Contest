@@ -25,24 +25,30 @@ namespace CS_Contest {
 		private class Calc {
 
 			public void Solve() {
-				var s = ReadLine().ToArray();
-				var K = ReadInt();
-				var ranges = new int[s.Length];
-				foreach (var t in s.ToIndexEnumerable()) {
-					var add = 0;
-					if (t.Value > 'a') add = 'z' - t.Value + 1;
-					ranges[t.Index] = add;
+				int N, T;
+				ReadMulti(out N,out T);
+				var A = new Li();
+				var B = new Li();
+				REP(N, x => {
+					int Ai, Bi;
+					ReadMulti(out Ai,out Bi);
+					A.Add(Ai);
+					B.Add(Bi);
+				});
+				//全部うつしても無理
+				if (B.Sum() > T) {
+					"-1".WL();
+					return;
 				}
+				var Asum = A.Sum();
+				int cnt = 0;
+				var C = A.Zip(B, (x, y) =>Abs( y - x)).OrderByDescending(x => x).ToQueue();
+				while (Asum>T) {
+					Asum -= C.Dequeue();
+					cnt++;
+				}
+				cnt.WL();
 
-				for (var i = 0; i < s.Length; i++) {
-					if (K < ranges[i]) continue;
-					K -= ranges[i];
-					ranges[i] = 0;
-					s[i] = 'a';
-				}
-				K %= 26;
-				s[s.Length - 1] = (char) ((s[s.Length-1] + K));
-				s.StringJoin().WL();
 				return;
 			}
 		}
@@ -160,5 +166,15 @@ namespace CS_Contest {
 		public static Tuple<TKey, TSource> ToTuple<TKey, TSource>(this KeyValuePair<TKey, TSource> kvp) => new Tuple<TKey, TSource>(kvp.Key, kvp.Value);
 
 		public static IEnumerable<Tuple<TKey, TSource>> ToTupleList<TKey, TSource>(this Dictionary<TKey, TSource> d) => d.Select(_ => _.ToTuple());
+
+		public static IEnumerable<T> When<T>(this IEnumerable<T> iEnumerable, Func<T, bool> condition, Func<T,T> filterFunc) {
+			var rt = iEnumerable.ToArray();
+			var index = 0;
+			foreach (var item in iEnumerable) {
+				rt[index] = condition(item) ? filterFunc(item) : item;
+				index++;
+			}
+			return rt;
+		}
 	}
 }
