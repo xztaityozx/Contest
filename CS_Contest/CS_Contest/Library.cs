@@ -46,7 +46,7 @@ namespace CS_Contest {
 			private const long INF = long.MaxValue / 2;
 			private List<List<Edge>> edge;
 
-			public struct Edge {
+			public struct Edge :IComparable {
 				public int From { get; set; }
 				public int To { get; set; }
 				public long Cost { get; set; }
@@ -58,6 +58,10 @@ namespace CS_Contest {
 				public static bool operator <(Edge e1, Edge e2) => e1.Cost < e2.Cost;
 
 				public static bool operator >(Edge e1, Edge e2) => e1.Cost > e2.Cost;
+
+				public int CompareTo(object obj) {
+					return Cost.CompareTo(obj);
+				}
 			}
 
 			public CostGraph(int size) {
@@ -155,8 +159,8 @@ namespace CS_Contest {
 				foreach (var item in edge) {
 					sorted.AddRange(item);
 				}
-				sorted = sorted.OrderBy(x => x).ToList();
-				var uf = new UnionFind();
+				sorted = sorted.OrderBy(x => x.Cost).ToList();
+				var uf = new UnionFind(sorted.Count);
 				long min_cost = 0;
 
 				foreach (var e in sorted) {

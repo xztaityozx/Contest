@@ -4,13 +4,15 @@ using System.IO;
 using System.Linq;
 using static System.Console;
 using static System.Math;
-
+using static CS_Contest.Utils;
 //using static CS_Contest.Library;
 
 namespace CS_Contest {
+	using Li = List<int>;
+	using LLi = List<List<int>>;
+	using Ll = List<long>;
 
 	internal class Program {
-
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
 			SetOut(sw);
@@ -18,9 +20,52 @@ namespace CS_Contest {
 			Out.Flush();
 		}
 
+/*
+5
+0 21 18 11 28
+21 0 13 10 26
+18 13 0 23 13
+11 10 23 0 17
+28 26 13 17 0
+*/
+
 		private class Calc {
 
 			public void Solve() {
+				int N = ReadInt();
+				var costGraph = new Library.CostGraph(N);
+				var wa = new Library.CostGraph(N);
+
+				REP(N, x => {
+					var read = ReadInts();
+					for (int i = 0; i < read.Count; i++) {
+						costGraph.Add(x, i, read[i]);
+						wa.Add(x, i, read[i]);
+					}
+				});
+				wa.WarshallFloyd();
+				int start = 0;
+				long min = long.MaxValue;
+				for (int i = 0; i < N; i++) {
+					for (int k = 0; k < N; k++) {
+						if (wa[i, k] < costGraph[i, k]) { "-1".WL(); return; }
+						if (wa[i,k]!=0&&min > wa[i, k]) { start = i; min = wa[i, k]; }
+					}
+				}
+
+				bool[] used = Enumerable.Repeat(false, N).ToArray();
+				int step = start;
+				used[start] = true;
+
+				long distance = wa.Kruskal();
+				//while (!used.All(x => x==true)) {
+				//	var next = wa[step].ToIndexEnumerable().Where(x => !used[x.Index] && x.Value != 0).Aggregate((src, acu) => src.Value < acu.Value ? src : acu);
+				//	distance += next.Value;
+				//	step = next.Index;
+				//	used[step] = true;
+				//}
+				//distance += wa[start, step];
+				distance.WL();
 				return;
 			}
 		}
@@ -117,6 +162,9 @@ namespace CS_Contest {
 			public IndexT(T v, int i) {
 				Value = v; Index = i;
 			}
+			public override string ToString() {
+				return Value + " " + Index;
+			}
 		}
 
 		public static IEnumerable<IndexT<T>> ToIndexEnumerable<T>(this IEnumerable<T> list) => list.Select((x, i) => new IndexT<T>(x, i));
@@ -128,6 +176,9 @@ namespace CS_Contest {
 			}
 			return rt;
 		}
+
+		public static IndexT<T> IndexOfMin<T>(this IEnumerable<T> ie) where T : IComparable<T>
+			=> ie.ToIndexEnumerable().Aggregate((src, acu) => (src.Value.CompareTo(acu.Value) < 0) ? src : acu);
 
 		public static Tuple<TKey, TSource> ToTuple<TKey, TSource>(this KeyValuePair<TKey, TSource> kvp) => new Tuple<TKey, TSource>(kvp.Key, kvp.Value);
 
