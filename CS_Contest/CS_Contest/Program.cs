@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using static System.Console;
 using static System.Math;
 using static CS_Contest.Utils;
@@ -24,18 +25,25 @@ namespace CS_Contest {
 		private class Calc {
 
 			public void Solve() {
-				int N = ReadInt();
-				var Q = ReadInts().ToQueue();
-				int prev = Q.ElementAt(0);
-				if (N == 1) {
-					1.WL();
-					return;
+				var s = ReadLine().ToArray();
+				var K = ReadInt();
+				var ranges = new int[s.Length];
+				foreach (var t in s.ToIndexEnumerable()) {
+					var add = 0;
+					if (t.Value > 'a') add = 'z' - t.Value + 1;
+					ranges[t.Index] = add;
 				}
-				while (Q.Count>0) {
-					bool direction = Q.ElementAt(0) < Q.ElementAt(1);
-					int next = Q.Peek();
 
+				for (var i = 0; i < s.Length; i++) {
+					if (K < ranges[i]) continue;
+					K -= ranges[i];
+					ranges[i] = 0;
+					s[i] = 'a';
 				}
+				K %= 26;
+				s[s.Length - 1] = (char) ((s[s.Length-1] + K));
+				s.StringJoin().WL();
+				return;
 			}
 		}
 	}
@@ -103,13 +111,13 @@ namespace CS_Contest {
 		public static long LCM(long m, long n) => m * (n / GCD(m, n));
 
 		public static void REP(int n, Action<int> act) {
-			for (int i = 0; i < n; i++) {
+			for (var i = 0; i < n; i++) {
 				act(i);
 			}
 		}
 
 		public static void RREP(int n, Action<int> act) {
-			for (int i = n - 1; i >= 0; i--) {
+			for (var i = n - 1; i >= 0; i--) {
 				act(i);
 			}
 		}
