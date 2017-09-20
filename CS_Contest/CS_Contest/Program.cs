@@ -28,38 +28,12 @@ namespace CS_Contest {
 		private class Calc {
 
 			public void Solve() {
-				long A, B;
-				ReadMulti(out A,out B);
-				Func<long,bool> uru;
-				uru = (year) => {
-					if (year % 4 == 0) {
-						if (year % 100 == 0) {
-							if (year % 400 == 0) return true;
-							else return false;
-						}
-						return true;
-					}
-					return false;
-				};
-				Func<long, int> get = (year) => {
-					int rt =(int)( year / 400 * 97);
-					for (var i = 1; i <= year%400; i++) {
-						rt += uru(i) ? 1 : 0;
-					}
-					return rt;
-				};
-
-				int cnt = 0;
-				if (B - A <= 1000000) {
-					for (var y = A; y <= B; y++) cnt += uru(y) ? 1 : 0;
-					cnt.WL();
-					return;
-				}
-
-				var ans = get(B) - get(A);
+				int N, M;
+				ReadMulti(out N,out M);
+				var X = new Li();
+				REP(M,x=>X.Add(ReadInt()));
 
 
-				ans.WL();
 				return;
 			}
 
