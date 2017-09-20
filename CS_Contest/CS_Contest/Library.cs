@@ -336,6 +336,8 @@ namespace CS_Contest {
 		}
 	}
 
+
+
 	public class XDictionary<TKey, TSource> : Dictionary<TKey, TSource>, IEnumerable<KeyValuePair<TKey, TSource>> {
 
 		new public TSource this[TKey index] {

@@ -25,32 +25,25 @@ namespace CS_Contest {
 		private class Calc {
 
 			public void Solve() {
-				int N, T;
-				ReadMulti(out N,out T);
-				var A = new Li();
-				var B = new Li();
-				REP(N, x => {
-					int Ai, Bi;
-					ReadMulti(out Ai,out Bi);
-					A.Add(Ai);
-					B.Add(Bi);
-				});
-				//全部うつしても無理
-				if (B.Sum() > T) {
-					"-1".WL();
-					return;
+				var N = ReadInt();
+				var A = ReadLongs();
+				long snuke = A.Sum() - A[0];
+				long arai = A[0];
+				long min = Abs(snuke - arai);
+				for (int i=1;i<N-1;i++) {
+					var l = A[i];
+					var delta = Abs(snuke - arai);
+					if (delta < min) {
+						min = delta;
+					}
+					snuke -= l;
+					arai += l;
 				}
-				var Asum = A.Sum();
-				int cnt = 0;
-				var C = A.Zip(B, (x, y) =>Abs( y - x)).OrderByDescending(x => x).ToQueue();
-				while (Asum>T) {
-					Asum -= C.Dequeue();
-					cnt++;
-				}
-				cnt.WL();
-
+				min.WL();
 				return;
 			}
+
+			
 		}
 	}
 
@@ -135,6 +128,11 @@ namespace CS_Contest {
 		public static void YES() => "YES".WL();
 
 		public static void NO() => "NO".WL();
+
+		public static void YesNo(bool cond) {
+			if (cond) Yes();
+			else No();
+		}
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
