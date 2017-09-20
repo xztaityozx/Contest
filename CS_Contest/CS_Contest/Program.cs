@@ -6,6 +6,9 @@ using System.Net;
 using static System.Console;
 using static System.Math;
 using static CS_Contest.Utils;
+using System.Numerics;
+using System.Linq.Expressions;
+
 //using static CS_Contest.Library;
 
 namespace CS_Contest {
@@ -25,21 +28,38 @@ namespace CS_Contest {
 		private class Calc {
 
 			public void Solve() {
-				var N = ReadInt();
-				var A = ReadLongs();
-				long snuke = A.Sum() - A[0];
-				long arai = A[0];
-				long min = Abs(snuke - arai);
-				for (int i=1;i<N-1;i++) {
-					var l = A[i];
-					var delta = Abs(snuke - arai);
-					if (delta < min) {
-						min = delta;
+				long A, B;
+				ReadMulti(out A,out B);
+				Func<long,bool> uru;
+				uru = (year) => {
+					if (year % 4 == 0) {
+						if (year % 100 == 0) {
+							if (year % 400 == 0) return true;
+							else return false;
+						}
+						return true;
 					}
-					snuke -= l;
-					arai += l;
+					return false;
+				};
+				Func<long, int> get = (year) => {
+					int rt =(int)( year / 400 * 97);
+					for (var i = 1; i <= year%400; i++) {
+						rt += uru(i) ? 1 : 0;
+					}
+					return rt;
+				};
+
+				int cnt = 0;
+				if (B - A <= 1000000) {
+					for (var y = A; y <= B; y++) cnt += uru(y) ? 1 : 0;
+					cnt.WL();
+					return;
 				}
-				min.WL();
+
+				var ans = get(B) - get(A);
+
+
+				ans.WL();
 				return;
 			}
 
@@ -173,6 +193,17 @@ namespace CS_Contest {
 				index++;
 			}
 			return rt;
+		}
+
+		public static T[] Range<T>(int range,Func<int,T> func) {
+			var rt = new T[range];
+			for (var i = 0; i < range; i++) rt[i] = func(i);
+			return rt;
+		}
+		public static void Swap<T>(ref T x,ref T y) {
+			var tmp = x;
+			x = y;
+			y = tmp;
 		}
 	}
 }
