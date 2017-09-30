@@ -28,10 +28,7 @@ namespace CS_Contest {
 		private class Calc {
 
 			public void Solve() {
-				int N, M;
-				ReadMulti(out N,out M);
-				var X = new Li();
-				REP(M,x=>X.Add(ReadInt()));
+				1.WL();
 
 
 				return;
@@ -115,18 +112,7 @@ namespace CS_Contest {
 			}
 		}
 
-		public static void Yes() => "Yes".WL();
 
-		public static void No() => "No".WL();
-
-		public static void YES() => "YES".WL();
-
-		public static void NO() => "NO".WL();
-
-		public static void YesNo(bool cond) {
-			if (cond) Yes();
-			else No();
-		}
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
@@ -152,8 +138,8 @@ namespace CS_Contest {
 			return rt;
 		}
 
-		public static IndexT<T> IndexOfMin<T>(this IEnumerable<T> ie) where T : IComparable<T>
-			=> ie.ToIndexEnumerable().Aggregate((src, acu) => (src.Value.CompareTo(acu.Value) < 0) ? src : acu);
+		public static IndexT<T> IndexOf<T>(this IEnumerable<T> ie, Func<IndexT<T>, IndexT<T>, IndexT<T>> func) =>
+			ie.ToIndexEnumerable().Aggregate(func);
 
 		public static Tuple<TKey, TSource> ToTuple<TKey, TSource>(this KeyValuePair<TKey, TSource> kvp) => new Tuple<TKey, TSource>(kvp.Key, kvp.Value);
 
