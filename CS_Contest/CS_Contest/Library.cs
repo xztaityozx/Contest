@@ -1,9 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using static System.Math;
+using static System.Console;
 
 namespace CS_Contest {
+	public static class Local
+	{
+		public static void Main(string[] args) {
+			Stopwatch stopwatch=new Stopwatch();
+			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
+			SetOut(sw);
+			stopwatch.Start();
+			new Program.Calc().Solve();
+			Out.Flush();
+			stopwatch.Stop();
+			"===============End of Solve================".WL();
+			(stopwatch.ElapsedMilliseconds+" ms").WL();
+			Out.Flush();
+			
+		}
+	}
 
 	public static class Library {
 

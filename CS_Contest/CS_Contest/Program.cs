@@ -25,16 +25,24 @@ namespace CS_Contest {
 		}
 		
 
-		private class Calc {
+		public class Calc {
 
 			public void Solve() {
-				1.WL();
-
+				
 
 				return;
 			}
 
-			
+			struct Vector2
+			{
+				public int X { get; set; }
+				public int Y { get; set; }
+				public Vector2(int x,int y) {
+					X = x;
+					Y = y;
+				}
+			}
+
 		}
 	}
 
@@ -165,5 +173,7 @@ namespace CS_Contest {
 			x = y;
 			y = tmp;
 		}
+
+		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
 	}
 }
