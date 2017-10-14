@@ -28,19 +28,61 @@ namespace CS_Contest {
 		public class Calc {
 
 			public void Solve() {
-				
+				var g = new LLi();
 
-				return;
-			}
+				int N, M;
+				ReadMulti(out N,out M);
+				REP(N,_=>g.Add(new Li()));
+				var used_v = Range(N, x => false);
+				var used_e = Range(N, _ => Range(N, x => false));
+				var ord = new int[N];
+				var lowlink = new int[N];
+				int k = 0;
 
-			struct Vector2
-			{
-				public int X { get; set; }
-				public int Y { get; set; }
-				public Vector2(int x,int y) {
-					X = x;
-					Y = y;
+				var edges=new List<Tuple<int,int>>();
+
+				REP(M, _ =>
+				{
+					int a, b;
+					ReadMulti(out a,out b);
+					a--;
+					b--;
+					g[a].Add(b);
+					g[b].Add(a);
+					edges.Add(new Tuple<int, int>(a, b));
+					edges.Add(new Tuple<int, int>(b, a));
+
+				});
+
+				Func<int, bool> dfs = null;
+				dfs = (v) =>
+				{
+					used_v[v] = true;
+					ord[v] = lowlink[v] = k++;
+					for (int i = 0; i < g[v].Count; i++) {
+						if (!used_v[g[v][i]]) {
+							used_e[v][g[v][i]] = true;
+							dfs(g[v][i]);
+							lowlink[v] = Min(lowlink[v], lowlink[g[v][i]]);
+						}else if (!used_e[g[v][i]][v]) {
+							lowlink[v] = Min(lowlink[v], ord[g[v][i]]);
+						}
+					}
+					return true;
+				};
+
+				dfs(0);
+
+				int ans = 0;
+
+				foreach (var tuple in edges) {
+					var u = tuple.Item1;
+					var v = tuple.Item2;
+					if (ord[u] < lowlink[v]) ans++;
 				}
+
+				ans.WL();
+				return;
 			}
 
 		}
@@ -120,7 +162,7 @@ namespace CS_Contest {
 			}
 		}
 
-
+		public static List<T> OrderByToList<T>(this IEnumerable<T> l) => l.OrderBy(x => x).ToList();
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
@@ -176,4 +218,5 @@ namespace CS_Contest {
 
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
 	}
+
 }
