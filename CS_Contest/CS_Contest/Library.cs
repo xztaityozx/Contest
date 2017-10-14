@@ -355,8 +355,6 @@ namespace CS_Contest {
 		}
 	}
 
-
-
 	public class XDictionary<TKey, TSource> : Dictionary<TKey, TSource>, IEnumerable<KeyValuePair<TKey, TSource>> {
 
 		new public TSource this[TKey index] {
@@ -393,6 +391,73 @@ namespace CS_Contest {
 		public int this[int a] {
 			get => graph[a];
 			set => graph[a] = value;
+		}
+
+
+		/// <summary>
+		/// 橋の数を数える
+		/// </summary>
+		/// <returns></returns>
+		public int GetBridgeCount() {
+			var g = new List<List<int>>();
+
+			int N, M;
+			Utils.ReadMulti(out N, out M);
+			Utils.REP(N, _ => g.Add(new List<int>()));
+			var used_v = Utils.Range(N, x => false);
+			var used_e = Utils.Range(N, _ => Utils.Range(N, x => false));
+			var ord = new int[N];
+			var lowlink = new int[N];
+			int k = 0;
+
+			var edges = new List<Tuple<int, int>>();
+
+			Utils.REP(M, _ =>
+			{
+				int a, b;
+				Utils.ReadMulti(out a, out b);
+				a--;
+				b--;
+				g[a].Add(b);
+				g[b].Add(a);
+				edges.Add(new Tuple<int, int>(a, b));
+				edges.Add(new Tuple<int, int>(b, a));
+
+			});
+
+			Func<int, bool> dfs = null;
+			dfs = (v) =>
+			{
+				used_v[v] = true;
+				ord[v] = lowlink[v] = k++;
+				for (int i = 0; i < g[v].Count; i++)
+				{
+					if (!used_v[g[v][i]])
+					{
+						used_e[v][g[v][i]] = true;
+						dfs(g[v][i]);
+						lowlink[v] = Min(lowlink[v], lowlink[g[v][i]]);
+					}
+					else if (!used_e[g[v][i]][v])
+					{
+						lowlink[v] = Min(lowlink[v], ord[g[v][i]]);
+					}
+				}
+				return true;
+			};
+
+			dfs(0);
+
+			int ans = 0;
+
+			foreach (var tuple in edges)
+			{
+				var u = tuple.Item1;
+				var v = tuple.Item2;
+				if (ord[u] < lowlink[v]) ans++;
+			}
+
+			return ans;
 		}
 	}
 }
