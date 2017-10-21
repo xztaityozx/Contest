@@ -28,9 +28,32 @@ namespace CS_Contest {
 		public class Calc {
 
 			public void Solve() {
-				
-				return;
+				int N, K;
+				ReadMulti(out N, out K);
+				var s = ReadLineInt(N);
+
+				if (s.Contains(0))
+				{
+					N.WL();
+					return;
+				}
+
+				int start = 0, end = 0;
+				long sum = 1;
+				int ans = 0;
+				for (end = 0; end < N; end++)
+				{
+					sum *= s[end];
+					while (K < sum && start != end)
+					{
+						sum /= s[start];
+						start++;
+					}
+					if (K >= sum) ans = Max(ans, end - start + 1);
+				}
+				ans.WL();
 			}
+
 
 		}
 	}
@@ -61,6 +84,13 @@ namespace CS_Contest {
 		public static long ReadLong() => long.Parse(ReadLine());
 
 		public static List<long> ReadLongs(char s = ' ') => ReadLine().Split(s).Select(long.Parse).ToList();
+
+		public static List<int> ReadLineInt(int N)
+		{
+			var rt = new Li();
+			REP(N, _ => rt.Add(ReadInt()));
+			return rt;
+		}
 
 		public static void ReadMulti(out int x, out int y) {
 			var i = ReadInts(' ');
