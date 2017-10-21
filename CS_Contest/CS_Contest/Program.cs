@@ -28,30 +28,7 @@ namespace CS_Contest {
 		public class Calc {
 
 			public void Solve() {
-				int N, K;
-				ReadMulti(out N, out K);
-				var s = ReadLineInt(N);
-
-				if (s.Contains(0))
-				{
-					N.WL();
-					return;
-				}
-
-				int start = 0, end = 0;
-				long sum = 1;
-				int ans = 0;
-				for (end = 0; end < N; end++)
-				{
-					sum *= s[end];
-					while (K < sum && start != end)
-					{
-						sum /= s[start];
-						start++;
-					}
-					if (K >= sum) ans = Max(ans, end - start + 1);
-				}
-				ans.WL();
+				return;
 			}
 
 
@@ -59,7 +36,7 @@ namespace CS_Contest {
 	}
 
 	public static class Utils {
-		public static int ModValue = (int)(1000000007);
+		public static long ModValue = (long)1e9 + 7;
 		public static long INF = long.MaxValue;
 
 		public static long Mod(long x) => x % ModValue;
