@@ -8,6 +8,7 @@ using static System.Math;
 using static CS_Contest.Utils;
 using System.Numerics;
 using System.Linq.Expressions;
+using Nakov.IO;
 
 //using static CS_Contest.Library;
 
@@ -26,8 +27,25 @@ namespace CS_Contest {
 		
 
 		public class Calc {
-
 			public void Solve() {
+				var S = ReadLine();
+
+				int end = 0, start = S.Length-1;
+				int cnt = 0;
+				for (end = 0; end < S.Length && end <= start; end++) {
+					if (S[end] == S[start]) start--;
+					else if (S[end] == 'x' || S[start] == 'x') {
+						cnt++;
+						if (S[start] == 'x') {
+							end--;
+							start--;
+						}
+					} else {
+						"-1".WL();
+						return;
+					}
+				}
+				cnt.WL();
 				return;
 			}
 
@@ -54,40 +72,7 @@ namespace CS_Contest {
 
 		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
 
-		public static int ReadInt() => int.Parse(ReadLine());
-
-		public static List<int> ReadInts(char s = ' ') => ReadLine().Split(s).Where(x => x != "").Select(int.Parse).ToList();
-
-		public static long ReadLong() => long.Parse(ReadLine());
-
-		public static List<long> ReadLongs(char s = ' ') => ReadLine().Split(s).Select(long.Parse).ToList();
-
-		public static List<int> ReadLineInt(int N)
-		{
-			var rt = new Li();
-			REP(N, _ => rt.Add(ReadInt()));
-			return rt;
-		}
-
-		public static void ReadMulti(out int x, out int y) {
-			var i = ReadInts(' ');
-			x = i[0]; y = i[1];
-		}
-
-		public static void ReadMulti(out long x, out long y) {
-			var i = ReadLongs(' ');
-			x = i[0]; y = i[1];
-		}
-
-		public static void ReadMulti(out int x, out int y, out int z) {
-			var i = ReadInts(' ');
-			x = i[0]; y = i[1]; z = i[2];
-		}
-
-		public static void ReadMulti(out int x, out int y, out int z, out int v) {
-			var i = ReadInts(' ');
-			x = i[0]; y = i[1]; z = i[2]; v = i[3];
-		}
+		public static Li ReadInt() => ReadLine().Split().Select(int.Parse).ToList();
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
 
@@ -110,13 +95,6 @@ namespace CS_Contest {
 			}
 		}
 
-		public static void RREP(int n, Action<int> act) {
-			for (var i = n - 1; i >= 0; i--) {
-				act(i);
-			}
-		}
-
-		public static List<T> OrderByToList<T>(this IEnumerable<T> l) => l.OrderBy(x => x).ToList();
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
@@ -145,19 +123,6 @@ namespace CS_Contest {
 		public static IndexT<T> IndexOf<T>(this IEnumerable<T> ie, Func<IndexT<T>, IndexT<T>, IndexT<T>> func) =>
 			ie.ToIndexEnumerable().Aggregate(func);
 
-		public static Tuple<TKey, TSource> ToTuple<TKey, TSource>(this KeyValuePair<TKey, TSource> kvp) => new Tuple<TKey, TSource>(kvp.Key, kvp.Value);
-
-		public static IEnumerable<Tuple<TKey, TSource>> ToTupleList<TKey, TSource>(this Dictionary<TKey, TSource> d) => d.Select(_ => _.ToTuple());
-
-		public static IEnumerable<T> When<T>(this IEnumerable<T> iEnumerable, Func<T, bool> condition, Func<T,T> filterFunc) {
-			var rt = iEnumerable.ToArray();
-			var index = 0;
-			foreach (var item in iEnumerable) {
-				rt[index] = condition(item) ? filterFunc(item) : item;
-				index++;
-			}
-			return rt;
-		}
 
 		public static T[] Range<T>(int range,Func<int,T> func) {
 			var rt = new T[range];
@@ -170,7 +135,72 @@ namespace CS_Contest {
 			y = tmp;
 		}
 
+		
+
+
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
 	}
 
+}
+namespace Nakov.IO {
+	using System;
+	using System.Text;
+	using System.Globalization;
+
+	public static class Cin {
+		public static string NextToken() {
+			StringBuilder tokenChars = new StringBuilder();
+			bool tokenFinished = false;
+			bool skipWhiteSpaceMode = true;
+			while (!tokenFinished) {
+				int nextChar = Console.Read();
+				if (nextChar == -1) {
+					tokenFinished = true;
+				} else {
+					char ch = (char)nextChar;
+					if (char.IsWhiteSpace(ch)) {
+						if (!skipWhiteSpaceMode) {
+							tokenFinished = true;
+							if (ch == '\r' && (Environment.NewLine == "\r\n")) {
+								Console.Read();
+							}
+						}
+					} else {
+						skipWhiteSpaceMode = false;
+						tokenChars.Append(ch);
+					}
+				}
+			}
+
+			string token = tokenChars.ToString();
+			return token;
+		}
+
+		public static int NextInt() {
+			string token = Cin.NextToken();
+			return int.Parse(token);
+		}
+		public static double NextDouble(bool acceptAnyDecimalSeparator = true) {
+			string token = Cin.NextToken();
+			if (acceptAnyDecimalSeparator) {
+				token = token.Replace(',', '.');
+				double result = double.Parse(token, CultureInfo.InvariantCulture);
+				return result;
+			} else {
+				double result = double.Parse(token);
+				return result;
+			}
+		}
+		public static decimal NextDecimal(bool acceptAnyDecimalSeparator = true) {
+			string token = Cin.NextToken();
+			if (acceptAnyDecimalSeparator) {
+				token = token.Replace(',', '.');
+				decimal result = decimal.Parse(token, CultureInfo.InvariantCulture);
+				return result;
+			} else {
+				decimal result = decimal.Parse(token);
+				return result;
+			}
+		}
+	}
 }
