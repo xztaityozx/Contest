@@ -355,25 +355,6 @@ namespace CS_Contest {
 		}
 	}
 
-	public class XDictionary<TKey, TSource> : Dictionary<TKey, TSource>, IEnumerable<KeyValuePair<TKey, TSource>> {
-
-		new public TSource this[TKey index] {
-			get { if (ContainsKey(index)) { return this[index]; } else { return default(TSource); } }
-			set { if (ContainsKey(index)) { this[index] = value; } else { Add(index, value); } }
-		}
-
-		/// <summary>
-		/// Keyの追加を試みます
-		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="src"></param>
-		/// <returns></returns>
-		public bool TryAdd(TKey key, TSource src) {
-			if (ContainsKey(key)) return false;
-			Add(key, src);
-			return true;
-		}
-	}
 
 	public class Graph {
 		private List<int> graph;

@@ -28,25 +28,23 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var S = ReadLine();
+				long A = Cin.NextLong(), B = Cin.NextLong(), C = Cin.NextLong();
+				A = Mod(A);B = Mod(B);C = Mod(C);
+				long AC = Mod(A * C);
+				long AB = Mod(A * B);
+				long BC = Mod(B * C);
 
-				int end = 0, start = S.Length-1;
-				int cnt = 0;
-				for (end = 0; end < S.Length && end <= start; end++) {
-					if (S[end] == S[start]) start--;
-					else if (S[end] == 'x' || S[start] == 'x') {
-						cnt++;
-						if (S[start] == 'x') {
-							end--;
-							start--;
-						}
-					} else {
-						"-1".WL();
-						return;
-					}
-				}
-				cnt.WL();
-				return;
+				Func<long, long, long> search = null;
+				search = (x, m) => {
+					if (m == 0) return 1;
+					else if (m % 2 == 0) return search(Mod(x * x), m / 2);
+					else return Mod(search(Mod(x * x), m >> 1) * x);
+				};
+
+				long c = Mod(BC - AB + ModValue) * Mod(search(AC - BC + AB + ModValue, ModValue - 2));
+				long r = Mod(BC - AC + ModValue) * Mod(search(AC - BC + AB + ModValue, ModValue - 2));
+
+				(Mod(r) + " " + Mod(c)).WL();
 			}
 
 
@@ -135,7 +133,15 @@ namespace CS_Contest {
 			y = tmp;
 		}
 
-		
+
+		public static Dictionary<TKey,int> CountUp<TKey>(this IEnumerable<TKey> l) {
+			var dic = new Dictionary<TKey, int>();
+			foreach (var item in l) {
+				if (dic.ContainsKey(item)) dic[item]++;
+				else dic.Add(item, 1);
+			}
+			return dic;
+		}
 
 
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
@@ -180,6 +186,10 @@ namespace Nakov.IO {
 			string token = Cin.NextToken();
 			return int.Parse(token);
 		}
+		public static long NextLong() {
+			string token = Cin.NextToken();
+			return long.Parse(token);
+		}
 		public static double NextDouble(bool acceptAnyDecimalSeparator = true) {
 			string token = Cin.NextToken();
 			if (acceptAnyDecimalSeparator) {
@@ -202,5 +212,6 @@ namespace Nakov.IO {
 				return result;
 			}
 		}
+
 	}
 }
