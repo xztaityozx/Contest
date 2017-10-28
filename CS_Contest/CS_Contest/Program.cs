@@ -9,6 +9,7 @@ using static CS_Contest.Utils;
 using System.Numerics;
 using System.Linq.Expressions;
 using Nakov.IO;
+using static Nakov.IO.Cin;
 
 //using static CS_Contest.Library;
 
@@ -28,23 +29,10 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				long A = Cin.NextLong(), B = Cin.NextLong(), C = Cin.NextLong();
-				A = Mod(A);B = Mod(B);C = Mod(C);
-				long AC = Mod(A * C);
-				long AB = Mod(A * B);
-				long BC = Mod(B * C);
-
-				Func<long, long, long> search = null;
-				search = (x, m) => {
-					if (m == 0) return 1;
-					else if (m % 2 == 0) return search(Mod(x * x), m / 2);
-					else return Mod(search(Mod(x * x), m >> 1) * x);
-				};
-
-				long c = Mod(BC - AB + ModValue) * Mod(search(AC - BC + AB + ModValue, ModValue - 2));
-				long r = Mod(BC - AC + ModValue) * Mod(search(AC - BC + AB + ModValue, ModValue - 2));
-
-				(Mod(r) + " " + Mod(c)).WL();
+				
+				
+				
+				return;
 			}
 
 
