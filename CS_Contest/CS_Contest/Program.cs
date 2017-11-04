@@ -29,9 +29,6 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				
-				
-				
 				return;
 			}
 
@@ -133,6 +130,19 @@ namespace CS_Contest {
 
 
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
+
+		public static int UpperBound<T>(this IEnumerable<T> list,T target) where T : IComparable {
+			var idx=list.ToList().BinarySearch(target);
+			idx = idx < 0 ? ~idx : (idx+1);
+			return Min(idx, list.Count());
+		}
+
+		public static int LowerBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
+			var idx = list.ToList().BinarySearch(target);
+			idx = idx < 0 ? ~idx : idx;
+			return Max(0, idx - 1);
+		}
+
 	}
 
 }
