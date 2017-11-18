@@ -29,16 +29,6 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), Z = NextInt(), W = NextInt();
-				var list = ReadInt();
-				int abs = 0;
-
-				if (N == 1) {
-					Abs(W-list.Last()).WL();
-					return;
-				}
-
-				Max(Abs(W-list.Last()),Abs(list[N-1]-list[N-2])).WL();
 
 				return;
 			}
@@ -66,7 +56,7 @@ namespace CS_Contest {
 
 		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
 
-		public static Li ReadInt() => ReadLine().Split().Select(int.Parse).ToList();
+		public static Li ReadInts() => ReadLine().Split().Select(int.Parse).ToList();
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
 

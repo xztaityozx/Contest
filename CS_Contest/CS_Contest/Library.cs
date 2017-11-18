@@ -23,239 +23,306 @@ namespace CS_Contest {
 			
 		}
 	}
+	
 
-	public static class Library {
+	public class CostGraph<T> where T:IComparable
+	{
+		protected int Size;
+		private List<List<T>> list;
 
-		public struct UnionFind {
-			private int[] data;
-
-			public UnionFind(int size) {
-				data = new int[size];
-				for (var i = 0; i < size; i++) data[i] = -1;
-			}
-
-			public bool Unite(int x, int y) {
-				x = Root(x);
-				y = Root(y);
-
-				if (x != y) {
-					if (data[y] < data[x]) {
-						var tmp = y;
-						y = x;
-						x = tmp;
-					}
-					data[x] += data[y];
-					data[y] = x;
-				}
-				return x != y;
-			}
-
-			public bool IsSameGroup(int x, int y) {
-				return Root(x) == Root(y);
-			}
-
-			private int Root(int x) {
-				return data[x] < 0 ? x : data[x] = Root(data[x]);
+		public CostGraph(int size,T INF) {
+			Size = size;
+			for (int i = 0; i < Size; i++) {
+				list.Add(Enumerable.Repeat(INF,Size).ToList());
+				list[i][i] = default(T);
 			}
 		}
 
-		public class CostGraph {
-			private List<long>[] list;
-			private int Size;
-			private const long INF = long.MaxValue / 2;
-			private List<List<Edge>> edge;
+		public T this[int A, int B] {
+			get { return list[A][B]; }
+			set { list[A][B] = value; }
+		}
 
-			public struct Edge :IComparable {
-				public int From { get; set; }
-				public int To { get; set; }
-				public long Cost { get; set; }
+		public List<T> this[int index] {
+			get { return list[index]; }
+			set { list[index] = value; }
+		}
+		public override string ToString() {
+			string s = "";
+			for (int i = 0; i < Size; i++) {
+				s += this[i].StringJoin(" ") + "\n";
+			}
+			return s;
+		}
 
-				public Edge(int f, int t, long c) {
-					From = f; To = t; Cost = c;
+		public void Clear() {
+			list.Clear();
+			Size = 0;
+		}
+
+		public virtual void Add(int x, int y, T cost, bool direction = true) {
+			this[x, y] = cost;
+			if (!direction) this[y, x] = cost;
+		}
+	}
+
+	public class WarshallFloyd : CostGraph<int>
+	{
+		public WarshallFloyd(int size) : base(size, int.MaxValue/2) {
+		}
+
+		public override void Add(int x, int y, int cost, bool direction = true) {
+			this[x, y] = cost;
+			if (direction) this[y, x] = cost;
+		}
+
+		public void Get() {
+			for (int k = 0; k < Size; ++k) {
+				for (int i = 0; i < Size; ++i) {
+					for (int j = 0; j < Size; ++j) this[i][j] = Math.Min(this[i][j], this[i][k] + this[k][j]);
 				}
+			}
+		}
+	}
+	/// <summary>
+	/// 優先度付きキュー
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class PriorityQueue<T> {
+		private readonly List<T> heap;
+		private readonly Comparison<T> compare;
+		private int size;
 
-				public static bool operator <(Edge e1, Edge e2) => e1.Cost < e2.Cost;
+		public PriorityQueue() : this(Comparer<T>.Default) {
+		}
 
-				public static bool operator >(Edge e1, Edge e2) => e1.Cost > e2.Cost;
+		public PriorityQueue(IComparer<T> comparer) : this(16, comparer.Compare) {
+		}
 
-				public int CompareTo(object obj) {
-					return Cost.CompareTo(obj);
+		public PriorityQueue(Comparison<T> comparison) : this(16, comparison) {
+		}
+
+		public PriorityQueue(int capacity, Comparison<T> comparison) {
+			this.heap = new List<T>(capacity);
+			this.compare = comparison;
+		}
+
+		public void Enqueue(T item) {
+			this.heap.Add(item);
+			var i = size++;
+			while (i > 0) {
+				var p = (i - 1) >> 1;
+				if (compare(this.heap[p], item) <= 0)
+					break;
+				this.heap[i] = heap[p];
+				i = p;
+			}
+			this.heap[i] = item;
+		}
+
+		public T Dequeue() {
+			var ret = this.heap[0];
+			var x = this.heap[--size];
+			var i = 0;
+			while ((i << 1) + 1 < size) {
+				var a = (i << 1) + 1;
+				var b = (i << 1) + 2;
+				if (b < size && compare(heap[b], heap[a]) < 0) a = b;
+				if (compare(heap[a], x) >= 0)
+					break;
+				heap[i] = heap[a];
+				i = a;
+			}
+			heap[i] = x;
+			heap.RemoveAt(size);
+			return ret;
+		}
+
+		public T Peek() {
+			return heap[0];
+		}
+
+		public int Count => size;
+
+		public bool Any() {
+			return size > 0;
+		}
+	}
+
+	/// <summary>
+	/// CostGraph派生クラス　ダイクストラ専用　Tはlong PriorityQueueが必要
+	/// </summary>
+	public class Dijkstra : CostGraph<long> 
+	{
+		private const long Inf = long.MaxValue / 2;
+		public Dijkstra(int size) : base(size, Inf) {
+		}
+
+		public override void Add(int x, int y, long cost, bool direction = true) {
+			this[x, y] = Min(this[x, y], cost);
+			if (direction) this[y, x] = this[x, y];
+		}
+		/// <summary>
+		/// ダイクストラの結果を得ます
+		/// </summary>
+		/// <param name="s">開始位置</param>
+		/// <param name="t">終わり位置</param>
+		/// <returns></returns>
+		public long Get(int s, int t) {
+			var dist = Enumerable.Repeat(Inf, Size).ToList();
+			dist[s] = 0;
+			var priorityQueue = new PriorityQueue<Tuple<long, int>>();
+			priorityQueue.Enqueue(new Tuple<long, int>(0, s));
+			while (priorityQueue.Count != 0) {
+				var src = priorityQueue.Dequeue();
+				if (dist[src.Item2] < src.Item1) continue;
+
+				for (var dest = 0; dest < Size; dest++) {
+					var cost = this[src.Item2, dest];
+					if (cost == Inf || dist[dest] <= dist[src.Item2] + cost) continue;
+					dist[dest] = dist[src.Item2] + cost;
+					priorityQueue.Enqueue(new Tuple<long, int>(dist[dest], dest));
 				}
 			}
+			return dist[t];
+		}
 
-			public CostGraph(int size) {
-				Size = size;
-				list = Enumerable.Range(0, Size).Select(x => new List<long>()).ToArray();
-				Utils.REP(Size, i => {
-					Utils.REP(Size, k => {
-						list[i].Add(i == k ? 0 : INF);
-					});
-				});
-				edge = Enumerable.Range(0, Size).Select(x => new List<Edge>()).ToList();
+	}
+
+	/// <summary>
+	/// Edge構造体を使ったグラフクラス
+	/// </summary>
+	public class CostEdgeGrahp
+	{
+		public struct Edge : IComparable {
+			public int From { get; set; }
+			public int To { get; set; }
+			public int Cost { get; set; }
+
+			public Edge(int f, int t, int c) {
+				From = f; To = t; Cost = c;
 			}
 
-			public void Add(int A, int B, long C, bool direction = true) {
-				this[A, B] = Min(this[A, B], C);
-				edge[A].Add(new Edge(A, B, C));
-				if (!direction) return;
-				this[B, A] = this[A, B]; edge[B].Add(new Edge(B, A, C));
+			public static bool operator <(Edge e1, Edge e2) => e1.Cost < e2.Cost;
+
+			public static bool operator >(Edge e1, Edge e2) => e1.Cost > e2.Cost;
+
+			public int CompareTo(object obj) {
+				return Cost.CompareTo(obj);
 			}
+		}
 
-			public long this[int A, int B] {
-				get { return list[A][B]; }
-				set { list[A][B] = value; }
-			}
+		protected List<List<Edge>> edge;
 
-			public List<long> this[int index] {
-				get { return list[index]; }
-				set { list[index] = value; }
-			}
+		public const int Inf = int.MaxValue / 2;
+		protected int Size;
 
-			public void Clear() {
-				for (var i = 0; i < Size; i++) {
-					list[i].Clear();
-				}
-				edge.Clear();
-			}
+		public CostEdgeGrahp(int size) {
+			Size = size;
+			for(var i=0;i<Size;i++) edge.Add(new List<Edge>());
+		}
 
-			/// <summary>
-			/// ダイクストラ
-			/// </summary>
-			/// <param name="s"></param>
-			/// <param name="t"></param>
-			/// <returns></returns>
-			public long Dijkstra(int s, int t) {
-				var dist = Enumerable.Repeat(INF, Size).ToList();
-				dist[s] = 0;
-				var priorityQueue = new PriorityQueue<Tuple<long, int>>();
-				priorityQueue.Enqueue(new Tuple<long, int>(0, s));
-				while (priorityQueue.Count != 0) {
-					var src = priorityQueue.Dequeue();
-					if (dist[src.Item2] < src.Item1) continue;
 
-					for (var dest = 0; dest < Size; dest++) {
-						var cost = this[src.Item2, dest];
-						if (cost == INF || dist[dest] <= dist[src.Item2] + cost) continue;
-						dist[dest] = dist[src.Item2] + cost;
-						priorityQueue.Enqueue(new Tuple<long, int>(dist[dest], dest));
-					}
-				}
-				return dist[t];
-			}
+		public void Add(int x, int y, int cost, bool direction = true) {
+			edge[x].Add(new Edge(x,y,cost));
+			if(!direction) edge[y].Add(new Edge(y,x,cost));
+		}
 
-			public void WarshallFloyd() {
-				Utils.REP(Size, k => {
-					Utils.REP(Size, i => {
-						Utils.REP(Size, j => this[i, j] = Min(this[i, j], this[i, k] + this[k, j]));
-					});
-				});
-			}
+	}
 
-			/// <summary>
-			/// べルマンフォード
-			/// </summary>
-			/// <param name="s">start</param>
-			/// <param name="n">node count</param>
-			/// <returns></returns>
-			public Tuple<List<long>, bool> BellmanFord(int s, int n) {
-				var dist = Enumerable.Repeat(INF, Size).ToList();
-				dist[s] = 0;
-				for (var i = 0; i < n; i++) {
-					for (var v = 0; v < n; v++) {
-						foreach (var item in edge[v]) {
-							if (dist[v] != INF && dist[item.To] > dist[v] + item.Cost) {
-								dist[item.To] = dist[v] + item.Cost;
-								if (i == n - 1) return new Tuple<List<long>, bool>(dist, true);
-							}
+	/// <summary>
+	/// ベルマンフォード専用クラス　Tはint
+	/// </summary>
+	public class BellmanFord : CostEdgeGrahp
+	{
+		/// <summary>
+		/// べルマンフォードの結果を得ます
+		/// </summary>
+		/// <param name="s">start</param>
+		/// <param name="n">node count</param>
+		/// <returns></returns>
+		public Tuple<List<int>, bool> Get(int s, int n) {
+
+			var dist = Enumerable.Repeat(Inf, Size).ToList();
+			dist[s] = 0;
+			for (var i = 0; i < n; i++) {
+				for (var v = 0; v < n; v++) {
+					foreach (var item in edge[v]) {
+						if (dist[v] != Inf && dist[item.To] > dist[v] + item.Cost) {
+							dist[item.To] = dist[v] + item.Cost;
+							if (i == n - 1) return new Tuple<List<int>, bool>(dist, true);
 						}
 					}
 				}
-				return new Tuple<List<long>, bool>(dist, false);
 			}
-
-			public long Kruskal() {
-				var sorted = new List<Edge>();
-				foreach (var item in edge) {
-					sorted.AddRange(item);
-				}
-				sorted = sorted.OrderBy(x => x.Cost).ToList();
-				var uf = new UnionFind(sorted.Count);
-				long min_cost = 0;
-
-				foreach (var e in sorted) {
-					if (!uf.IsSameGroup(e.From, e.To)) {
-						min_cost += e.Cost;
-						uf.Unite(e.From, e.To);
-					}
-				}
-				return min_cost;
-			}
+			return new Tuple<List<int>, bool>(dist, false);
 		}
 
-		/// <summary>
-		/// 優先度付きキュー
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		public class PriorityQueue<T> {
-			private readonly List<T> heap;
-			private readonly Comparison<T> compare;
-			private int size;
-
-			public PriorityQueue() : this(Comparer<T>.Default) {
-			}
-
-			public PriorityQueue(IComparer<T> comparer) : this(16, comparer.Compare) {
-			}
-
-			public PriorityQueue(Comparison<T> comparison) : this(16, comparison) {
-			}
-
-			public PriorityQueue(int capacity, Comparison<T> comparison) {
-				this.heap = new List<T>(capacity);
-				this.compare = comparison;
-			}
-
-			public void Enqueue(T item) {
-				this.heap.Add(item);
-				var i = size++;
-				while (i > 0) {
-					var p = (i - 1) >> 1;
-					if (compare(this.heap[p], item) <= 0)
-						break;
-					this.heap[i] = heap[p];
-					i = p;
-				}
-				this.heap[i] = item;
-			}
-
-			public T Dequeue() {
-				var ret = this.heap[0];
-				var x = this.heap[--size];
-				var i = 0;
-				while ((i << 1) + 1 < size) {
-					var a = (i << 1) + 1;
-					var b = (i << 1) + 2;
-					if (b < size && compare(heap[b], heap[a]) < 0) a = b;
-					if (compare(heap[a], x) >= 0)
-						break;
-					heap[i] = heap[a];
-					i = a;
-				}
-				heap[i] = x;
-				heap.RemoveAt(size);
-				return ret;
-			}
-
-			public T Peek() {
-				return heap[0];
-			}
-
-			public int Count => size;
-
-			public bool Any() {
-				return size > 0;
-			}
+		public BellmanFord(int size) : base(size) {
 		}
+	}
+
+
+	/// <summary>
+	/// UnionFind
+	/// </summary>
+	public struct UnionFind {
+		private readonly int[] _data;
+
+		public UnionFind(int size) {
+			_data = new int[size];
+			for (var i = 0; i < size; i++) _data[i] = -1;
+		}
+
+		public bool Unite(int x, int y) {
+			x = Root(x);
+			y = Root(y);
+
+			if (x == y) return x != y;
+			if (_data[y] < _data[x]) {
+				var tmp = y;
+				y = x;
+				x = tmp;
+			}
+			_data[x] += _data[y];
+			_data[y] = x;
+			return x != y;
+		}
+
+		public bool IsSameGroup(int x, int y) {
+			return Root(x) == Root(y);
+		}
+
+		private int Root(int x) {
+			return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
+		}
+	}
+
+
+	/// <summary>
+	/// クラスカル法専用クラス　TはintでUnifindに依存
+	/// </summary>
+	public class Kruskal : CostEdgeGrahp
+	{
+		public Kruskal(int size) : base(size) {
+		}
+		public int Get() {
+			var sorted = new List<Edge>();
+			foreach (var item in edge) {
+				sorted.AddRange(item);
+			}
+			sorted = sorted.OrderBy(x => x.Cost).ToList();
+			var uf = new UnionFind(sorted.Count);
+			var minCost = 0;
+
+			foreach (var e in sorted) {
+				if (uf.IsSameGroup(e.From, e.To)) continue;
+				minCost += e.Cost;
+				uf.Unite(e.From, e.To);
+			}
+			return minCost;
+		}
+
 	}
 
 	public class Deque<T> {
