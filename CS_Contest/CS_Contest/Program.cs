@@ -29,6 +29,17 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
+				int N = NextInt(), Z = NextInt(), W = NextInt();
+				var list = ReadInt();
+				int abs = 0;
+
+				if (N == 1) {
+					Abs(W-list.Last()).WL();
+					return;
+				}
+
+				Max(Abs(W-list.Last()),Abs(list[N-1]-list[N-2])).WL();
+
 				return;
 			}
 
