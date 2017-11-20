@@ -57,21 +57,36 @@ template<typename T> vector<T> select(const vector<T> &v, typename Identity<func
 template<typename T> string join(const vector<T> &v, typename Identity<function<string(const T &)>>::type ft) {string rt = "";Foreach(x, v) {rt += ft(x);}return rt;}
 
 
-template<typename T> struct Tree
-{
-	T value;
-	vector<Tree<T>> edges;
-};
-int main(){
-	Tree<int> tree, a, b, c;
-	a.value = 2;
-	b.value = 3;
-	c.value = 4;
-	vector<Tree<int>> v = { a,b,c };
-	tree = { 1,v };
-	out(tree.value);
-	Foreach(x, tree.edges) {
-		out(x.value);
+
+int d[105]{ 0 }, f[105]{ 0 };
+int _time = 1;
+int N;
+void dfs(vvi & box,int v) {
+	if (d[v] != 0) return;
+	d[v] = _time++;
+	for (int i = 0; i < N; i++) if (box[v][i] != 0) {
+		dfs(box,i);
 	}
+	f[v] = _time++;
+	return;
+}
+
+int main(){
+	cin >> N;
+	vvi box(N, vector<int>(N, 0));
+	REP(i, N) {
+		int v, k, u;
+		cin >> v >> k;
+		REP(n, k) {
+			cin >> u;
+			box[i][u-1] = 1;
+		}
+	}
+	dfs(box, 0);
+
+	REP(i, N) {
+		cout << i + 1 << " " << d[i] << " " << f[i] << endl;
+	}
+
 	return 0;
 }
