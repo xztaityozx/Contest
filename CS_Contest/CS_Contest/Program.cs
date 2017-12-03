@@ -25,69 +25,34 @@ namespace CS_Contest {
 			new Calc().Solve();
 			Out.Flush();
 		}
-		
 
 		public class Calc {
 			public void Solve() {
-				var N = NextInt();
-				var F = new List<List<List<bool>>>();
-				REP(N, i =>
+				int N = NextInt(), C = NextInt();
+				var list = new List<Tuple<int, int,int>>();
+				REP(N, _ =>
 				{
-					F.Add(new List<List<bool>>());
-					REP(5, j =>
-					{
-						F[i].Add(new List<bool>());
-						REP(2, k =>
-						{
-							var fi = NextInt();
-							F[i][j].Add(fi == 1);
-						});
-					});
+					list.Add(new Tuple<int, int,int>(NextInt(),NextInt(),NextInt()));
 				});
-				var P = new List<Li>();
-				REP(N, i =>
-				{
-					P.Add(new Li(ReadInts()));
-				});
+				list = list.OrderBy(_ => _.Item1).ToList();
 
-				int max = int.MinValue;
-				Func<int[], int> getBenefits = (count) =>
-				{
-					var rt = 0;
-					for (int i = 0; i < N; i++) {
-						rt += P[i][count[i]];
+				var rec = new List<Tuple<int, int>>();
+				rec.Add(new Tuple<int, int>(-1,0));
+
+				foreach (var item in list) {
+					bool flag = false;
+					for (int i = 0; i < rec.Count; i++) {
+						if ((rec[i].Item2 < item.Item1)|| (rec[i].Item2 == rec[i].Item1 && rec[i].Item1 == item.Item3)) {
+							rec[i]=new Tuple<int, int>(item.Item3,item.Item2);
+							flag = true;
+							break;
+						}
 					}
-					return rt;
-				};
-				Func<int, int,int[], bool> dfs = null;
-				dfs = (step, times,count) =>
-				{
-					if (step == 5) {
-						if(times>0)max = Max(max, getBenefits(count));
-						return true;
-					}
-					dfs(step + 1,times, count);
-					var tmp = new int[N];
-					REP(N, _ =>
-					{
-						tmp[_] = count[_] + (F[_][step][0] ? 1 : 0);
-					});
-					dfs(step + 1,times+1, tmp);
-					REP(N, _ =>
-					{
-						tmp[_] = count[_] + (F[_][step][1] ? 1 : 0);
-					});
-					dfs(step + 1,times+1, tmp);
-					REP(N, _ =>
-					{
-						tmp[_] = count[_] + (F[_][step][1] ? 1 : 0) + (F[_][step][0] ? 1 : 0);
-					});
-					dfs(step + 1, times + 1, tmp);
-					return true;
-				};
-				var first = new int[N];
-				dfs(0,0, first);
-				max.WL();
+					if(flag)continue;
+					rec.Add(new Tuple<int, int>(item.Item3,item.Item2));
+				}
+				rec.Count.WL();
+
 				return;
 			}
 
