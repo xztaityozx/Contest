@@ -29,7 +29,65 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
+				var N = NextInt();
+				var F = new List<List<List<bool>>>();
+				REP(N, i =>
+				{
+					F.Add(new List<List<bool>>());
+					REP(5, j =>
+					{
+						F[i].Add(new List<bool>());
+						REP(2, k =>
+						{
+							var fi = NextInt();
+							F[i][j].Add(fi == 1);
+						});
+					});
+				});
+				var P = new List<Li>();
+				REP(N, i =>
+				{
+					P.Add(new Li(ReadInts()));
+				});
 
+				int max = int.MinValue;
+				Func<int[], int> getBenefits = (count) =>
+				{
+					var rt = 0;
+					for (int i = 0; i < N; i++) {
+						rt += P[i][count[i]];
+					}
+					return rt;
+				};
+				Func<int, int,int[], bool> dfs = null;
+				dfs = (step, times,count) =>
+				{
+					if (step == 5) {
+						if(times>0)max = Max(max, getBenefits(count));
+						return true;
+					}
+					dfs(step + 1,times, count);
+					var tmp = new int[N];
+					REP(N, _ =>
+					{
+						tmp[_] = count[_] + (F[_][step][0] ? 1 : 0);
+					});
+					dfs(step + 1,times+1, tmp);
+					REP(N, _ =>
+					{
+						tmp[_] = count[_] + (F[_][step][1] ? 1 : 0);
+					});
+					dfs(step + 1,times+1, tmp);
+					REP(N, _ =>
+					{
+						tmp[_] = count[_] + (F[_][step][1] ? 1 : 0) + (F[_][step][0] ? 1 : 0);
+					});
+					dfs(step + 1, times + 1, tmp);
+					return true;
+				};
+				var first = new int[N];
+				dfs(0,0, first);
+				max.WL();
 				return;
 			}
 
