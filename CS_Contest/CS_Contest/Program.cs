@@ -28,31 +28,11 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), C = NextInt();
-				var list = new List<Tuple<int, int,int>>();
-				REP(N, _ =>
-				{
-					list.Add(new Tuple<int, int,int>(NextInt(),NextInt(),NextInt()));
-				});
-				list = list.OrderBy(_ => _.Item1).ToList();
+				int N = NextInt();
+				var list = ReadInts();
+				var ans=new List<Tuple<int,int>>();
 
-				var rec = new List<Tuple<int, int>>();
-				rec.Add(new Tuple<int, int>(-1,0));
-
-				foreach (var item in list) {
-					bool flag = false;
-					for (int i = 0; i < rec.Count; i++) {
-						if ((rec[i].Item2 < item.Item1)|| (rec[i].Item2 == rec[i].Item1 && rec[i].Item1 == item.Item3)) {
-							rec[i]=new Tuple<int, int>(item.Item3,item.Item2);
-							flag = true;
-							break;
-						}
-					}
-					if(flag)continue;
-					rec.Add(new Tuple<int, int>(item.Item3,item.Item2));
-				}
-				rec.Count.WL();
-
+				
 				return;
 			}
 
