@@ -7,6 +7,45 @@ using static System.Math;
 using static System.Console;
 
 namespace CS_Contest {
+	public static class Utils2 {
+		public static long ModValue = (long)1e9 + 7;
+		public static long INF = long.MaxValue;
+
+		public static long Mod(long x) => x % ModValue;
+
+		public static long ModPow(long x, long n) {
+			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
+			return tmp;
+		}
+
+		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+
+		public static int UpperBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
+			var idx = list.ToList().BinarySearch(target);
+			idx = idx < 0 ? ~idx : (idx + 1);
+			return Min(idx, list.Count());
+		}
+
+		public static int LowerBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
+			var idx = list.ToList().BinarySearch(target);
+			idx = idx < 0 ? ~idx : idx;
+			return Max(0, idx - 1);
+		}
+		public static long GCD(long m, long n) {
+			long tmp;
+			if (m < n) { tmp = n; n = m; m = tmp; }
+			while (m % n != 0) {
+				tmp = n;
+				n = m % n;
+				m = tmp;
+			}
+			return n;
+		}
+
+		public static long LCM(long m, long n) => m * (n / GCD(m, n));
+
+	}
+
 	public static class Local
 	{
 		public static void Main(string[] args) {

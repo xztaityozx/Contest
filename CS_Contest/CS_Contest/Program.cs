@@ -5,10 +5,8 @@ using System.Linq;
 using System.Net;
 using static System.Console;
 using static System.Math;
-using static CS_Contest.Utils;
 using System.Numerics;
-using System.Linq.Expressions;
-using Nakov.IO;
+using static CS_Contest.Utils;
 using static Nakov.IO.Cin;
 
 //using static CS_Contest.Library;
@@ -28,11 +26,23 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt();
-				var list = ReadInts();
-				var ans=new List<Tuple<int,int>>();
+				int N = NextInt(), M = NextInt();
+				var imos = new int[M + 1];
+				int sum = 0;
+				REP(N, _ => {
+					int li = NextInt()-1, ri = NextInt()-1, si = NextInt();
+					sum += si;
+					imos[li] += si;
+					imos[ri] -= si;
+				});
 
-				
+				REP(M, _ => {
+					imos[_ + 1] += imos[_];
+				});
+
+				var min = imos.Take(M-1).Min();
+				(sum-min).WL();
+
 				return;
 			}
 
@@ -41,18 +51,8 @@ namespace CS_Contest {
 	}
 
 	public static class Utils {
-		public static long ModValue = (long)1e9 + 7;
-		public static long INF = long.MaxValue;
 
-		public static long Mod(long x) => x % ModValue;
-
-		public static long ModPow(long x, long n) {
-			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
-			return tmp;
-		}
-
-		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
-
+	
 		public static void WL(this object obj) => WriteLine(obj);
 
 		public static void WL(this string obj) => WriteLine(obj);
@@ -62,19 +62,6 @@ namespace CS_Contest {
 		public static Li ReadInts() => ReadLine().Split().Select(int.Parse).ToList();
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
-
-		public static long GCD(long m, long n) {
-			long tmp;
-			if (m < n) { tmp = n; n = m; m = tmp; }
-			while (m % n != 0) {
-				tmp = n;
-				n = m % n;
-				m = tmp;
-			}
-			return n;
-		}
-
-		public static long LCM(long m, long n) => m * (n / GCD(m, n));
 
 		public static void REP(int n, Action<int> act) {
 			for (var i = 0; i < n; i++) {
@@ -110,19 +97,11 @@ namespace CS_Contest {
 		public static IndexT<T> IndexOf<T>(this IEnumerable<T> ie, Func<IndexT<T>, IndexT<T>, IndexT<T>> func) =>
 			ie.ToIndexEnumerable().Aggregate(func);
 
-
-		public static T[] Range<T>(int range,Func<int,T> func) {
-			var rt = new T[range];
-			for (var i = 0; i < range; i++) rt[i] = func(i);
-			return rt;
-		}
 		public static void Swap<T>(ref T x,ref T y) {
 			var tmp = x;
 			x = y;
 			y = tmp;
 		}
-
-
 		public static Dictionary<TKey,int> CountUp<TKey>(this IEnumerable<TKey> l) {
 			var dic = new Dictionary<TKey, int>();
 			foreach (var item in l) {
@@ -131,22 +110,7 @@ namespace CS_Contest {
 			}
 			return dic;
 		}
-
-
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
-
-		public static int UpperBound<T>(this IEnumerable<T> list,T target) where T : IComparable {
-			var idx=list.ToList().BinarySearch(target);
-			idx = idx < 0 ? ~idx : (idx+1);
-			return Min(idx, list.Count());
-		}
-
-		public static int LowerBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
-			var idx = list.ToList().BinarySearch(target);
-			idx = idx < 0 ? ~idx : idx;
-			return Max(0, idx - 1);
-		}
-
 	}
 
 }
