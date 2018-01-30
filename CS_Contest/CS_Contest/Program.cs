@@ -19,7 +19,6 @@ namespace CS_Contest {
 	using LLi = List<List<int>>;
 	using Ll = List<long>;
 	using ti3=Tuple<int,int,int>;
-	using Box=List<List<char>>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -30,32 +29,29 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var wf = new WarshallFloyd(N);
-				var list = new List<ti3>();
-				REP(M, _ =>
+				int N = NextInt(), Ma = NextInt(), Mb = NextInt();
+				var dp = new int[N + 1, 405, 405];//dp
+				REP(N + 1, i => REP(405, j => REP(405, k => dp[i, j, k] = int.MaxValue)));
+				dp[0, 0, 0] = 0;
+				REP(N, i =>
 				{
 					int ai = NextInt(), bi = NextInt(), ci = NextInt();
-					ai--;
-					bi--;
-					wf.Add(ai, bi, ci, false);
-					list.Add(new ti3(ai, bi, ci));
+					for (int j = 0; j < 405; j++) {
+						for (int k = 0; k < 405; k++) {
+							if(dp[i,j,k]==int.MaxValue) continue;
+
+							dp[i + 1, j, k] = Min(dp[i, j, k], dp[i + 1, j, k]);
+							dp[i + 1, j + ai, k + bi] = Min(dp[i, j, k] + ci, dp[i, j + ai, k + bi]);
+						}
+					}
 				});
-				var box = wf.Run();
+				var min = int.MaxValue;
 
-				var ans = M;
-
-				REP(M, i =>
-				{
-					bool f = false;
-					REP(N, k =>
-					{
-						if (box[k][list[i].Item1] + list[i].Item3 == box[k][list[i].Item2]) f = true;
-					});
-					if (f) ans--;
-				});
-
-				ans.WL();
+				for (var i = 1; i < 405/Max(Ma,Mb); i++) {
+					min = Min(dp[N, i * Ma, i * Mb], min);
+				}
+				if (min == int.MaxValue) min = -1;
+				min.WL();
 				return;
 			}
 		}
