@@ -10,7 +10,8 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using CS_Contest.Graph;
-using CS_Contest.Utils;
+using CS_Contest.Loop;
+//using CS_Contest.Utils;
 using static Nakov.IO.Cin;
 using static CS_Contest.Utils.Utils;
 
@@ -29,23 +30,43 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var bellmanFord=new BellmanFord(N);
-				M.REP( i =>
+				int N = NextInt(), M = NextInt(), R = NextInt();
+				var rList = GetIntList().Select(_ => _ - 1).ToList();
+				var wf=new WarshallFloyd(N);
+				M.REP(i =>
 				{
-					int ai = NextInt(), bi = NextInt();
-					var ci = -NextLong();
+					int ai = NextInt(), bi = NextInt(), ci = NextInt();
 					ai--;
 					bi--;
-					bellmanFord.Add(ai, bi, ci);
+					wf.Add(ai, bi, ci, false);
 				});
-				bellmanFord.Run(0);
-				if (bellmanFord.HasCycle) {
-					"inf".WL();
-					return;
-				}
 
-				(-bellmanFord.Distance[N - 1]).WL();
+				var res=wf.Run();
+
+				var min = long.MaxValue;
+
+				var used = Enumerable.Repeat(false, R).ToList();
+
+				Func<int, int, long, bool> dfs = null;
+				dfs = (step, before, distance) =>
+				{
+					if (step == R + 1) {
+						min = Min(min, distance);
+						return true;
+					}
+
+					R.REP(i =>
+					{
+						if (used[i]) return;
+						used[i] = true;
+						if (before == -1) dfs(step + 1, i, 0);
+						else dfs(step + 1, i, distance + res[rList[i]][rList[before]]);
+						used[i] = false;
+					});
+					return true;
+				};
+				dfs(1, -1, 0);
+				min.WL();
 
 				return;
 			}
@@ -315,11 +336,25 @@ namespace CS_Contest.Graph
 	}
 
 }
+
+namespace CS_Contest.Loop
+{
+	public static class Loop
+	{
+		public static void REP(this int n, Action<int> act) {
+			for (var i = 0; i < n; i++) {
+				act(i);
+			}
+		}
+	}
+}
+
 namespace CS_Contest.Utils
 {
 	using Li=List<int>;
 	using Ll=List<long>;
 	public static class Utils {
+
 
 		public static long[,] CombinationTable(int n) {
 			var rt = new long[n + 1, n + 1];
@@ -343,13 +378,6 @@ namespace CS_Contest.Utils
 		public static Ll GetLongList() => ReadLine().Split().Select(long.Parse).ToList();
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
-
-
-		public static void REP(this int n, Action<int> act) {
-			for (int i = 0; i < n; i++) {
-				act(i);
-			}
-		}
 
 		public static void ForeachWith<T>(IEnumerable<T> ie, Action<int, T> act) {
 			var i = 0;

@@ -47,3 +47,33 @@ public static long[,] CombinationTable(int n) {
 - 重み付き木に対して`xi⇒K⇒yi`を通る最短距離の質問に`Q`個答える問題
 - 事前に点KからダイクストラしておけばTLEしない
 - その後Q個の質問に対して`Distance[xi]+Distance[yi]`を出力すればOK
+
+# ABC073 D joisino's travel
+- 訪問しなければならない点を全て訪れたときの最小コストを求める問題
+  - 順番は何でもOK
+- 制約が小さいのでワーシャルフロイド法＋DFSで解く
+- 1次配列で訪れた点を記憶する方法いつも忘れるのでメモ
+```cs
+//Rは訪れる点の個数
+//resはワーシャルフロイドの結果
+var used = Enumerable.Repeat(false, R).ToList();
+
+Func<int, int, long, bool> dfs = null;
+dfs = (step, before, distance) =>
+{
+	if (step == R + 1) {
+		min = Min(min, distance);
+		return true;
+	}
+
+	R.REP(i =>
+	{
+		if (used[i]) return;
+		used[i] = true;
+		if (before == -1) dfs(step + 1, i, 0);
+		else dfs(step + 1, i, distance + res[rList[i]][rList[before]]);
+		used[i] = false;
+	});
+	return true;
+};
+```
