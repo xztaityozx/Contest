@@ -41,4 +41,9 @@ public static long[,] CombinationTable(int n) {
 - 閉路検出が必要だったのでトポロジカルソートかと思ったけど違った
 - コストの正負を逆にして最短経路を出す。負数が表れるので使うのはベルマンフォード法
 - BellmanFordクラスを作ってループがあるかどうかのプロパティも持たせた
-- ベルマンフォードで閉路が見つかったら`inf`無ければ`-Distance[N-1]`が答え
+- ベルマンフォードで閉路が見つかったら`inf`、無ければ`-Distance[N-1]`が答え
+
+# ABC070 D Transit Tree Path
+- 重み付き木に対して`xi⇒K⇒yi`を通る最短距離の質問に`Q`個答える問題
+- 事前に点KからダイクストラしておけばTLEしない
+- その後Q個の質問に対して`Distance[xi]+Distance[yi]`を出力すればOK
