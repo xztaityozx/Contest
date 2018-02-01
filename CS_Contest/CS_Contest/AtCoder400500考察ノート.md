@@ -77,3 +77,22 @@ dfs = (step, before, distance) =>
 	return true;
 };
 ```
+
+# ABC075 D  Axis-Parallel Rectangle
+- N個の点のうちＫ個を含む最小の長方形を求める問題
+- 全点含んだ状態からマンハッタン距離が遠い順に削れば行けると思ったけど、どの点を基準にマンハッタン距離をとればいいのかわからずWA
+- 結局Nが50なのでO(N^5)の全探索でAC
+```cs
+var ans = (yList[N - 1] - yList[0]) * (xList[N - 1] - xList[0]);
+for (int i = 0; i < N; i++) {
+	for (int j = i+1; j < N; j++) {
+		for (int k = 0; k < N; k++) {
+			for (int l = k+1; l < N; l++) {
+				long lx = xList[i], rx = xList[j], by = yList[k], uy = yList[l];
+				var cnt = list.Count(_ => lx <= _.X && _.X <= rx && by <= _.Y && _.Y <= uy);
+				if (cnt >= K) ans = Min(ans, (rx - lx) * (uy - by));
+			}
+		}
+	}
+}
+```

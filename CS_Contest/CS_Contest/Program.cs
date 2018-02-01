@@ -30,44 +30,34 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt(), R = NextInt();
-				var rList = GetIntList().Select(_ => _ - 1).ToList();
-				var wf=new WarshallFloyd(N);
-				M.REP(i =>
-				{
-					int ai = NextInt(), bi = NextInt(), ci = NextInt();
-					ai--;
-					bi--;
-					wf.Add(ai, bi, ci, false);
+				int N = NextInt(), K = NextInt();
+				var xList = new Ll();
+				var yList = new Ll();
+				var list = new List<Vector2<long>>();
+				N.REP(i => {
+					var x = NextLong();
+					var y = NextLong();
+					xList.Add(x);
+					yList.Add(y);
+					list.Add(new Vector2<long>(x, y));
 				});
 
-				var res=wf.Run();
+				xList = xList.OrderBy(_ => _).ToList();
+				yList = yList.OrderBy(_ => _).ToList();
 
-				var min = long.MaxValue;
-
-				var used = Enumerable.Repeat(false, R).ToList();
-
-				Func<int, int, long, bool> dfs = null;
-				dfs = (step, before, distance) =>
-				{
-					if (step == R + 1) {
-						min = Min(min, distance);
-						return true;
+				var ans = (yList[N - 1] - yList[0]) * (xList[N - 1] - xList[0]);
+				for (int i = 0; i < N; i++) {
+					for (int j = i+1; j < N; j++) {
+						for (int k = 0; k < N; k++) {
+							for (int l = k+1; l < N; l++) {
+								long lx = xList[i], rx = xList[j], by = yList[k], uy = yList[l];
+								var cnt = list.Count(_ => lx <= _.X && _.X <= rx && by <= _.Y && _.Y <= uy);
+								if (cnt >= K) ans = Min(ans, (rx - lx) * (uy - by));
+							}
+						}
 					}
-
-					R.REP(i =>
-					{
-						if (used[i]) return;
-						used[i] = true;
-						if (before == -1) dfs(step + 1, i, 0);
-						else dfs(step + 1, i, distance + res[rList[i]][rList[before]]);
-						used[i] = false;
-					});
-					return true;
-				};
-				dfs(1, -1, 0);
-				min.WL();
-
+				}
+				ans.WL();
 				return;
 			}
 		}
@@ -354,7 +344,35 @@ namespace CS_Contest.Utils
 	using Li=List<int>;
 	using Ll=List<long>;
 	public static class Utils {
+		public class Vector2<T> : IComparer<Vector2<T>> {
+			public T X { get; set; }
+			public T Y { get; set; }
+			private readonly Comparison<Vector2<T>> _comparison;
 
+			public Vector2(T x, T y) : this(x, y, Comparer<Vector2<T>>.Default) {
+			}
+
+			public Vector2(T x, T y, IComparer<Vector2<T>> iComparer) : this(x, y, iComparer.Compare) {
+			}
+
+			public Vector2(T x, T y, Comparison<Vector2<T>> comparison) {
+				this._comparison = comparison;
+				X = x;
+				Y = y;
+			}
+
+			public int Compare(Vector2<T> x, Vector2<T> y) {
+				return _comparison(x, y);
+			}
+
+			public static Vector2<T> Zero => new Vector2<T>(default(T), default(T));
+			public override string ToString() {
+				return $"({X}, {Y})";
+			}
+		}
+
+		public static List<TResult> ToList<TSource, TResult>(this IEnumerable<TSource> ie,
+			Func<TSource, TResult> resultSelector) => ie.Select(resultSelector).ToList();
 
 		public static long[,] CombinationTable(int n) {
 			var rt = new long[n + 1, n + 1];
@@ -390,19 +408,6 @@ namespace CS_Contest.Utils
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
-		public struct IndexT<T> {
-			public T Value { get; set; }
-			public int Index { get; set; }
-
-			public IndexT(T v, int i) {
-				Value = v; Index = i;
-			}
-			public override string ToString() {
-				return Value + " " + Index;
-			}
-		}
-
-		public static IEnumerable<IndexT<T>> ToIndexEnumerable<T>(this IEnumerable<T> list) => list.Select((x, i) => new IndexT<T>(x, i));
 
 		public static Queue<T> ToQueue<T>(this IEnumerable<T> iEnumerable) {
 			var rt = new Queue<T>();
@@ -412,8 +417,6 @@ namespace CS_Contest.Utils
 			return rt;
 		}
 
-		public static IndexT<T> IndexOf<T>(this IEnumerable<T> ie, Func<IndexT<T>, IndexT<T>, IndexT<T>> func) =>
-			ie.ToIndexEnumerable().Aggregate(func);
 
 		public static void Swap<T>(ref T x, ref T y) {
 			var tmp = x;
