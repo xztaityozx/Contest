@@ -30,44 +30,30 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt(), R = NextInt();
-				var rList = GetIntList().Select(_ => _ - 1).ToList();
-				var wf=new WarshallFloyd(N);
-				M.REP(i =>
+				var N = NextInt();
+				var T = GetIntList();
+				var V = GetIntList();
+				var sum = T.Sum() * 2;
+				var box = new double[sum + 1];
+				sum.REP(i => box[i] = double.MaxValue);
+				box[0] = 0;
+				box[sum] = 0;
+
+				var time = 0;
+
+				N.REP(i=>(T[i]*2).REP(k =>
 				{
-					int ai = NextInt(), bi = NextInt(), ci = NextInt();
-					ai--;
-					bi--;
-					wf.Add(ai, bi, ci, false);
-				});
+					box[time] = Min(box[time], V[i]);
+					time++;
+					box[time] = Min(box[time], V[i]);
+				}));
 
-				var res=wf.Run();
+				for (var i = 1; i < sum; i++) box[i] = Min(box[i], box[i - 1] + 0.5, box[i + 1] + 0.5);
+				for (var i = sum-1; i >= 1; i--) box[i] = Min(box[i], box[i - 1] + 0.5, box[i + 1] + 0.5);
 
-				var min = long.MaxValue;
-
-				var used = Enumerable.Repeat(false, R).ToList();
-
-				Func<int, int, long, bool> dfs = null;
-				dfs = (step, before, distance) =>
-				{
-					if (step == R + 1) {
-						min = Min(min, distance);
-						return true;
-					}
-
-					R.REP(i =>
-					{
-						if (used[i]) return;
-						used[i] = true;
-						if (before == -1) dfs(step + 1, i, 0);
-						else dfs(step + 1, i, distance + res[rList[i]][rList[before]]);
-						used[i] = false;
-					});
-					return true;
-				};
-				dfs(1, -1, 0);
-				min.WL();
-
+				var ans = 0.0;
+				sum.REP(i => ans += (box[i] + box[i + 1]));
+				$"{ans/4:F9}".WL();
 				return;
 			}
 		}
@@ -358,8 +344,8 @@ namespace CS_Contest.Utils
 
 		public static long[,] CombinationTable(int n) {
 			var rt = new long[n + 1, n + 1];
-			for (int i = 0; i <= n; i++) {
-				for (int j = 0; j <= i; j++) {
+			for (var i = 0; i <= n; i++) {
+				for (var j = 0; j <= i; j++) {
 					if (j == 0 || i == j) rt[i, j] = 1L;
 					else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
 				}
@@ -367,11 +353,11 @@ namespace CS_Contest.Utils
 			return rt;
 		}
 
+		public static T Min<T>(params T[] a) where T : IComparable<T> => a.Min();
+		public static T Max<T>(params T[] a) where T : IComparable<T> => a.Max();
+
 		public static void WL(this object obj) => WriteLine(obj);
-
 		public static void WL(this string obj) => WriteLine(obj);
-
-
 		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
 
 		public static Li GetIntList() => ReadLine().Split().Select(int.Parse).ToList();
@@ -390,20 +376,6 @@ namespace CS_Contest.Utils
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
-		public struct IndexT<T> {
-			public T Value { get; set; }
-			public int Index { get; set; }
-
-			public IndexT(T v, int i) {
-				Value = v; Index = i;
-			}
-			public override string ToString() {
-				return Value + " " + Index;
-			}
-		}
-
-		public static IEnumerable<IndexT<T>> ToIndexEnumerable<T>(this IEnumerable<T> list) => list.Select((x, i) => new IndexT<T>(x, i));
-
 		public static Queue<T> ToQueue<T>(this IEnumerable<T> iEnumerable) {
 			var rt = new Queue<T>();
 			foreach (var item in iEnumerable) {
@@ -411,10 +383,6 @@ namespace CS_Contest.Utils
 			}
 			return rt;
 		}
-
-		public static IndexT<T> IndexOf<T>(this IEnumerable<T> ie, Func<IndexT<T>, IndexT<T>, IndexT<T>> func) =>
-			ie.ToIndexEnumerable().Aggregate(func);
-
 		public static void Swap<T>(ref T x, ref T y) {
 			var tmp = x;
 			x = y;
