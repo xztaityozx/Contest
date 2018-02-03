@@ -30,30 +30,28 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var N = NextInt();
-				var T = GetIntList();
-				var V = GetIntList();
-				var sum = T.Sum() * 2;
-				var box = new double[sum + 1];
-				sum.REP(i => box[i] = double.MaxValue);
-				box[0] = 0;
-				box[sum] = 0;
-
-				var time = 0;
-
-				N.REP(i=>(T[i]*2).REP(k =>
+				int H = NextInt(), W = NextInt();
+				var wf = new WarshallFloyd(10);
+				10.REP(i =>
 				{
-					box[time] = Min(box[time], V[i]);
-					time++;
-					box[time] = Min(box[time], V[i]);
-				}));
+					10.REP(j =>
+					{
+						var cij = NextInt();
+						wf.Add(i,j,cij);
+					});
+				});
+				var res = wf.Run();
+				var query = new Li();
+				H.REP(i => query.AddRange(GetIntList()));
+				var ans = 0L;
+				query.Where(x => x != -1 && x != 1).ToList().ForEach(x =>
+				{
+					ans += res[x][1];
+				});
 
-				for (var i = 1; i < sum; i++) box[i] = Min(box[i], box[i - 1] + 0.5, box[i + 1] + 0.5);
-				for (var i = sum-1; i >= 1; i--) box[i] = Min(box[i], box[i - 1] + 0.5, box[i + 1] + 0.5);
-
-				var ans = 0.0;
-				sum.REP(i => ans += (box[i] + box[i + 1]));
-				$"{ans/4:F9}".WL();
+				ans.WL();
+				
+				
 				return;
 			}
 		}
