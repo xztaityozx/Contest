@@ -20,6 +20,7 @@ namespace CS_Contest {
 	using LLi = List<List<int>>;
 	using Ll = List<long>;
 	using ti3=Tuple<int,int,int>;
+	using II=Tuple<int,int>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -30,28 +31,27 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int H = NextInt(), W = NextInt();
-				var wf = new WarshallFloyd(10);
-				10.REP(i =>
+				int N = NextInt(), C = NextInt();
+				var imos = Repeat(i => new int[100005*2], C);
+				N.REP(i =>
 				{
-					10.REP(j =>
-					{
-						var cij = NextInt();
-						wf.Add(i,j,cij);
-					});
-				});
-				var res = wf.Run();
-				var query = new Li();
-				H.REP(i => query.AddRange(GetIntList()));
-				var ans = 0L;
-				query.Where(x => x != -1 && x != 1).ToList().ForEach(x =>
-				{
-					ans += res[x][1];
+					int si = NextInt(), ti = NextInt(), ci = NextInt();
+					imos[ci - 1][si * 2 - 1]++;
+					imos[ci - 1][ti * 2]--;
 				});
 
-				ans.WL();
-				
-				
+				var box = new int[100005 * 2];
+				C.REP(i =>
+				{
+					(100005*2).REP(j =>
+					{
+						if (j != 0) imos[i][j] += imos[i][j - 1];
+						if (imos[i][j] >= 1) box[j]++;
+					});
+				});
+				box.Max().WL();
+
+
 				return;
 			}
 		}
@@ -337,8 +337,10 @@ namespace CS_Contest.Utils
 {
 	using Li=List<int>;
 	using Ll=List<long>;
-	public static class Utils {
-
+	public static class Utils
+	{
+		public static List<T> Repeat<T>(Func<int, T> result, int range) =>
+			Enumerable.Range(0, range).Select(result).ToList();
 
 		public static long[,] CombinationTable(int n) {
 			var rt = new long[n + 1, n + 1];
@@ -368,6 +370,12 @@ namespace CS_Contest.Utils
 			foreach (var item in ie) {
 				act(i, item);
 				i++;
+			}
+		}
+
+		public static void Foreach<T>(this IEnumerable<T> ie, Action<T> act) {
+			foreach (var item in ie) {
+				act(item);
 			}
 		}
 
