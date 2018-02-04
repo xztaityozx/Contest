@@ -32,33 +32,20 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int H = NextInt(), W = NextInt(), A = NextInt(), B = NextInt();
-				var factorial = new long[100001 * 2];
-				var inverse = new long[100001 * 2];
-				factorial[0] = inverse[0] = 1;
-				for (var i = 1; i <  factorial.Length; i++) {
-					factorial[i] = Mod(factorial[i - 1] * i);
-					inverse[i] = ModPow(factorial[i], ModValue - 2);
+				var S = ReadLine();
+				for (int i = 0; i < S.Length-1; i++) {
+					if (S[i] == S[i + 1]) {
+						$"{i+1} {i+2}".WL();
+						return;
+					}
 				}
-
-				Func<int, int, long> Combination = (n, k) =>
-				{
-					if (n - k < 0) return 0;
-					var rt = factorial[n];
-					rt *= inverse[k];
-					rt %= ModValue;
-					rt *= inverse[n - k];
-					return Mod(rt);
-				};
-				var ans = Combination(H + W - 2, W - 1);
-				for (int i = 0; i < A; i++) {
-					var a = Combination(H - 1 - i + B - 1, B - 1);
-					var b = Combination(i + (W - B - 1), i);
-					ans = Mod(ans - Mod(a * b) + ModValue);
+				for (int i = 0; i < S.Length-2; i++) {
+					if (S[i] == S[i + 2]) {
+						$"{i+1} {i+3}".WL();
+						return;
+					}
 				}
-				
-				Mod(ans).WL();
-				
+				"-1 -1".WL();
 				return;
 			}
 		}
