@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,27 +32,33 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), C = NextInt();
-				var imos = Repeat(i => new int[100005*2], C);
-				N.REP(i =>
+				int H = NextInt(), W = NextInt(), A = NextInt(), B = NextInt();
+				var factorial = new long[100001 * 2];
+				var inverse = new long[100001 * 2];
+				factorial[0] = inverse[0] = 1;
+				for (var i = 1; i <  factorial.Length; i++) {
+					factorial[i] = Mod(factorial[i - 1] * i);
+					inverse[i] = ModPow(factorial[i], ModValue - 2);
+				}
+
+				Func<int, int, long> Combination = (n, k) =>
 				{
-					int si = NextInt(), ti = NextInt(), ci = NextInt();
-					imos[ci - 1][si * 2 - 1]++;
-					imos[ci - 1][ti * 2]--;
-				});
-
-				var box = new int[100005 * 2];
-				C.REP(i =>
-				{
-					(100005*2).REP(j =>
-					{
-						if (j != 0) imos[i][j] += imos[i][j - 1];
-						if (imos[i][j] >= 1) box[j]++;
-					});
-				});
-				box.Max().WL();
-
-
+					if (n - k < 0) return 0;
+					var rt = factorial[n];
+					rt *= inverse[k];
+					rt %= ModValue;
+					rt *= inverse[n - k];
+					return Mod(rt);
+				};
+				var ans = Combination(H + W - 2, W - 1);
+				for (int i = 0; i < A; i++) {
+					var a = Combination(H - 1 - i + B - 1, B - 1);
+					var b = Combination(i + (W - B - 1), i);
+					ans = Mod(ans - Mod(a * b) + ModValue);
+				}
+				
+				Mod(ans).WL();
+				
 				return;
 			}
 		}
@@ -59,7 +66,7 @@ namespace CS_Contest {
 
 
 
-
+	
 
 }
 namespace Nakov.IO {
@@ -351,6 +358,47 @@ namespace CS_Contest.Utils
 				}
 			}
 			return rt;
+		}
+		public static long ModValue = (long)1e9 + 7;
+		public static long INF = long.MaxValue;
+
+		public static long Mod(long x) => x % ModValue;
+
+		public static long ModPow(long x, long n) {
+			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
+			return tmp;
+		}
+
+		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+		public static void Add<T1, T2>(this List<Tuple<T1, T2>> list, T1 t1, T2 t2) => list.Add(new Tuple<T1, T2>(t1, t2));
+
+		public static bool IsPrime(int n) {
+			if (n == 2) return true;
+			if (n < 2||n%2==0) return false;
+			var i = 3;
+			int sq = (int)Sqrt(n);
+			while (i <= sq) {
+				if (n % i == 0) return false;
+				i += 2;
+			}
+			return true;
+		}
+
+		public static IEnumerable<int> Primes(int maxnum) {
+			yield return 2;
+			yield return 3;
+			var sieve = new BitArray(maxnum + 1);
+			int squareroot = (int)Math.Sqrt(maxnum);
+			for (int i = 2; i <= squareroot; i++) {
+				if (sieve[i] == false) {
+					for (int n = i * 2; n <= maxnum; n += i)
+						sieve[n] = true;
+				}
+				for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++) {
+					if (!sieve[n])
+						yield return n;
+				}
+			}
 		}
 
 		public static T Min<T>(params T[] a) where T : IComparable<T> => a.Min();

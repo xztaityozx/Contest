@@ -129,3 +129,73 @@ C.REP(i=>{
 });
 REC.Max().WL(); // こたえ
 ```
+
+# ABC084 D 2017-like Number
+- 時間中に解けなくて辛すぎた問題。
+- 条件にあう素数リストを事前に求めてimosで数え上げをする。
+- `yield return`でエラトステネスの篩を高速化（コピペ）したのでメモ
+```cs
+public static IEnumerable<int> Primes(int maxnum) {
+	yield return 2;
+	yield return 3;
+	var sieve = new BitArray(maxnum + 1);
+	int squareroot = (int)Math.Sqrt(maxnum);
+	for (int i = 2; i <= squareroot; i++) {
+		if (sieve[i] == false) {
+			for (int n = i * 2; n <= maxnum; n += i)
+				sieve[n] = true;
+		}
+		for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++) {
+			if (!sieve[n])
+				yield return n;
+		}
+	}
+}
+```
+- `IEnumerable`で`yield`使うのすっかり忘れてた・・・反省したい
+  - これに`Where(x=>IsPrime((x+1)/2))`すれば条件に合う素数リストができる
+```cs
+public static bool IsPrime(int n) {
+	if (n == 2) return true;
+	if (n < 2||n%2==0) return false;
+	var i = 3;
+	int sq = (int)Sqrt(n);
+	while (i <= sq) {
+		if (n % i == 0) return false;
+		i += 2;
+	}
+	return true;
+}
+```
+- 時間中にバグらせてたのは範囲の指定を`imos[ri+1]-imos[li]`じゃなくて`imos[ri]-imos[li-1]`で計算してたこと
+  - imosむずい
+
+# ARC058 D いろはちゃんとマス目 / Iroha and a Grid
+- 問題をかみ砕くと升目上を最短経路で移動するとき、`(0,0)=>(H-A-1,i)=>(W-1,H-1)`へ移動するパターンを数え上げる問題になる
+  - ただし`B <= i < W`
+- これを逆に考えると通ってはいけないルートを通るパターンを全体から引けば良いというのが分かる
+- `n×k`マスの升目の最短経路の個数は`(n+k)Ck`で計算できる。
+  - これを毎回計算するとTLEするのでテーブルを作る
+  - `nCk`は、`(n+k)!/(n!k!)`で求められるのでこれを用意したい。
+- パスカルの三角形より大きな数を用意できるけど、小さな値ならあっちのがはやい
+```cs
+var factorial = new long[100001 * 2];
+var inverse = new long[100001 * 2];
+factorial[0] = inverse[0] = 1;
+for (var i = 1; i <  factorial.Length; i++) {
+	factorial[i] = Mod(factorial[i - 1] * i);
+	inverse[i] = ModPow(factorial[i], ModValue - 2);
+}
+
+Func<int, int, long> Combination = (n, k) =>
+{
+	if (n - k < 0) return 0;
+	var rt = factorial[n];
+	rt *= inverse[k];
+	rt %= ModValue;
+	rt *= inverse[n - k];
+	return Mod(rt);
+};
+```
+- これで組み合わせに`O(1)`でアクセスできるのでこれを利用する。
+- あとは`A×B`の各点を経由して右下まで移動するパターンを全体から引いていくことでAC

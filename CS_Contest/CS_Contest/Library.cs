@@ -9,17 +9,7 @@ using static System.Console;
 
 namespace CS_Contest {
 	public static class Utils2 {
-		public static long ModValue = (long)1e9 + 7;
-		public static long INF = long.MaxValue;
-
-		public static long Mod(long x) => x % ModValue;
-
-		public static long ModPow(long x, long n) {
-			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
-			return tmp;
-		}
-
-		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+		
 
 		public static int UpperBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
 			var idx = list.ToList().BinarySearch(target);
