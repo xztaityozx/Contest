@@ -32,20 +32,35 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var S = ReadLine();
-				for (int i = 0; i < S.Length-1; i++) {
-					if (S[i] == S[i + 1]) {
-						$"{i+1} {i+2}".WL();
-						return;
-					}
+				int H = NextInt(), W = NextInt(), N = NextInt();
+				var dic = new Dictionary<long, long>();
+
+				var d = new[] {0, 1, 2};
+
+				N.REP(i=>
+				{
+					int ai = NextInt(), bi = NextInt();
+					ai--;
+					bi--;
+					3.REP(j=>
+					{
+						3.REP(k =>
+						{
+							long x = ai - d[j], y = bi - d[k];
+							var pos = x * (long) 1e9 + y;
+							if (ai - d[j] < 0 || bi - d[k] < 0 || ai - d[j] >= H - 2 || bi - d[k] >= W - 2) return;
+							if (dic.ContainsKey(pos)) dic[pos]++;
+							else dic.Add(pos, 1);
+						});
+					});
+				});
+				var ans = new long[10];
+				foreach (var item in dic) {
+					ans[item.Value]++;
 				}
-				for (int i = 0; i < S.Length-2; i++) {
-					if (S[i] == S[i + 2]) {
-						$"{i+1} {i+3}".WL();
-						return;
-					}
-				}
-				"-1 -1".WL();
+				ans[0] = (long)(H - 2) * (long)(W - 2) - ans.Sum();
+				ans.WL();
+
 				return;
 			}
 		}
