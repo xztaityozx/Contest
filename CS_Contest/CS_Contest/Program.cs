@@ -32,34 +32,38 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int H = NextInt(), W = NextInt(), N = NextInt();
-				var dic = new Dictionary<long, long>();
+				int N = NextInt(), K = NextInt(), L = NextInt();
+				var ufK = new UnionFind(N);
+				var ufL = new UnionFind(N);
 
-				var d = new[] {0, 1, 2};
+				K.REP(i =>
+				{
+					int pi = NextInt(), qi = NextInt();
+					pi--;
+					qi--;
+					ufK.Unite(pi, qi);
+				});
+				L.REP(i =>
+				{
+					int ri = NextInt(), si = NextInt();
+					ri--;
+					si--;
+					ufL.Unite(ri, si);
+				});
 
+				var dic=new Dictionary<II,int>();
+				var box = new II[N];
 				N.REP(i=>
 				{
-					int ai = NextInt(), bi = NextInt();
-					ai--;
-					bi--;
-					3.REP(j=>
-					{
-						3.REP(k =>
-						{
-							long x = ai - d[j], y = bi - d[k];
-							var pos = x * (long) 1e9 + y;
-							if (ai - d[j] < 0 || bi - d[k] < 0 || ai - d[j] >= H - 2 || bi - d[k] >= W - 2) return;
-							if (dic.ContainsKey(pos)) dic[pos]++;
-							else dic.Add(pos, 1);
-						});
-					});
+					var pos = new II(ufK.Root(i), ufL.Root(i));
+					box[i] = pos;
+					if (dic.ContainsKey(pos)) dic[pos]++;
+					else dic.Add(pos,1);
 				});
-				var ans = new long[10];
-				foreach (var item in dic) {
-					ans[item.Value]++;
-				}
-				ans[0] = (long)(H - 2) * (long)(W - 2) - ans.Sum();
-				ans.WL();
+
+				//dic.WL();
+
+				box.Select(x=>dic[x]).StringJoin(" ").WL();
 
 				return;
 			}
@@ -143,6 +147,40 @@ namespace CS_Contest.Graph
 {
 	using Ll=List<long>;
 	using Li=List<int>;
+	/// <summary>
+	/// UnionFind
+	/// </summary>
+	public struct UnionFind {
+		private readonly int[] _data;
+
+		public UnionFind(int size) {
+			_data = new int[size];
+			for (var i = 0; i < size; i++) _data[i] = -1;
+		}
+
+		public bool Unite(int x, int y) {
+			x = Root(x);
+			y = Root(y);
+
+			if (x == y) return x != y;
+			if (_data[y] < _data[x]) {
+				var tmp = y;
+				y = x;
+				x = tmp;
+			}
+			_data[x] += _data[y];
+			_data[y] = x;
+			return x != y;
+		}
+
+		public bool IsSameGroup(int x, int y) {
+			return Root(x) == Root(y);
+		}
+
+		public int Root(int x) {
+			return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
+		}
+	}
 	public class BellmanFord : CostGraph {
 		public BellmanFord(int size) : base(size) {
 		}

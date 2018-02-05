@@ -58,40 +58,7 @@ namespace CS_Contest {
 
 
 
-	/// <summary>
-	/// UnionFind
-	/// </summary>
-	public struct UnionFind {
-		private readonly int[] _data;
 
-		public UnionFind(int size) {
-			_data = new int[size];
-			for (var i = 0; i < size; i++) _data[i] = -1;
-		}
-
-		public bool Unite(int x, int y) {
-			x = Root(x);
-			y = Root(y);
-
-			if (x == y) return x != y;
-			if (_data[y] < _data[x]) {
-				var tmp = y;
-				y = x;
-				x = tmp;
-			}
-			_data[x] += _data[y];
-			_data[y] = x;
-			return x != y;
-		}
-
-		public bool IsSameGroup(int x, int y) {
-			return Root(x) == Root(y);
-		}
-
-		private int Root(int x) {
-			return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
-		}
-	}
 
 
 
