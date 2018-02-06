@@ -240,3 +240,7 @@ Func<int, int, long> Combination = (n, k) =>
     - これを各町iについてへ復元しないといけないが解説はここでソートを使うって書いてた（わからん）
   - 組み合わせを数える`Dictionary`と町iがどの組み合わせだったからを記録する配列を用意して町iの情報を`O(N)`で作る。
   - `Dictionary`と配列から情報を復元して`StringJoin(" ")`すればAC
+
+# ARC073 D Simple Knapsack
+- 普通のナップザック
+- `Dictionary`使う実装の方がREださなくて済む

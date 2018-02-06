@@ -32,39 +32,21 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), K = NextInt(), L = NextInt();
-				var ufK = new UnionFind(N);
-				var ufL = new UnionFind(N);
+				int N = NextInt(), W = NextInt();
 
-				K.REP(i =>
-				{
-					int pi = NextInt(), qi = NextInt();
-					pi--;
-					qi--;
-					ufK.Unite(pi, qi);
+				var dp = Enumerable.Range(0, N + 1).Select(x => new Utils.Map<long, long>()).ToList();
+				dp[0].Add(0,0);
+
+				N.REP(i => {
+					long wi = NextLong(), vi = NextLong();
+					foreach (var item in dp[i]) {
+						dp[i + 1][item.Key] = Max(dp[i + 1][item.Key], dp[i][item.Key]);
+						if (item.Key + wi <= W) {
+							dp[i + 1][item.Key + wi] = Max(dp[i][item.Key] + vi, dp[i + 1][item.Key + wi]);
+						}
+					}
 				});
-				L.REP(i =>
-				{
-					int ri = NextInt(), si = NextInt();
-					ri--;
-					si--;
-					ufL.Unite(ri, si);
-				});
-
-				var dic=new Dictionary<II,int>();
-				var box = new II[N];
-				N.REP(i=>
-				{
-					var pos = new II(ufK.Root(i), ufL.Root(i));
-					box[i] = pos;
-					if (dic.ContainsKey(pos)) dic[pos]++;
-					else dic.Add(pos,1);
-				});
-
-				//dic.WL();
-
-				box.Select(x=>dic[x]).StringJoin(" ").WL();
-
+				dp[N].Max(x=>x.Value).WL();
 				return;
 			}
 		}
@@ -493,5 +475,17 @@ namespace CS_Contest.Utils
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
 	}
 
+	public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
+		public Map() : base() { }
+		public Map(int capacity) : base(capacity) { }
+
+		public new TValue this[TKey index] {
+			get {
+				TValue v;
+				return this.TryGetValue(index, out v) ? v : base[index] = default(TValue);
+			}
+			set { base[index] = value; }
+		}
+	}
 
 }
