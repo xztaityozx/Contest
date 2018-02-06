@@ -244,3 +244,36 @@ Func<int, int, long> Combination = (n, k) =>
 # ARC073 D Simple Knapsack
 - 普通のナップザック
 - `Dictionary`使う実装の方がREださなくて済む
+
+# ARC074 C Chocolate Bar
+- チョコレートに見立てたマス目を3つに分割して最小の面積と最大の面積の差のMinを探す問題
+  - C問題のくせに400点という暴力
+- 分割の方法は`T`か`≡`か`川`か`ト`の4パターンしかない。なのでこれについてそれぞれ`O(H)`で計算する。
+  - このうち`T`と`≡`は向きを変えれば残りの二つのパターンになる。
+    - つまりこの二つを計算する関数を作って引数のタテヨコを入れ替えるだけでOK
+  - さらに`T`と`≡`は同じループ内で計算できる。
+    - 上の横長の領域の高さについて`O(H)`でループする。
+    - 面積の計算は`O(1)`
+- ようはこんな感じ
+```cs
+Func<long, long, long> getMinimumDivide = (h, w) => {
+	var min = long.MaxValue;
+	new Tuple<long, long>(1, h).FOR(ah => {
+		//≡
+		{
+			var bh = (h - ah) / 2;
+			var ch = h - (ah + bh);
+			min = Min(min, Max(ah * w, bh * w, ch * w) - Min(ah * w, bh * w, ch * w));
+		}
+		//T
+		{
+			var bw = w / 2;
+			var cw = w - bw;
+			var bch = h - ah;
+			min = Min(min, Max(bch * bw, bch * cw, ah * w) - Min(bch * bw, bch * cw, ah * w));
+		}
+	});
+
+	return min;
+};
+```

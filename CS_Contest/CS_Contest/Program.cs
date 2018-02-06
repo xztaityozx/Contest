@@ -32,21 +32,31 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), W = NextInt();
+				long H = NextLong(), W = NextLong();
 
-				var dp = Enumerable.Range(0, N + 1).Select(x => new Utils.Map<long, long>()).ToList();
-				dp[0].Add(0,0);
-
-				N.REP(i => {
-					long wi = NextLong(), vi = NextLong();
-					foreach (var item in dp[i]) {
-						dp[i + 1][item.Key] = Max(dp[i + 1][item.Key], dp[i][item.Key]);
-						if (item.Key + wi <= W) {
-							dp[i + 1][item.Key + wi] = Max(dp[i][item.Key] + vi, dp[i + 1][item.Key + wi]);
+				Func<long, long, long> getMinimumDivide = (h, w) => {
+					var min = long.MaxValue;
+					new Tuple<long, long>(1, h).FOR(ah => {
+						//Ξ
+						{
+							var bh = (h - ah) / 2;
+							var ch = h - (ah + bh);
+							min = Min(min, Max(ah * w, bh * w, ch * w) - Min(ah * w, bh * w, ch * w));
 						}
-					}
-				});
-				dp[N].Max(x=>x.Value).WL();
+						//T
+						{
+							var bw = w / 2;
+							var cw = w - bw;
+							var bch = h - ah;
+							min = Min(min, Max(bch * bw, bch * cw, ah * w) - Min(bch * bw, bch * cw, ah * w));
+						}
+					});
+
+					return min;
+				};
+
+				Min(getMinimumDivide(H, W), getMinimumDivide(W, H)).WL();
+
 				return;
 			}
 		}
@@ -359,6 +369,24 @@ namespace CS_Contest.Loop
 				act(i);
 			}
 		}
+
+		public static void REP(this long n, Action<long> act) {
+			for (var i = 0; i < n; i++) act(i);
+		}
+
+		public static void FOR(this Tuple<int, int, int> t, Action<int> action) {
+			for (var i = t.Item1; i < t.Item2; i += t.Item3) action(i);
+		}
+
+		public static void FOR(this Tuple<int, int> t, Action<int> action) =>
+			new Tuple<int, int, int>(t.Item1, t.Item2, 1).FOR(action);
+
+		public static void FOR(this Tuple<long, long, long> t, Action<long> action) {
+			for (var i = t.Item1; i < t.Item2; i += t.Item3) action(i);
+		}
+
+		public static void FOR(this Tuple<long, long> t, Action<long> act) =>
+			new Tuple<long, long, long>(t.Item1, t.Item2, 1).FOR(act);
 	}
 }
 
