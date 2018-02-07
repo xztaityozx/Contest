@@ -277,3 +277,27 @@ Func<long, long, long> getMinimumDivide = (h, w) => {
 	return min;
 };
 ```
+
+# ARC075 D Widespread
+- 1体にAダメ、ほかにBダメ与える攻撃を使ってN体の敵を倒すとき、必要な最小の攻撃回数を求める問題
+  - Nが10^5なのでimosか二分探索かソートかって感じだとおもった
+- 問題を読みかえると`T`回攻撃するとき、それぞれの敵に対して`B×T`ダメージと、任意の敵に`(A-B)×T`ダメージを与えることになることが分かる
+  - `T`回の攻撃ですべての敵を倒せるかのチェックは`O(N)`でできる
+```cs
+Func<long, bool> check = (T) => {
+	var at = T;
+	foreach (var item in H) {
+		var hitpoint = item - B * T;
+		if (hitpoint <= 0) continue;
+		var req = (int) Ceiling(((double) hitpoint / (A - B)));
+		if (req <= at) at -= req;
+		else {
+			return false;
+		}
+	}
+	return true;
+};
+```
+- この`T`の求め方は二分探索で求める。範囲は`0~H.Max()/B`
+  - 計算量は`O(logH.Max()/B)`
+- 合わせると`O(N×logH.Max()/B)`なので間に合う

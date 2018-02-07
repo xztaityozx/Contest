@@ -32,31 +32,36 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				long H = NextLong(), W = NextLong();
+				int N = NextInt(), A = NextInt(), B = NextInt();
+				var H = Enumerable.Repeat(1, N).Select(x => NextInt()).ToList();
+				var MaxCount = (int) Ceiling((double) H.Max() / B);
 
-				Func<long, long, long> getMinimumDivide = (h, w) => {
-					var min = long.MaxValue;
-					new Tuple<long, long>(1, h).FOR(ah => {
-						//Ξ
-						{
-							var bh = (h - ah) / 2;
-							var ch = h - (ah + bh);
-							min = Min(min, Max(ah * w, bh * w, ch * w) - Min(ah * w, bh * w, ch * w));
+				Func<long, bool> check = (T) => {
+					var at = T;
+					foreach (var item in H) {
+						var hitpoint = item - B * T;
+						if (hitpoint <= 0) continue;
+						var req = (int) Ceiling(((double) hitpoint / (A - B)));
+						if (req <= at) at -= req;
+						else {
+							return false;
 						}
-						//T
-						{
-							var bw = w / 2;
-							var cw = w - bw;
-							var bch = h - ah;
-							min = Min(min, Max(bch * bw, bch * cw, ah * w) - Min(bch * bw, bch * cw, ah * w));
-						}
-					});
-
-					return min;
+					}
+					return true;
 				};
 
-				Min(getMinimumDivide(H, W), getMinimumDivide(W, H)).WL();
-
+				long l = 0, r = MaxCount;
+				long t = 0;
+				while (l<=r) {
+					t  = (l + r) / 2;
+					if (check(t)) {
+						r = t - 1;
+					}
+					else {
+						l = t + 1;
+					}
+				}
+				(check(r) ? r : l).WL();
 				return;
 			}
 		}
