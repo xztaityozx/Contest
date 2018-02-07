@@ -10,6 +10,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using CS_Contest.Debug;
 using CS_Contest.Graph;
 using CS_Contest.Loop;
 //using CS_Contest.Utils;
@@ -32,36 +33,37 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), A = NextInt(), B = NextInt();
-				var H = Enumerable.Repeat(1, N).Select(x => NextInt()).ToList();
-				var MaxCount = (int) Ceiling((double) H.Max() / B);
+				var N = NextInt();
+				var graph = new CostGraph(N);
+				(N-1).REP(i => {
+					int ai = NextInt(), bi = NextInt();
+					ai--;
+					bi--;
+					graph.Add(ai, bi, 1, false);
+				});
 
-				Func<long, bool> check = (T) => {
-					var at = T;
-					foreach (var item in H) {
-						var hitpoint = item - B * T;
-						if (hitpoint <= 0) continue;
-						var req = (int) Ceiling(((double) hitpoint / (A - B)));
-						if (req <= at) at -= req;
-						else {
-							return false;
-						}
+				var distances = new int[2, N];
+				2.REP(i => N.REP(j => distances[i, j] = int.MaxValue));
+
+				Func<int, int,int, bool> dfs = null;
+				dfs = (current, distance, phase) => {
+					if (distances[phase, current] != int.MaxValue) return true;
+					distances[phase, current] = distance;
+					foreach (var edge in graph.Adjacency[current]) {
+						dfs(edge.To, distance + 1, phase);
 					}
 					return true;
 				};
+				dfs(0, 0, 0);
+				dfs(N - 1, 0, 1);
 
-				long l = 0, r = MaxCount;
-				long t = 0;
-				while (l<=r) {
-					t  = (l + r) / 2;
-					if (check(t)) {
-						r = t - 1;
-					}
-					else {
-						l = t + 1;
-					}
-				}
-				(check(r) ? r : l).WL();
+				int fcnt = 0, scnt = 0;
+				N.REP(i => {
+					if (distances[0, i] <= distances[1, i]) fcnt++;
+					else scnt++;
+				});
+				(fcnt>scnt?"Fennec":"Snuke").WL();
+
 				return;
 			}
 		}
@@ -521,4 +523,14 @@ namespace CS_Contest.Utils
 		}
 	}
 
+}
+
+namespace CS_Contest.Debug {
+	public static class Debug {
+		public static T Tee<T>(this T t,Func<T,string> formatter=null) {
+			if (formatter == null) formatter = arg => arg.ToString();
+			formatter(t).WL();
+			return t;
+		}
+	}
 }
