@@ -34,35 +34,23 @@ namespace CS_Contest {
 		public class Calc {
 			public void Solve() {
 				var N = NextInt();
-				var graph = new CostGraph(N);
-				(N-1).REP(i => {
-					int ai = NextInt(), bi = NextInt();
-					ai--;
-					bi--;
-					graph.Add(ai, bi, 1, false);
-				});
+				var list = GetIntList();
+				var cnt = new int[3] {0, 0, 0};
+				foreach (var item in list) {
+					if (item % 4 == 0) cnt[1]++;
+					else if (item % 2 == 0) cnt[0]++;
+					else cnt[2]++;
+				}
 
-				var distances = new int[2, N];
-				2.REP(i => N.REP(j => distances[i, j] = int.MaxValue));
+				var f = false;
+				if (cnt[0] >= 1) {
+					f = cnt[1] >= cnt[2];
+				}
+				else {
+					f = cnt[1] >= cnt[2]-1;
+				}
 
-				Func<int, int,int, bool> dfs = null;
-				dfs = (current, distance, phase) => {
-					if (distances[phase, current] != int.MaxValue) return true;
-					distances[phase, current] = distance;
-					foreach (var edge in graph.Adjacency[current]) {
-						dfs(edge.To, distance + 1, phase);
-					}
-					return true;
-				};
-				dfs(0, 0, 0);
-				dfs(N - 1, 0, 1);
-
-				int fcnt = 0, scnt = 0;
-				N.REP(i => {
-					if (distances[0, i] <= distances[1, i]) fcnt++;
-					else scnt++;
-				});
-				(fcnt>scnt?"Fennec":"Snuke").WL();
+				(f?"Yes":"No").WL();
 
 				return;
 			}
