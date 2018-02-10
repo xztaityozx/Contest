@@ -35,22 +35,45 @@ namespace CS_Contest {
 			public void Solve() {
 				var N = NextInt();
 				var list = GetIntList();
-				var cnt = new int[3] {0, 0, 0};
-				foreach (var item in list) {
-					if (item % 4 == 0) cnt[1]++;
-					else if (item % 2 == 0) cnt[0]++;
-					else cnt[2]++;
+
+				var wa = list.Select((v, i) => new {V = v, I = i}).Where(item => item.V - 1 == item.I).ToList();
+
+				var ans = 0;
+
+				for (var i = 0; i < wa.Count - 1; i++) {
+					if (wa[i].I != wa[i + 1].I - 1) continue;
+					var tmp = list[wa[i].I];
+					list[wa[i].I] = list[wa[i + 1].I];
+					list[wa[i + 1].I] = tmp;
+					i++;
+					ans++;
 				}
 
-				var f = false;
-				if (cnt[0] >= 1) {
-					f = cnt[1] >= cnt[2];
-				}
-				else {
-					f = cnt[1] >= cnt[2]-1;
-				}
+				wa = list.Select((v, i) => new { V = v, I = i }).Where(item => item.V - 1 == item.I).ToList();
 
-				(f?"Yes":"No").WL();
+				while (wa.Any()) {
+					foreach (var item in wa) {
+						var idx = item.I;
+						var value = item.V;
+						if (idx > 0 && list[idx - 1] != idx + 1) {
+							var tmp = list[idx - 1];
+							list[idx - 1] = value;
+							list[idx] = tmp;
+							continue;
+						}
+
+						if (idx >= N - 1 || list[idx + 1] == idx + 1) continue;
+						{
+							var tmp = list[idx + 1];
+							list[idx + 1] = value;
+							list[idx] = tmp;
+						}
+					}
+
+					ans += wa.Count;
+					wa = list.Select((v, i) => new { V = v, I = i }).Where(item => item.V - 1 == item.I).ToList();
+				}
+				ans.WL();
 
 				return;
 			}
