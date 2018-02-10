@@ -34,46 +34,33 @@ namespace CS_Contest {
 		public class Calc {
 			public void Solve() {
 				var N = NextInt();
-				var list = GetIntList();
+				var S = ReadLine();
+				ReadLine();
 
-				var wa = list.Select((v, i) => new {V = v, I = i}).Where(item => item.V - 1 == item.I).ToList();
-
-				var ans = 0;
-
-				for (var i = 0; i < wa.Count - 1; i++) {
-					if (wa[i].I != wa[i + 1].I - 1) continue;
-					var tmp = list[wa[i].I];
-					list[wa[i].I] = list[wa[i + 1].I];
-					list[wa[i + 1].I] = tmp;
-					i++;
-					ans++;
-				}
-
-				wa = list.Select((v, i) => new { V = v, I = i }).Where(item => item.V - 1 == item.I).ToList();
-
-				while (wa.Any()) {
-					foreach (var item in wa) {
-						var idx = item.I;
-						var value = item.V;
-						if (idx > 0 && list[idx - 1] != idx + 1) {
-							var tmp = list[idx - 1];
-							list[idx - 1] = value;
-							list[idx] = tmp;
-							continue;
-						}
-
-						if (idx >= N - 1 || list[idx + 1] == idx + 1) continue;
-						{
-							var tmp = list[idx + 1];
-							list[idx + 1] = value;
-							list[idx] = tmp;
-						}
+				var queue = new Queue<bool>();
+				for (var i = 0; i < S.Length; i++) {
+					if (i == S.Length - 1) {
+						queue.Enqueue(true);
+						continue;
 					}
 
-					ans += wa.Count;
-					wa = list.Select((v, i) => new { V = v, I = i }).Where(item => item.V - 1 == item.I).ToList();
+					if (S[i] != S[i + 1]) {
+						queue.Enqueue(true);
+					}
+					else {
+						queue.Enqueue(false);
+						i++;
+					}
 				}
-				ans.WL();
+
+				var ans = queue.First() ? 3L : 6L;
+				var before = queue.Dequeue();
+				foreach (var item in queue) {
+					ans = before ? Mod(ans * 2) : Mod(ans * (item ? 1 : 3));
+					before = item;
+				}
+
+				Mod(ans).WL();
 
 				return;
 			}
