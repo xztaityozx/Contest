@@ -7,15 +7,11 @@ using System.Net;
 using static System.Console;
 using static System.Math;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
-using CS_Contest.Debug;
 using CS_Contest.Graph;
 using CS_Contest.Loop;
-//using CS_Contest.Utils;
+using CS_Contest.Utils;
 using static Nakov.IO.Cin;
-using static CS_Contest.Utils.Utils;
+using static CS_Contest.IO.IO;
 
 namespace CS_Contest {
 	using Li = List<int>;
@@ -23,6 +19,7 @@ namespace CS_Contest {
 	using Ll = List<long>;
 	using ti3=Tuple<int,int,int>;
 	using II=Tuple<int,int>;
+	using LL=Tuple<long,long>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -33,36 +30,6 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var N = NextInt();
-				var S = ReadLine();
-				ReadLine();
-
-				var queue = new Queue<bool>();
-				for (var i = 0; i < S.Length; i++) {
-					if (i == S.Length - 1) {
-						queue.Enqueue(true);
-						continue;
-					}
-
-					if (S[i] != S[i + 1]) {
-						queue.Enqueue(true);
-					}
-					else {
-						queue.Enqueue(false);
-						i++;
-					}
-				}
-
-				var ans = queue.First() ? 3L : 6L;
-				var before = queue.Dequeue();
-				foreach (var item in queue) {
-					ans = before ? Mod(ans * 2) : Mod(ans * (item ? 1 : 3));
-					before = item;
-				}
-
-				Mod(ans).WL();
-
-				return;
 			}
 		}
 	}
@@ -349,7 +316,7 @@ namespace CS_Contest.Graph
 
 			Size.REP(i => Size.REP(k => rt[i].Add(i == k ? 0 : Inf)));
 
-			ForeachWith(Adjacency, (i, item) => {
+			Adjacency.ForeachWith( (i, item) => {
 				foreach (var k in item) {
 					rt[i][k.To] = k.Cost;
 				}
@@ -393,6 +360,31 @@ namespace CS_Contest.Loop
 		public static void FOR(this Tuple<long, long> t, Action<long> act) =>
 			new Tuple<long, long, long>(t.Item1, t.Item2, 1).FOR(act);
 	}
+}
+
+namespace CS_Contest.IO
+{
+	using Li = List<int>;
+	using Ll = List<long>;
+
+	public static class IO
+	{
+		public static void WL(this object obj) => WriteLine(obj);
+		public static void WL(this string obj) => WriteLine(obj);
+		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
+
+		public static Li GetIntList() => ReadLine().Split().Select(int.Parse).ToList();
+		public static Ll GetLongList() => ReadLine().Split().Select(long.Parse).ToList();
+
+		public static T Tee<T>(this T t, Func<T, string> formatter = null) {
+			if (formatter == null) formatter = arg => arg.ToString();
+			formatter(t).WL();
+			return t;
+		}
+		public static void JoinWL<T>(this IEnumerable<T> @this, string sp = " ") => @this.StringJoin(sp).WL();
+	}
+
+
 }
 
 namespace CS_Contest.Utils
@@ -459,16 +451,10 @@ namespace CS_Contest.Utils
 		public static T Min<T>(params T[] a) where T : IComparable<T> => a.Min();
 		public static T Max<T>(params T[] a) where T : IComparable<T> => a.Max();
 
-		public static void WL(this object obj) => WriteLine(obj);
-		public static void WL(this string obj) => WriteLine(obj);
-		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
-
-		public static Li GetIntList() => ReadLine().Split().Select(int.Parse).ToList();
-		public static Ll GetLongList() => ReadLine().Split().Select(long.Parse).ToList();
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
 
-		public static void ForeachWith<T>(IEnumerable<T> ie, Action<int, T> act) {
+		public static void ForeachWith<T>(this IEnumerable<T> ie, Action<int, T> act) {
 			var i = 0;
 			foreach (var item in ie) {
 				act(i, item);
@@ -506,6 +492,13 @@ namespace CS_Contest.Utils
 			return dic;
 		}
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
+
+		public static IEnumerable<T> SkipAt<T>(this IEnumerable<T> @this, int at) {
+			for (var i = 0; i < @this.Count(); i++) {
+				if(i==at) continue;
+				yield return @this.ElementAt(i);
+			}
+		}
 	}
 
 	public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
@@ -525,10 +518,6 @@ namespace CS_Contest.Utils
 
 namespace CS_Contest.Debug {
 	public static class Debug {
-		public static T Tee<T>(this T t,Func<T,string> formatter=null) {
-			if (formatter == null) formatter = arg => arg.ToString();
-			formatter(t).WL();
-			return t;
-		}
+
 	}
 }
