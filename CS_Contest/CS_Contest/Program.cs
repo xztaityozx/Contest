@@ -31,15 +31,25 @@ namespace CS_Contest {
 		public class Calc {
 			public void Solve() {
 				int N = NextInt(), M = NextInt();
-				var wuf = new WeightedUnionFind(N);
+				var box = new bool[N];
+				box[0] = true;
+				var count = Enumerable.Repeat(1, N).ToArray();
+
 				M.REP(i =>
 				{
-					int Li = NextInt(), Ri = NextInt(), Di = NextInt();
-					Li--;
-					Ri--;
-					wuf.Unite(Li, Ri, -Di);
+					int xi = NextInt(), yi = NextInt();
+					xi--;
+					yi--;
+
+					count[xi]--;
+					count[yi]++;
+					if (box[xi]) {
+						box[yi] = true;
+						box[xi] = count[xi] != 0;
+					}
+
 				});
-				(wuf.IsValid() ? "Yes" : "No").WL();
+				box.Count(x=>x).WL();
 			}
 		}
 	}
