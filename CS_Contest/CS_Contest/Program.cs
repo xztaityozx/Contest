@@ -30,18 +30,23 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt();
-				var list = new Li();
-				N.REP(i => list.Add(NextInt()));
-				new ti3(0,N-1,1).FOR(i =>
-				{
-					if (list[i] % 2 != 1) return;
-					if (list[i + 1] <= 0) return;
-					list[i]++;
-					list[i + 1]--;
-				});
+				int N = NextInt(), X = NextInt();
+				var list = GetLongList().ToArray();
+				var ans = list.Sum();
 
-				list.Select(x=>(long)x/2L).Sum().WL();
+
+				var xk = 0L;
+				N.REP(k =>
+				{
+					xk += X;
+					var next = 0L;
+					var sub = new long[N];
+					N.REP(i => { next += sub[i] = Min(list[i], list[(i + N - 1) % N]); });
+					list = sub;
+					ans = Min(ans, xk + next);
+				});
+				ans.WL();
+
 			}
 		}
 	}
