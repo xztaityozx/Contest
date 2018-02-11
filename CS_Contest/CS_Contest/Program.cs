@@ -30,6 +30,16 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
+				int N = NextInt(), M = NextInt();
+				var wuf = new WeightedUnionFind(N);
+				M.REP(i =>
+				{
+					int Li = NextInt(), Ri = NextInt(), Di = NextInt();
+					Li--;
+					Ri--;
+					wuf.Unite(Li, Ri, -Di);
+				});
+				(wuf.IsValid() ? "Yes" : "No").WL();
 			}
 		}
 	}
@@ -111,6 +121,66 @@ namespace CS_Contest.Graph
 {
 	using Ll=List<long>;
 	using Li=List<int>;
+
+	public struct WeightedUnionFind
+	{
+		private readonly int N;
+		public int[] Parent { get; private set; }
+		public long[] Cost { get; private set; }
+		public int[] Rank { get; private set; }
+
+		public WeightedUnionFind(int n) {
+			N = n;
+			Parent = Enumerable.Range(0, N).ToArray();
+			Cost = new long[N];
+			Rank = new int[N];
+		}
+
+		public int Root(int u, out long cost) {
+			if (Parent[u] == u) {
+				cost = Cost[u];
+				return u;
+			}
+
+			var v = Root(Parent[u], out cost);
+			cost += Cost[u];
+			Parent[u] = v;
+			Cost[u] = cost;
+			return v;
+		}
+
+		public void Unite(int lv, int rv, long cost) {
+			long lc, rc;
+			lv = Root(lv, out lc);
+			rv = Root(rv, out rc);
+			cost = -rc + cost + lc;
+
+			if (Rank[lv] < Rank[rv]) {
+				Unite(rv, lv, -cost);
+				return;
+			}
+
+			Parent[rv] = lv;
+			Cost[rv] = cost;
+			Rank[lv] += Rank[rv] + 1;
+		}
+
+		public bool IsValid() {
+			for (var i = 0; i < N; i++) {
+				long _;
+				Root(i, out _);
+			}
+
+			for (var i = 0; i < N; i++) {
+				if (Parent[i] == i && Cost[i] != 0L) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
 	/// <summary>
 	/// UnionFind
 	/// </summary>
@@ -516,8 +586,3 @@ namespace CS_Contest.Utils
 
 }
 
-namespace CS_Contest.Debug {
-	public static class Debug {
-
-	}
-}
