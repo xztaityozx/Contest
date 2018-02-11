@@ -30,26 +30,18 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var box = new bool[N];
-				box[0] = true;
-				var count = Enumerable.Repeat(1, N).ToArray();
-
-				M.REP(i =>
+				int N = NextInt();
+				var list = new Li();
+				N.REP(i => list.Add(NextInt()));
+				new ti3(0,N-1,1).FOR(i =>
 				{
-					int xi = NextInt(), yi = NextInt();
-					xi--;
-					yi--;
-
-					count[xi]--;
-					count[yi]++;
-					if (box[xi]) {
-						box[yi] = true;
-						box[xi] = count[xi] != 0;
-					}
-
+					if (list[i] % 2 != 1) return;
+					if (list[i + 1] <= 0) return;
+					list[i]++;
+					list[i + 1]--;
 				});
-				box.Count(x=>x).WL();
+
+				list.Select(x=>(long)x/2L).Sum().WL();
 			}
 		}
 	}
