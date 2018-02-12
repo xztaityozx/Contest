@@ -493,3 +493,15 @@ public struct SectionUnionFind
   - 数列Rを`R[pi]=i`としたとき
   - Bを`B={400N+R[i],400(N-1)+R[i+1],...,400+R[N]}`とすれば、Cのルールを守る数列A,Bができる
 - この400はどうやって求めるかというと適当な大きな数値でいい（解説だと30000だった）
+
+# AGC008 B Contiguous Repainting
+- AGCむずすぎる
+- 連続するKマスを黒か白に塗る。最終的に黒だったマスに塗られている値が得点になり、その最大値を求める問題
+- 最初にある区間を塗る。すると他のマスは自由に色塗りができる（1マスずらすだけでいい）
+- これを利用してimosで解く
+- imosは二種類確保する
+  - そのままのimos
+  - 正数だけのimos
+- そのあとi(K<=i<=N)について
+  - `ans = Utils.Utils.Max(ans, imosB[N] - (imosB[i] - imosB[i - K]) + (imosA[i] - imosA[i - K]),imosB[N] - (imosB[i] - imosB[i - K]));`
+- を計算してAC
