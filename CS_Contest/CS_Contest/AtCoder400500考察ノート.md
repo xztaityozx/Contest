@@ -398,4 +398,63 @@ Func<long, bool> check = (T) => {
 - iを手に入れるのに進化をk回するとすると、手に入れるには`min(ai,ai-1,...ai-k)`になります
 - これを用いてkを0~N-1の範囲で計算する
   - 計算式は`k×x+Sum(min)`
-  - これの最小値が答えになる。`O(N)`
+  - これの最小値が答えになる。`O(N^2)`
+
+# AGC005 B Minimum Sum
+- 200,000要素の区間`[l,r](lは1~N,rはl~N)`の最小値の合計を取る問題
+  - やはり400点問題には難易度差があるなと感じた1問
+- `set`を使う解法は解説を読んだり解説の解説を読んでも解らなかったのでUnionFindを使うやつを採用
+  - [AtCoder Grand Contest 005: B. Minimum Sum - pekempeyのブログ](http://pekempey.hatenablog.com/entry/2016/10/02/042213)
+- 区間の最小値がvになる区間がいくつあるかを数え上げることを考える
+- vの左右の要素がvより大きかったら`Unite`する（同グループになる）
+  - このとき連結された方に連結した方の左右につながっているノードの数を加算する（＝サイズ）
+  - ノードが持っているサイズがその値が最小値になる区間の数なので、値と区間の数を乗算する
+    - これの和が答え
+- UFは大きい方からUniteする。
+```cs
+public void Solve() {
+	var N = NextInt();
+	long[] a=new long[N],aindex=new long[N];
+	N.REP(i =>
+	{
+		a[i] = NextLong();
+		aindex[a[i]-1] = i;
+	});
+
+	var suf = new SectionUnionFind(N);
+
+	var ans = 0L;
+	for(var k = N-1; k >= 0; k--) { 
+		var i = (int)aindex[k];
+		ans += a[i];
+		if (i - 1 >= 0 && a[i - 1] > a[i]) ans += suf.Unite(i - 1, i) * a[i];
+		if (i + 1 < N && a[i + 1] > a[i]) ans += suf.Unite(i + 1, i) * a[i];
+	}
+	ans.WL();
+}
+public struct SectionUnionFind
+{
+	private readonly int N;
+	public int[] Parent { get; private set; }
+	public long[] Cost { get; private set; }
+
+	public SectionUnionFind(int n) {
+		N = n;
+		Parent = Enumerable.Range(0, N).ToArray();
+		Cost = Enumerable.Repeat(1L, N).ToArray();
+	}
+
+	public int Root(int x) {
+		return Parent[x] == x ? x : Parent[x] = Root(Parent[x]);
+	}
+
+	public long Unite(int x, int y) {
+		x = Root(x);
+		y = Root(y);
+		var res = Cost[x] * Cost[y];
+		Cost[x] += Cost[y];
+		Parent[y] = x;
+		return res;
+	}
+}
+```

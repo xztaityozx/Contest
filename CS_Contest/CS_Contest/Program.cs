@@ -30,23 +30,24 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), X = NextInt();
-				var list = GetLongList().ToArray();
-				var ans = list.Sum();
-
-
-				var xk = 0L;
-				N.REP(k =>
+				var N = NextInt();
+				long[] a=new long[N],aindex=new long[N];
+				N.REP(i =>
 				{
-					xk += X;
-					var next = 0L;
-					var sub = new long[N];
-					N.REP(i => { next += sub[i] = Min(list[i], list[(i + N - 1) % N]); });
-					list = sub;
-					ans = Min(ans, xk + next);
+					a[i] = NextLong();
+					aindex[a[i]-1] = i;
 				});
-				ans.WL();
 
+				var suf = new SectionUnionFind(N);
+
+				var ans = 0L;
+				for(var k = N-1; k >= 0; k--) { 
+					var i = (int)aindex[k];
+					ans += a[i];
+					if (i - 1 >= 0 && a[i - 1] > a[i]) ans += suf.Unite(i - 1, i) * a[i];
+					if (i + 1 < N && a[i + 1] > a[i]) ans += suf.Unite(i + 1, i) * a[i];
+				}
+				ans.WL();
 			}
 		}
 	}
@@ -128,6 +129,32 @@ namespace CS_Contest.Graph
 {
 	using Ll=List<long>;
 	using Li=List<int>;
+
+	public struct SectionUnionFind
+	{
+		private readonly int N;
+		public int[] Parent { get; private set; }
+		public long[] Cost { get; private set; }
+
+		public SectionUnionFind(int n) {
+			N = n;
+			Parent = Enumerable.Range(0, N).ToArray();
+			Cost = Enumerable.Repeat(1L, N).ToArray();
+		}
+
+		public int Root(int x) {
+			return Parent[x] == x ? x : Parent[x] = Root(Parent[x]);
+		}
+
+		public long Unite(int x, int y) {
+			x = Root(x);
+			y = Root(y);
+			var res = Cost[x] * Cost[y];
+			Cost[x] += Cost[y];
+			Parent[y] = x;
+			return res;
+		}
+	}
 
 	public struct WeightedUnionFind
 	{
