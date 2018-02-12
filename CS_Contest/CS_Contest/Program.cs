@@ -30,31 +30,21 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), x = NextInt();
-
-				if (x == 1 || x == 2 * N - 1) {
-					"No".WL();
-					return;
+				var N = NextInt();
+				var P = GetIntList();
+				var R = new int[N+1];
+				for (var i = 1; i <= N; i++) {
+					R[P[i-1]] = i;
 				}
 
-				if (N == 2) {
-					"Yes".WL();
-					new int[] {1,2,3}.WL();
-					return;
+				var A = new Li();
+				var B = new Li();
+				for (int i = 1; i <= N; i++) {
+					A.Add(30000 * i);
+					B.Add(30000 * (N - i) + R[i]);
 				}
-
-				var range = Enumerable.Range(1, 2 * N - 1).ToList();
-				var section = x == 2 ? new Li {x + 1, x, x - 1, x + 2} : new Li {x - 1, x, x + 1, x - 2};
-				section.ForEach(k => range.Remove(k));
-
-				var ans = new Li();
-
-				var queue = range.ToQueue();
-				(N - 2).REP(i => ans.Add(queue.Dequeue()));
-				ans.AddRange(section);
-				ans.AddRange(queue);
-				"Yes".WL();
-				ans.WL();
+				A.JoinWL();
+				B.JoinWL();
 			}
 		}
 	}
