@@ -30,11 +30,19 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var uf = new UnionFind(N+M);
-				N.REP(i => { GetIntList().Skip(1).ToList().ForEach(Li => uf.Unite(Li - 1 + N, i)); });
+				var s = ReadLine().ToArray();
+				var K = NextInt();
+				var list = s.Select(c => c == 'a' ? 0 : 26 - (c - 'a')).ToList();
 
-				(Enumerable.Range(0,N).All(i => uf.IsSameGroup(0,i))?"YES":"NO").WL();
+				list.ForeachWith((idx, item) =>
+				{
+					if (item > K) return;
+					K -= item;
+					s[idx] = 'a';
+				});
+				K %= 26;
+				s[s.Length - 1] = (char) ((s[s.Length - 1] + K));
+				s.StringJoin().WL();
 			}
 		}
 	}
@@ -424,6 +432,20 @@ namespace CS_Contest.Loop
 
 		public static void FOR(this Tuple<long, long> t, Action<long> act) =>
 			new Tuple<long, long, long>(t.Item1, t.Item2, 1).FOR(act);
+
+		public static void ForeachWith<T>(this IEnumerable<T> ie, Action<int, T> act) {
+			var i = 0;
+			foreach (var item in ie) {
+				act(i, item);
+				i++;
+			}
+		}
+
+		public static void Foreach<T>(this IEnumerable<T> ie, Action<T> act) {
+			foreach (var item in ie) {
+				act(item);
+			}
+		}
 	}
 }
 
@@ -447,6 +469,7 @@ namespace CS_Contest.IO
 			return t;
 		}
 		public static void JoinWL<T>(this IEnumerable<T> @this, string sp = " ") => @this.StringJoin(sp).WL();
+		public static void W(this object @this) => Write(@this);
 	}
 
 
@@ -519,19 +542,7 @@ namespace CS_Contest.Utils
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
 
-		public static void ForeachWith<T>(this IEnumerable<T> ie, Action<int, T> act) {
-			var i = 0;
-			foreach (var item in ie) {
-				act(i, item);
-				i++;
-			}
-		}
 
-		public static void Foreach<T>(this IEnumerable<T> ie, Action<T> act) {
-			foreach (var item in ie) {
-				act(item);
-			}
-		}
 
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
