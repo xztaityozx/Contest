@@ -30,16 +30,25 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt();
-				var A = GetLongList().OrderBy(x => x).ToList();
-				var sum = 0L;
-				var t = 0;
-				(N-1).REP(k =>
+				var S = ReadLine();
+				var cnt = 0L;
+				var N = S.Length;
+				S.ForeachWith((i, c) =>
 				{
-					sum += A[k];
-					if (2 * sum < A[k + 1]) t = k + 1;
+					if (c=='U') {
+						//下へ行くには2回乗る
+						cnt += (i) * 2;
+						//上に行くには1回乗る
+						cnt += N - i - 1;
+					}
+					else {
+						//下へ行くには1回乗る
+						cnt += i;
+						//上に行くには2回乗る
+						cnt += (N - i-1) * 2;
+					}
 				});
-				(N-t).WL();
+				cnt.WL();
 			}
 		}
 	}
