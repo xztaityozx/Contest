@@ -30,25 +30,11 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var S = ReadLine();
-				var cnt = 0L;
-				var N = S.Length;
-				S.ForeachWith((i, c) =>
-				{
-					if (c=='U') {
-						//下へ行くには2回乗る
-						cnt += (i) * 2;
-						//上に行くには1回乗る
-						cnt += N - i - 1;
-					}
-					else {
-						//下へ行くには1回乗る
-						cnt += i;
-						//上に行くには2回乗る
-						cnt += (N - i-1) * 2;
-					}
-				});
-				cnt.WL();
+				long N = NextLong(), A = NextLong(), B = NextLong(), C = NextLong(), D = NextLong();
+
+				(Enumerable.Range(0, (int) N - 1)
+					.Select(m =>  new {under = C * (N - 1 - m) - D * m, top = -C * m + (N - 1 - m) * D} )
+					.Any(item => item.under <= B - A && B - A <= item.top)?"YES":"NO").WL();
 			}
 		}
 	}
@@ -573,9 +559,10 @@ namespace CS_Contest.Utils
 		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
 
 		public static IEnumerable<T> SkipAt<T>(this IEnumerable<T> @this, int at) {
-			for (var i = 0; i < @this.Count(); i++) {
+			var enumerable = @this as T[] ?? @this.ToArray();
+			for (var i = 0; i < enumerable.Count(); i++) {
 				if(i==at) continue;
-				yield return @this.ElementAt(i);
+				yield return enumerable.ElementAt(i);
 			}
 		}
 	}
