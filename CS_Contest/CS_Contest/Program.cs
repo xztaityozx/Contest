@@ -30,11 +30,11 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				long N = NextLong(), A = NextLong(), B = NextLong(), C = NextLong(), D = NextLong();
+				int N = NextInt(), M = NextInt();
+				var uf = new UnionFind(N+M);
+				N.REP(i => { GetIntList().Skip(1).ToList().ForEach(Li => uf.Unite(Li - 1 + N, i)); });
 
-				(Enumerable.Range(0, (int) N - 1)
-					.Select(m =>  new {under = C * (N - 1 - m) - D * m, top = -C * m + (N - 1 - m) * D} )
-					.Any(item => item.under <= B - A && B - A <= item.top)?"YES":"NO").WL();
+				(Enumerable.Range(0,N).All(i => uf.IsSameGroup(0,i))?"YES":"NO").WL();
 			}
 		}
 	}

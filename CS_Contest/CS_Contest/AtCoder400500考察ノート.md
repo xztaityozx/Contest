@@ -564,3 +564,25 @@ S.ForeachWith((i, c) =>
 	.Select(m =>  new {under = C * (N - 1 - m) - D * m, top = -C * m + (N - 1 - m) * D} )
 	.Any(item => item.under <= B - A && B - A <= item.top)?"YES":"NO").WL();
 ```
+
+# CODE FESTIVAL 2016 Final: C Interpretation
+- N人の人間がそれぞれK[N]個の言語を話せる。誰かを介すか本人同士で意思疎通ができるか確かめる問題
+  - めっちゃUnion-Findっぽい
+- Union-Findだった
+- 満点をとるには人と言語でN+M辺の2部グラフを考える。人同士が連結ならOK
+- これを調べるにはUnion-Findが簡単
+- Union-Findの要素数はN+M個。
+  - これにどんどんUniteしていく
+
+```cs
+N.REP(i => { 
+    GetIntList()
+    .Skip(1)
+    .ToList()
+    .ForEach(Li => uf.Unite(Li - 1 + N, i));  //Li - 1 + Nが言語、iが人の頂点
+});
+//連結しているかをチェック
+(Enumerable.Range(0,N).All(i => uf.IsSameGroup(0,i))?"YES":"NO").WL(); 
+```
+
+- Union-Findやるだけの問題だった
