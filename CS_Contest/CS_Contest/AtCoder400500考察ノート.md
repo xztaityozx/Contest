@@ -505,3 +505,12 @@ public struct SectionUnionFind
 - そのあとi(K<=i<=N)について
   - `ans = Utils.Utils.Max(ans, imosB[N] - (imosB[i] - imosB[i - K]) + (imosA[i] - imosA[i - K]),imosB[N] - (imosB[i] - imosB[i - K]));`
 - を計算してAC
+
+# AGC011 B Colorful Creatures
+- 色iと大きさAiを持つモンスターがN体いる。大きさXiが2Yi以下なら大きさYiを持つモンスターを吸収し、色iのまま大きさがXi+Yiになる。最後の一体になったとき色の可能性としてあり得るのは何色か
+  - PriorityQueueで小さい順に吸収させていって色を最大化するのかと思ったけど違った
+- 先ずは大きさでソートする。
+- 次に`2sum(k) < A[k+1]`となるようなkの最大値を探す。これをtとする。ない場合は0
+  - このとき`{1,2,3,....t}`番目のモンスターの色が残るためには`t+1`番目を吸収しないといけない
+  - しかし`{1,2,3,....t}`番目を合計してもそれはむりなのでここまでの色はなくなる
+- 色の最大値はNであるのでこのtを引いた`N-t`が答え

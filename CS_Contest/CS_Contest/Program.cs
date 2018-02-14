@@ -30,24 +30,16 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), K = NextInt();
-				var A = GetLongList();
-
-				var imosA = new long[N + 1];
-				var imosB = new long[N + 1];
-
-				(N).REP(i =>
+				int N = NextInt();
+				var A = GetLongList().OrderBy(x => x).ToList();
+				var sum = 0L;
+				var t = 0;
+				(N-1).REP(k =>
 				{
-					imosB[i + 1] =imosB[i] + Max(0, A[i]);
-					imosA[i+1] =imosA[i] + A[i];
+					sum += A[k];
+					if (2 * sum < A[k + 1]) t = k + 1;
 				});
-
-				var ans = 0L;
-				for (int i = K; i <= N; i++) {
-					ans = Utils.Utils.Max(ans, imosB[N] - (imosB[i] - imosB[i - K]) + (imosA[i] - imosA[i - K]),
-						imosB[N] - (imosB[i] - imosB[i - K]));
-				}
-				ans.WL();
+				(N-t).WL();
 			}
 		}
 	}
