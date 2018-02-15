@@ -18,8 +18,6 @@ namespace CS_Contest {
 	using LLi = List<List<int>>;
 	using Ll = List<long>;
 	using ti3=Tuple<int,int,int>;
-	using II=Tuple<int,int>;
-	using LL=Tuple<long,long>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -30,19 +28,64 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var s = ReadLine().ToArray();
-				var K = NextInt();
-				var list = s.Select(c => c == 'a' ? 0 : 26 - (c - 'a')).ToList();
+				var N = NextInt();
+				var T = NextLongList();
+				var A = NextLongList();
 
-				list.ForeachWith((idx, item) =>
+				var udT = new bool[N];
+				var udA = new bool[N];
+
+				udT[0] = true;
+				for (int i = 1; i < N; i++) {
+					udT[i] = T[i - 1] < T[i];
+				}
+				udA[N - 1] = true;
+				for (int i = N - 2; i >= 0; i--) {
+					udA[i] = A[i + 1] < A[i];
+				}
+
+				var list = new long[N];
+				var udTA = new bool[N];
+
+				for(int i=0;i<N;i++)
 				{
-					if (item > K) return;
-					K -= item;
-					s[idx] = 'a';
+					if (!udT[i] && !udA[i]) {
+						list[i] = Min(T[i], A[i]);
+						udTA[i] = false;
+					}else if (!udT[i] && udA[i]) {
+						if (A[i] > T[i]) {
+							"0".WL();
+							return;
+						}
+						udTA[i] = true;
+					}else if (udT[i] && !udA[i]) {
+						if (T[i] > A[i]) {
+							"0".WL();
+							return;
+						}
+
+						udTA[i] = true;
+					}
+					else {
+						if (T[i] != A[i]) {
+							"0".WL();
+							return;
+						}
+
+						udTA[i] = true;
+					}
+				}
+
+				var ans = 1L;
+				N.REP(i =>
+				{
+					if(udTA[i])return;
+					ans = Utils.Utils.Mod(ans * list[i]);
 				});
-				K %= 26;
-				s[s.Length - 1] = (char) ((s[s.Length - 1] + K));
-				s.StringJoin().WL();
+				ans.WL();
+
+				
+				return;
 			}
 		}
 	}
@@ -415,6 +458,10 @@ namespace CS_Contest.Loop
 			}
 		}
 
+		public static void RREP(this int @n, Action<int> act) {
+			for (var i = n - 1; i >= 0; i--) act(i);
+		}
+
 		public static void REP(this long n, Action<long> act) {
 			for (var i = 0; i < n; i++) act(i);
 		}
@@ -460,8 +507,8 @@ namespace CS_Contest.IO
 		public static void WL(this string obj) => WriteLine(obj);
 		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
 
-		public static Li GetIntList() => ReadLine().Split().Select(int.Parse).ToList();
-		public static Ll GetLongList() => ReadLine().Split().Select(long.Parse).ToList();
+		public static Li NextIntList() => ReadLine().Split().Select(int.Parse).ToList();
+		public static Ll NextLongList() => ReadLine().Split().Select(long.Parse).ToList();
 
 		public static T Tee<T>(this T t, Func<T, string> formatter = null) {
 			if (formatter == null) formatter = arg => arg.ToString();
