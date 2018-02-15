@@ -28,63 +28,19 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var N = NextInt();
-				var T = NextLongList();
-				var A = NextLongList();
+				var S = ReadLine();
+				var dic = new int[3] {0, 0, 0};
 
-				var udT = new bool[N];
-				var udA = new bool[N];
-
-				udT[0] = true;
-				for (int i = 1; i < N; i++) {
-					udT[i] = T[i - 1] < T[i];
-				}
-				udA[N - 1] = true;
-				for (int i = N - 2; i >= 0; i--) {
-					udA[i] = A[i + 1] < A[i];
+				foreach (var item in S) {
+					dic[item - 'a']++;
 				}
 
-				var list = new long[N];
-				var udTA = new bool[N];
+				var min = dic.Min();
+				dic = dic.Select(x => x - min).ToArray();
 
-				for(int i=0;i<N;i++)
-				{
-					if (!udT[i] && !udA[i]) {
-						list[i] = Min(T[i], A[i]);
-						udTA[i] = false;
-					}else if (!udT[i] && udA[i]) {
-						if (A[i] > T[i]) {
-							"0".WL();
-							return;
-						}
-						udTA[i] = true;
-					}else if (udT[i] && !udA[i]) {
-						if (T[i] > A[i]) {
-							"0".WL();
-							return;
-						}
+				if(dic.Any(x=>x>1)) "NO".WL();
+				else "YES".WL();
 
-						udTA[i] = true;
-					}
-					else {
-						if (T[i] != A[i]) {
-							"0".WL();
-							return;
-						}
-
-						udTA[i] = true;
-					}
-				}
-
-				var ans = 1L;
-				N.REP(i =>
-				{
-					if(udTA[i])return;
-					ans = Utils.Utils.Mod(ans * list[i]);
-				});
-				ans.WL();
-
-				
 				return;
 			}
 		}
