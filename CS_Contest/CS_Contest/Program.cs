@@ -28,26 +28,46 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var S = ReadLine();
+				var N = NextInt();
+				var box = new bool[N];
 
-				var s = 0;
-				var e = S.Length - 1;
-				var cnt = 0;
-				for (s = 0; s < S.Length && s <= e; s++) {
-					if (S[s] == S[e]) e--;
-					else if (S[s] == 'x' || S[e] == 'x') {
-						if (S[e] == 'x') {
-							e--;
-							s--;
-						}
-						cnt++;
+				var question = new int[] {1,10,100,1000,10000};
+
+				var ans = new bool[N];
+
+				Func<int, int, bool[]> Parse = (response, count) =>
+				{
+					var rt = new bool[count];
+					for (int i = 0; i < count; i++) {
+						var actual = response % 10;
+						rt[i] = actual % 2 == 1; //奇数なら本物
+						response -= actual;
+						if (actual == 0 || actual == 1 || actual == 2) response -= 10; //10以上の硬貨なら削る
+						response /= 10;
 					}
-					else {
-						"-1".WL();
-						return;
+
+					return rt;
+				};
+
+				var idx = 0;
+				while (idx<N) {
+					var query = new int[N];
+					var qcnt = 0;
+					for (var i = idx; i < Min(idx + 5, N); i++) {
+						query[i] = question[i - idx];
+						qcnt++;
 					}
+
+					$"? {query.StringJoin(" ")}".WL();
+					var response = NextInt();
+					var parsed = Parse(response, qcnt);
+
+					qcnt.REP(i => { ans[i + idx] = parsed[i]; });
+
+					idx += 5;
 				}
-				cnt.WL();
+
+				$"! {ans.Select(x => x ? 1 : 0).StringJoin(" ")}".WL();
 
 				return;
 			}
@@ -601,6 +621,8 @@ namespace CS_Contest.Utils
 			set { base[index] = value; }
 		}
 	}
+
+	
 
 }
 

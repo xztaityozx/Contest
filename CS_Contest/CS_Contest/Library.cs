@@ -50,7 +50,7 @@ namespace CS_Contest {
 			"===============End of Solve================".WL();
 			(stopwatch.ElapsedMilliseconds+" ms").WL();
 			Out.Flush();
-			
+
 		}
 	}
 	
