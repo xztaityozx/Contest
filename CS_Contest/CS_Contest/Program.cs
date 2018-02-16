@@ -28,47 +28,30 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var N = NextInt();
-				var box = new bool[N];
+				long A = NextLong(), B = NextLong();
 
-				var question = new int[] {1,10,100,1000,10000};
+				var prime = new long[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
 
-				var ans = new bool[N];
+				var N = prime.Length;
+				var bitdp = new long[1 << N];
+				bitdp[0] = 1;
+				for (var x = A; x <= B; x++) {
+					var nextdp = new long[1 << N];
+					var bit = 0;
+					N.REP(i =>
+					{
+						if (x % prime[i] == 0) bit |= 1 << i;
+					});
 
-				Func<int, int, bool[]> Parse = (response, count) =>
-				{
-					var rt = new bool[count];
-					for (int i = 0; i < count; i++) {
-						var actual = response % 10;
-						rt[i] = actual % 2 == 1; //奇数なら本物
-						response -= actual;
-						if (actual == 0 || actual == 1 || actual == 2) response -= 10; //10以上の硬貨なら削る
-						response /= 10;
-					}
-
-					return rt;
-				};
-
-				var idx = 0;
-				while (idx<N) {
-					var query = new int[N];
-					var qcnt = 0;
-					for (var i = idx; i < Min(idx + 5, N); i++) {
-						query[i] = question[i - idx];
-						qcnt++;
-					}
-
-					$"? {query.StringJoin(" ")}".WL();
-					var response = NextInt();
-					var parsed = Parse(response, qcnt);
-
-					qcnt.REP(i => { ans[i + idx] = parsed[i]; });
-
-					idx += 5;
+					bitdp.ForeachWith((i, item) =>
+					{
+						nextdp[i] += item;
+						if ((i & bit) == 0) nextdp[i | bit] += item;
+					});
+					bitdp = nextdp;
 				}
-
-				$"! {ans.Select(x => x ? 1 : 0).StringJoin(" ")}".WL();
-
+				bitdp.Sum().WL();
+				
 				return;
 			}
 		}
@@ -538,11 +521,11 @@ namespace CS_Contest.Utils
 		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
 		public static void Add<T1, T2>(this List<Tuple<T1, T2>> list, T1 t1, T2 t2) => list.Add(new Tuple<T1, T2>(t1, t2));
 
-		public static bool IsPrime(int n) {
+		public static bool IsPrime(long n) {
 			if (n == 2) return true;
 			if (n < 2||n%2==0) return false;
 			var i = 3;
-			int sq = (int)Sqrt(n);
+			var sq = (long)Sqrt(n);
 			while (i <= sq) {
 				if (n % i == 0) return false;
 				i += 2;
@@ -573,7 +556,18 @@ namespace CS_Contest.Utils
 
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
 
+		public static long GCD(long m, long n) {
+			long tmp;
+			if (m < n) { tmp = n; n = m; m = tmp; }
+			while (m % n != 0) {
+				tmp = n;
+				n = m % n;
+				m = tmp;
+			}
+			return n;
+		}
 
+		public static long LCM(long m, long n) => m * (n / GCD(m, n));
 
 
 		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);

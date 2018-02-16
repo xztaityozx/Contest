@@ -22,18 +22,7 @@ namespace CS_Contest {
 			idx = idx < 0 ? ~idx : idx;
 			return Max(0, idx - 1);
 		}
-		public static long GCD(long m, long n) {
-			long tmp;
-			if (m < n) { tmp = n; n = m; m = tmp; }
-			while (m % n != 0) {
-				tmp = n;
-				n = m % n;
-				m = tmp;
-			}
-			return n;
-		}
 
-		public static long LCM(long m, long n) => m * (n / GCD(m, n));
 
 	}
 
