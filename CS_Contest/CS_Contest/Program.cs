@@ -28,18 +28,34 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var S = ReadLine();
-				var dic = new int[3] {0, 0, 0};
+				int H = NextInt(), W = NextInt();
+				var dic = new Map<char, int>();
+				H.REP(i => ReadLine().Foreach(c => dic[c]++));
 
-				foreach (var item in S) {
-					dic[item - 'a']++;
-				}
+				Func<bool> getRes = () =>
+				{
 
-				var min = dic.Min();
-				dic = dic.Select(x => x - min).ToArray();
+					if (H%2 == 0 && W%2 == 0) {
+						//偶数ｘ偶数
+						return dic.All(x => x.Value % 4 == 0);
+					}
 
-				if(dic.Any(x=>x>1)) "NO".WL();
-				else "YES".WL();
+					var map = new Map<int, int>();
+					dic.Foreach(v => map[v.Value % 4]++);
+					if (H%2 == 1 && W%2 == 1) {
+						//奇数ｘ奇数
+						if (map[3] >= 1) return false;
+						if (map[1] != 1) return false;
+						return map[2] <= (H - 1) / 2 + (W - 1) / 2;
+					}
+
+					if (W % 2 == 1) Utils.Utils.Swap(ref W, ref H);
+
+					if (map[1] >= 1 || map[3] >= 1) return false;
+					return map[2] <= W / 2;
+				};
+
+				(getRes()?"Yes":"No").WL();
 
 				return;
 			}
