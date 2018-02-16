@@ -727,3 +727,20 @@ N.REP(i => {
   - 最後にbitdpをnextdpで更新してループが終わり
 - 最後まで計算した後bitdpに各パターンの個数が入っているのでsumしてAC
 - bitdp始めてやった
+
+# DISCO presents ディスカバリーチャンネル コードコンテスト2016 予選: C C - ロト2
+- 数列Aがある。任意の(i,j)に対してA[i]×A[j]がKの倍数となる(i,j)はいくつあるかを求める問題
+  - 全然わからんかった
+- Nが200,000なので全探索をするのは不可能
+- 問題を読み替えてGCD(A[i],K)×GCD(A[j],K)がKの倍数になるかという問題にする
+- Kの約数は1,344個程度らしいのでGCD(A[i],K)の分布をDictionaryで調べてやれば`O(1,344^2)`で計算できるらしい
+- 前準備
+  - `list=dic.Select(item=>new Tuple<long,int>(item.Key,item.Value)).ToList()`
+  - `M=list.Count`
+- 2重forを`i(0<=i<M),j(i<=j<M)`でする
+  - `list[i].Item2*list[j].Item2%K==0`のやつが目的のやつ
+  - ここでi==jのとき
+    - list[i]を2つ使うことになるので`list[i].Item2*(list[i].Item2-1)`さらに(i,j)と(j,i)は同じものなのでこれの半分
+  - i!=jのとき
+    - 普通に`list[i].Item2*list[j].Item2`個
+- むずかしいすぎる

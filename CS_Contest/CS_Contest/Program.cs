@@ -18,6 +18,7 @@ namespace CS_Contest {
 	using LLi = List<List<int>>;
 	using Ll = List<long>;
 	using ti3=Tuple<int,int,int>;
+	using ti2=Tuple<int,int>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -28,30 +29,30 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				long A = NextLong(), B = NextLong();
+				int N = NextInt(), K = NextInt();
+				var A = NextIntList();
 
-				var prime = new long[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-
-				var N = prime.Length;
-				var bitdp = new long[1 << N];
-				bitdp[0] = 1;
-				for (var x = A; x <= B; x++) {
-					var nextdp = new long[1 << N];
-					var bit = 0;
-					N.REP(i =>
-					{
-						if (x % prime[i] == 0) bit |= 1 << i;
-					});
-
-					bitdp.ForeachWith((i, item) =>
-					{
-						nextdp[i] += item;
-						if ((i & bit) == 0) nextdp[i | bit] += item;
-					});
-					bitdp = nextdp;
+				var dic = new Map<long,int>();
+				foreach (var item in A) {
+					dic[Utils.Utils.GCD(item, K)]++;
 				}
-				bitdp.Sum().WL();
+
+				var list = dic.Select(item => new Tuple<long, int>(item.Key, item.Value)).ToList();
+				var M = list.Count;
+
+				var ans = 0L;
+				M.REP(i =>
+				{
+					new ti2(i,M).FOR(j =>
+					{
+						if (list[i].Item1 * list[j].Item1 % K != 0) return;
+						if (i == j) ans += (long) list[i].Item2 * (list[i].Item2 - 1) / 2;
+						else ans += (long) list[i].Item2 * list[j].Item2;
+					});
+				});
 				
+				ans.WL();
+
 				return;
 			}
 		}
