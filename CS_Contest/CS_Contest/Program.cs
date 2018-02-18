@@ -13,12 +13,13 @@ using CS_Contest.Utils;
 using static Nakov.IO.Cin;
 using static CS_Contest.IO.IO;
 
+
 namespace CS_Contest {
 	using Li = List<int>;
 	using LLi = List<List<int>>;
 	using Ll = List<long>;
-	using ti3=Tuple<int,int,int>;
-	using ti2=Tuple<int,int>;
+	using ti3 = Tuple<int, int, int>;
+	using ti2 = Tuple<int, int>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -29,40 +30,56 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				var S = ReadLine();
-				var length = S.Length;
+				int H = NextInt(), W = NextInt();
+				var G = new List<string>();
+				H.REP(x => G.Add(ReadLine()));
 
-				var dp = new int[length + 1, length + 1, length + 1]; // dp[i,j,k]=i文字目までで最後にj文字目を変更して(と)の差がkの最小値
-				(length + 1).REP(i => { (length + 1).REP(j => (length + 1).REP(k => dp[i, j, k] = int.MaxValue / 2)); });
-				dp[0, 0, 0] = 0;
+				var dx = new int[] { 1, 0, -1, 0 };
+				var dy = new int[] { 0, -1, 0, 1 };
 
-				length.REP(i =>
-				{
-					length.REP(j =>
-					{
-						(length + 1).REP(k =>
-						{
-							if (dp[i, j, k] == int.MaxValue / 2) return;
-							if (S[i] == '(') {
-								dp[i + 1, j, k + 1] = Min(dp[i + 1, j, k + 1], dp[i, j, k]); //無変更で1増える
-								if (k > 0) dp[i + 1, i, k - 1] = Min(dp[i + 1, i, k - 1], dp[i, j, k] + 1); //(⇒)にして差を1減らす
-							}
-							else {
-								if (k > 0) dp[i + 1, j, k - 1] = Min(dp[i + 1, j, k - 1], dp[i, j, k]); //無変更で1減る
-								dp[i + 1, i, k + 1] = Min(dp[i + 1, i, k + 1], dp[i, j, k] + 1); //)⇒(にして差を増やす
-							}
-						});
-					});
-				});
+				var used = new bool[H, W];
 
-				var ans = int.MaxValue;
-				length.REP(i => ans = Min(ans, dp[length, i, 0] + i)); //変更回数+移動回数
-				ans.WL();
+				var queue = new Queue<ti3>();
+				queue.Enqueue(new ti3(0, 0, 1));
+				used[0, 0] = true;
+				var min = int.MaxValue;
+				while (queue.Any()) {
+					var src = queue.Dequeue();
+					for (int i = 0; i < 4; i++) {
+						var x = dx[i] + src.Item1;
+						var y = dy[i] + src.Item2;
+						if (!Utils.Utils.Within(x, y, W, H)) continue;
+						if (G[y][x] == '#') continue;
+						if (used[y, x]) continue;
+
+						if (x == W - 1 && y == H - 1) {
+							min = Min(min, src.Item3 + 1);
+							continue;
+						}
+
+						used[y, x] = true;
+						queue.Enqueue(new ti3(x, y, src.Item3 + 1));
+					}
+				}
+
+
+				if (min == int.MaxValue) {
+					"-1".WL();
+					return;
+				}
+
+				var cnt = 0;
+
+				H.REP(i => W.REP(j => {
+					if (G[i][j] == '.') cnt++;
+				}));
+
+				(cnt - min).WL();
 
 				return;
 			}
 
-			
+
 		}
 
 	}
@@ -135,10 +152,8 @@ namespace Nakov.IO {
 	}
 }
 
-namespace CS_Contest.Loop
-{
-	public static class Loop
-	{
+namespace CS_Contest.Loop {
+	public static class Loop {
 		public static void REP(this int n, Action<int> act) {
 			for (var i = 0; i < n; i++) {
 				act(i);
@@ -183,13 +198,11 @@ namespace CS_Contest.Loop
 	}
 }
 
-namespace CS_Contest.IO
-{
+namespace CS_Contest.IO {
 	using Li = List<int>;
 	using Ll = List<long>;
 
-	public static class IO
-	{
+	public static class IO {
 		public static void WL(this object obj) => WriteLine(obj);
 		public static void WL(this string obj) => WriteLine(obj);
 		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
@@ -209,89 +222,18 @@ namespace CS_Contest.IO
 
 }
 
-namespace CS_Contest.Utils
-{
-	using Li=List<int>;
-	using Ll=List<long>;
-	public static class Utils
-	{
+namespace CS_Contest.Utils {
+	using Li = List<int>;
+	using Ll = List<long>;
+	public static class Utils {
 		public static List<T> Repeat<T>(Func<int, T> result, int range) =>
 			Enumerable.Range(0, range).Select(result).ToList();
 
-		public static long[,] CombinationTable(int n) {
-			var rt = new long[n + 1, n + 1];
-			for (var i = 0; i <= n; i++) {
-				for (var j = 0; j <= i; j++) {
-					if (j == 0 || i == j) rt[i, j] = 1L;
-					else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
-				}
-			}
-			return rt;
-		}
-		public static long ModValue = (long)1e9 + 7;
-		public static long INF = long.MaxValue;
-
-		public static long Mod(long x) => x % ModValue;
 		public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
 
-		public static long ModPow(long x, long n) {
-			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
-			return tmp;
-		}
-
-		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
 		public static void Add<T1, T2>(this List<Tuple<T1, T2>> list, T1 t1, T2 t2) => list.Add(new Tuple<T1, T2>(t1, t2));
 
-		public static bool IsPrime(long n) {
-			if (n == 2) return true;
-			if (n < 2||n%2==0) return false;
-			var i = 3;
-			var sq = (long)Sqrt(n);
-			while (i <= sq) {
-				if (n % i == 0) return false;
-				i += 2;
-			}
-			return true;
-		}
-
-		public static IEnumerable<int> Primes(int maxnum) {
-			yield return 2;
-			yield return 3;
-			var sieve = new BitArray(maxnum + 1);
-			int squareroot = (int)Math.Sqrt(maxnum);
-			for (int i = 2; i <= squareroot; i++) {
-				if (sieve[i] == false) {
-					for (int n = i * 2; n <= maxnum; n += i)
-						sieve[n] = true;
-				}
-				for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++) {
-					if (!sieve[n])
-						yield return n;
-				}
-			}
-		}
-
-		public static T Min<T>(params T[] a) where T : IComparable<T> => a.Min();
-		public static T Max<T>(params T[] a) where T : IComparable<T> => a.Max();
-
-
 		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
-
-		public static long GCD(long m, long n) {
-			long tmp;
-			if (m < n) { tmp = n; n = m; m = tmp; }
-			while (m % n != 0) {
-				tmp = n;
-				n = m % n;
-				m = tmp;
-			}
-			return n;
-		}
-
-		public static long LCM(long m, long n) => m * (n / GCD(m, n));
-
-
-		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 
 		public static Queue<T> ToQueue<T>(this IEnumerable<T> iEnumerable) {
 			var rt = new Queue<T>();
@@ -318,7 +260,7 @@ namespace CS_Contest.Utils
 		public static IEnumerable<T> SkipAt<T>(this IEnumerable<T> @this, int at) {
 			var enumerable = @this as T[] ?? @this.ToArray();
 			for (var i = 0; i < enumerable.Count(); i++) {
-				if(i==at) continue;
+				if (i == at) continue;
 				yield return enumerable.ElementAt(i);
 			}
 		}
@@ -337,7 +279,73 @@ namespace CS_Contest.Utils
 		}
 	}
 
-	
+	public static class MyMath {
+		public static long GCD(long m, long n) {
+			long tmp;
+			if (m < n) { tmp = n; n = m; m = tmp; }
+			while (m % n != 0) {
+				tmp = n;
+				n = m % n;
+				m = tmp;
+			}
+			return n;
+		}
+
+		public static long LCM(long m, long n) => m * (n / GCD(m, n));
+
+		public static long ModValue = (long)1e9 + 7;
+		public static long INF = long.MaxValue;
+
+		public static long Mod(long x) => x % ModValue;
+		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+		public static long[,] CombinationTable(int n) {
+			var rt = new long[n + 1, n + 1];
+			for (var i = 0; i <= n; i++) {
+				for (var j = 0; j <= i; j++) {
+					if (j == 0 || i == j) rt[i, j] = 1L;
+					else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
+				}
+			}
+			return rt;
+		}
+		public static long ModPow(long x, long n) {
+			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
+			return tmp;
+		}
+		public static bool IsPrime(long n) {
+			if (n == 2) return true;
+			if (n < 2 || n % 2 == 0) return false;
+			var i = 3;
+			var sq = (long)Sqrt(n);
+			while (i <= sq) {
+				if (n % i == 0) return false;
+				i += 2;
+			}
+			return true;
+		}
+
+		public static IEnumerable<int> Primes(int maxnum) {
+			yield return 2;
+			yield return 3;
+			var sieve = new BitArray(maxnum + 1);
+			int squareroot = (int)Math.Sqrt(maxnum);
+			for (int i = 2; i <= squareroot; i++) {
+				if (sieve[i] == false) {
+					for (int n = i * 2; n <= maxnum; n += i)
+						sieve[n] = true;
+				}
+				for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++) {
+					if (!sieve[n])
+						yield return n;
+				}
+			}
+		}
+		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
+		public static T Min<T>(params T[] a) where T : IComparable<T> => a.Min();
+		public static T Max<T>(params T[] a) where T : IComparable<T> => a.Max();
+
+	}
+
 
 }
 

@@ -853,3 +853,33 @@ for (int i = 0; i < min.Length; i++) {
   - `dp[|S|,j,0]+j`
     - (|S|文字目までで最後にj文字目を変更して差が0にカーソル移動の回数を足した数)
 - の最小値が答え
+
+# ABC088 D Grid Repainting
+- 迷路を進むとき最短経路以外の通れる道は何個あるかを求める問題
+- 最短経路を求めるbfsを書いて`.`の総数から最短経路を引くだけ
+  - やるだけ！（実装早くしたい）
+- 迷路の最短経路すぐ忘れるのでメモる
+```cs
+var queue = new Queue<ti3>();
+queue.Enqueue(new ti3(0, 0, 1));
+used[0, 0] = true;
+var min = int.MaxValue;
+while (queue.Any()) {
+	var src = queue.Dequeue();
+	for (int i = 0; i < 4; i++) {
+		var x = dx[i] + src.Item1;
+		var y = dy[i] + src.Item2;
+		if (!Utils.Utils.Within(x, y, W, H)) continue;
+		if (G[y][x] == '#') continue;
+		if (used[y, x]) continue;
+
+		if (x == W - 1 && y == H - 1) {
+			min = Min(min, src.Item3 + 1);
+			continue;
+		}
+
+		used[y, x] = true;
+		queue.Enqueue(new ti3(x, y, src.Item3 + 1));
+	}
+}
+```
