@@ -7,7 +7,7 @@ using System.Net;
 using static System.Console;
 using static System.Math;
 using System.Numerics;
-using CS_Contest.Graph;
+//using CS_Contest.Graph;
 using CS_Contest.Loop;
 using CS_Contest.Utils;
 using static Nakov.IO.Cin;
@@ -29,39 +29,106 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), K = NextInt();
-				var A = NextIntList();
-
-				var dic = new Map<long,int>();
-				foreach (var item in A) {
-					dic[Utils.Utils.GCD(item, K)]++;
-				}
-
-				var list = dic.Select(item => new Tuple<long, int>(item.Key, item.Value)).ToList();
-				var M = list.Count;
-
-				var ans = 0L;
-				M.REP(i =>
+				int r = NextInt(), c = NextInt();
+				var box = new List<string>();
+				var cIndex = new int[r, c];
+				var cnt = 0;
+				r.REP(i =>
 				{
-					new ti2(i,M).FOR(j =>
-					{
-						if (list[i].Item1 * list[j].Item1 % K != 0) return;
-						if (i == j) ans += (long) list[i].Item2 * (list[i].Item2 - 1) / 2;
-						else ans += (long) list[i].Item2 * list[j].Item2;
-					});
+					box.Add(ReadLine());
+					for (int j = 0; j < c; j++) {
+						if (box[i][j] == '.') cIndex[i, j] = cnt++;
+					}
 				});
-				
-				ans.WL();
-
+				var mf=new MaxFlow(cnt+2);
+				int s = cnt, t = cnt + 1;
+				var dx = new[] {0, -1, 1, 0};
+				var dy = new[] {1, 0, 0, -1};
+				r.REP(i=>c.REP(j =>
+				{
+					if(box[i][j]!='.') return;
+					if ((i + j) % 2 == 0) {
+						mf.Add(s, cIndex[i, j], 1);
+						4.REP(k =>
+						{
+							var x = dx[k] + j;
+							var y = dy[k] + i;
+							if (!Utils.Utils.Within(x, y, c, r)) return;
+							if(box[y][x]!='.') return;
+							mf.Add(cIndex[i, j], cIndex[y, x], 1);
+						});
+					}
+					else {
+						mf.Add(cIndex[i, j], t, 1);
+					}
+				}));
+				(cnt-mf.Run(s, t)).WL();
 				return;
 			}
 		}
+		public class MaxFlow {
+			private class Edge {
+				public int To, Reverse, Capacity;
+			}
+
+			private int V { get; set; }
+			private List<Edge>[] graph { get; set; }
+			private int[] leveList, itr;
+			public MaxFlow(int v) {
+				V = v;
+				graph = Enumerable.Repeat(1, V).Select(x => new List<Edge>()).ToArray();
+			}
+
+			public void Add(int from, int to, int capa,bool dir=true) {
+				graph[from].Add(new Edge {Capacity = capa, Reverse = graph[to].Count, To = to});
+				graph[to].Add(new Edge {To = from, Capacity = dir ? 0 : capa, Reverse = graph[from].Count - 1});
+			}
+
+			private void Bfs(int s) {
+				leveList = Enumerable.Repeat(-1, V).ToArray();
+				var queue = new Queue<int>();
+				leveList[s] = 0;
+				queue.Enqueue(s);
+				while (queue.Any()) {
+					var src = queue.Dequeue();
+					foreach (var edge in graph[src]) {
+						if (edge.Capacity <= 0 || leveList[edge.To] >= 0) continue;
+						leveList[edge.To] = leveList[src] + 1;
+						queue.Enqueue(edge.To);
+					}
+				}
+			}
+
+			private int Dfs(int v, int t, int f) {
+				if (v == t) return f;
+				for (; itr[v] < graph[v].Count; itr[v]++) {
+					var edge = graph[v][itr[v]];
+					if (edge.Capacity <= 0 || leveList[v] >= leveList[edge.To]) continue;
+					var d = Dfs(edge.To, t, Min(f, edge.Capacity));
+					if (d <= 0) continue;
+					edge.Capacity -= d;
+					graph[edge.To][edge.Reverse].Capacity += d;
+					return d;
+				}
+
+				return 0;
+			}
+
+			public int Run(int s, int t) {
+				int rt = 0;
+				Bfs(s);
+				while (leveList[t] >= 0) {
+					itr = new int[V];
+					int f;
+					while ((f = Dfs(s, t, int.MaxValue)) > 0) rt += f;
+					Bfs(s);
+				}
+
+				return rt;
+			}
+		}
+
 	}
-
-
-
-	
-
 }
 namespace Nakov.IO {
 	using System;
@@ -129,291 +196,6 @@ namespace Nakov.IO {
 		}
 
 	}
-}
-
-namespace CS_Contest.Graph
-{
-	using Ll=List<long>;
-	using Li=List<int>;
-
-	public struct WeightedUnionFind
-	{
-		private readonly int N;
-		public int[] Parent { get; private set; }
-		public long[] Cost { get; private set; }
-		public int[] Rank { get; private set; }
-
-		public WeightedUnionFind(int n) {
-			N = n;
-			Parent = Enumerable.Range(0, N).ToArray();
-			Cost = new long[N];
-			Rank = new int[N];
-		}
-
-		public int Root(int u, out long cost) {
-			if (Parent[u] == u) {
-				cost = Cost[u];
-				return u;
-			}
-
-			var v = Root(Parent[u], out cost);
-			cost += Cost[u];
-			Parent[u] = v;
-			Cost[u] = cost;
-			return v;
-		}
-
-		public void Unite(int lv, int rv, long cost) {
-			long lc, rc;
-			lv = Root(lv, out lc);
-			rv = Root(rv, out rc);
-			cost = -rc + cost + lc;
-
-			if (Rank[lv] < Rank[rv]) {
-				Unite(rv, lv, -cost);
-				return;
-			}
-
-			Parent[rv] = lv;
-			Cost[rv] = cost;
-			Rank[lv] += Rank[rv] + 1;
-		}
-
-		public bool IsValid() {
-			for (var i = 0; i < N; i++) {
-				long _;
-				Root(i, out _);
-			}
-
-			for (var i = 0; i < N; i++) {
-				if (Parent[i] == i && Cost[i] != 0L) {
-					return false;
-				}
-			}
-
-			return true;
-		}
-	}
-
-	/// <summary>
-	/// UnionFind
-	/// </summary>
-	public struct UnionFind {
-		private readonly int[] _data;
-
-		public UnionFind(int size) {
-			_data = new int[size];
-			for (var i = 0; i < size; i++) _data[i] = -1;
-		}
-
-		public bool Unite(int x, int y) {
-			x = Root(x);
-			y = Root(y);
-
-			if (x == y) return x != y;
-			if (_data[y] < _data[x]) {
-				var tmp = y;
-				y = x;
-				x = tmp;
-			}
-			_data[x] += _data[y];
-			_data[y] = x;
-			return x != y;
-		}
-
-		public bool IsSameGroup(int x, int y) {
-			return Root(x) == Root(y);
-		}
-
-		public int Root(int x) {
-			return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
-		}
-	}
-	public class BellmanFord : CostGraph {
-		public BellmanFord(int size) : base(size) {
-		}
-
-		public List<long> Distance { get; set; }
-
-		private bool[] _negative;
-		public bool HasCycle => _negative[Size - 1];
-
-		public void Run(int s) {
-			Distance = new Ll();
-			Size.REP(i => Distance.Add(Inf));
-			Distance[s] = 0;
-			_negative = new bool[Size];
-
-			(Size - 1).REP(i => Size.REP(j => Adjacency[j].Count.REP(k =>
-				{
-					var src = Adjacency[j][k];
-					if (Distance[src.To] > Distance[j] + src.Cost) Distance[src.To] = Distance[j] + src.Cost;
-				}
-			)));
-
-			for (int i = 0; i < Size; i++) {
-				Size.REP(j => {
-					Adjacency[j].Count.REP(k => {
-						var src = Adjacency[j][k];
-						if (Distance[src.To] > Distance[j] + src.Cost) {
-							Distance[src.To] = Distance[j] + src.Cost;
-							_negative[src.To] = true;
-						}
-						if (_negative[j]) _negative[src.To] = true;
-					});
-				});
-			}
-		}
-	}
-	public class CostGraph {
-		public struct Edge {
-			public int To { get; set; }
-			public long Cost { get; set; }
-
-
-			public Edge(int to, long cost) {
-				To = to;
-				Cost = cost;
-			}
-
-		}
-
-		public int Size { get; set; }
-		public List<List<Edge>> Adjacency { get; set; }
-		public const long Inf = (long)1e15;
-
-		public CostGraph(int size) {
-			Size = size;
-			Adjacency = new List<List<Edge>>();
-			Size.REP(_ => Adjacency.Add(new List<Edge>()));
-		}
-
-		public void Add(int s, int t, long c, bool dir = true) {
-			Adjacency[s].Add(new Edge(t, c));
-			if (!dir) Adjacency[t].Add(new Edge(s, c));
-		}
-
-	}
-
-	/// <summary>
-	/// 優先度付きキュー
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public class PriorityQueue<T> {
-		private readonly List<T> heap;
-		private readonly Comparison<T> compare;
-		private int size;
-
-		public PriorityQueue() : this(Comparer<T>.Default) {
-		}
-
-		public PriorityQueue(IComparer<T> comparer) : this(16, comparer.Compare) {
-		}
-
-		public PriorityQueue(Comparison<T> comparison) : this(16, comparison) {
-		}
-
-		public PriorityQueue(int capacity, Comparison<T> comparison) {
-			this.heap = new List<T>(capacity);
-			this.compare = comparison;
-		}
-
-		public void Enqueue(T item) {
-			this.heap.Add(item);
-			var i = size++;
-			while (i > 0) {
-				var p = (i - 1) >> 1;
-				if (compare(this.heap[p], item) <= 0)
-					break;
-				this.heap[i] = heap[p];
-				i = p;
-			}
-			this.heap[i] = item;
-		}
-
-		public T Dequeue() {
-			var ret = this.heap[0];
-			var x = this.heap[--size];
-			var i = 0;
-			while ((i << 1) + 1 < size) {
-				var a = (i << 1) + 1;
-				var b = (i << 1) + 2;
-				if (b < size && compare(heap[b], heap[a]) < 0) a = b;
-				if (compare(heap[a], x) >= 0)
-					break;
-				heap[i] = heap[a];
-				i = a;
-			}
-			heap[i] = x;
-			heap.RemoveAt(size);
-			return ret;
-		}
-
-		public T Peek() {
-			return heap[0];
-		}
-
-		public int Count => size;
-
-		public bool Any() {
-			return size > 0;
-		}
-	}
-
-
-	public class Dijkstra : CostGraph {
-		public Dijkstra(int size) : base(size) { }
-		public int[] PreviousNodeList { get; set; }
-		public long[] Distance { get; set; }
-
-		public void Run(int s) {
-			PreviousNodeList = new int[Size];
-			Distance = new long[Size];
-			Size.REP(_ => Distance[_] = Inf);
-
-			var pq = new PriorityQueue<Edge>((x, y) => x.Cost.CompareTo(y.Cost));
-			Distance[s] = 0;
-			pq.Enqueue(new Edge(s, 0));
-			while (pq.Any()) {
-				var src = pq.Dequeue();
-				if (Distance[src.To] < src.Cost) continue;
-				for (var i = 0; i < Adjacency[src.To].Count; i++) {
-					var tmp = Adjacency[src.To][i];
-					var cost = tmp.Cost + src.Cost;
-					if (cost >= Distance[tmp.To]) continue;
-					Distance[tmp.To] = cost;
-					pq.Enqueue(new Edge(tmp.To, cost));
-					PreviousNodeList[tmp.To] = src.To;
-				}
-			}
-		}
-	}
-
-
-	public class WarshallFloyd : CostGraph {
-		public WarshallFloyd(int size) : base(size) {
-		}
-
-		public List<Ll> Run() {
-			var rt = new List<Ll>();
-			Size.REP(_ => rt.Add(new Ll()));
-
-			Size.REP(i => Size.REP(k => rt[i].Add(i == k ? 0 : Inf)));
-
-			Adjacency.ForeachWith( (i, item) => {
-				foreach (var k in item) {
-					rt[i][k.To] = k.Cost;
-				}
-			});
-
-			Size.REP(i => Size.REP(j => Size.REP(k => {
-				rt[j][k] = Min(rt[j][k], rt[j][i] + rt[i][k]);
-			})));
-
-			return rt;
-		}
-	}
-
 }
 
 namespace CS_Contest.Loop
@@ -513,6 +295,7 @@ namespace CS_Contest.Utils
 		public static long INF = long.MaxValue;
 
 		public static long Mod(long x) => x % ModValue;
+		public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
 
 		public static long ModPow(long x, long n) {
 			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
