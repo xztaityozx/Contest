@@ -29,50 +29,49 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), K = NextInt();
-				var A = NextIntList().Select(x => x - 1);
-				var list = new List<string>();
-				N.REP(i => { list.Add(ReadLine()); });
+				var S = ReadLine();
 
-				var request = A.Select(i => list[i]).OrderBy(i => i).ToList();
-				list = list.OrderBy(x => x).ToList();
-
-				var minIdx = list.FindIndex(x => x == request[0]);
-				var maxIdx = list.FindLastIndex(x => x == request[K - 1]);
-
-				if (maxIdx - minIdx + 1 != K) {
-					"-1".WL();
-					return;
-				}
-
-				if (K == N) {
-					"".WL();
-					return;
-				}
-
-				var match = "";
-
-				var left = minIdx == 0 ? "1" : list[minIdx - 1];
-				var right = maxIdx == N - 1 ? "1" : list[maxIdx + 1];
-				var min = request[0];
-				var max = request[K - 1];
-
-				bool lres = true, rres = true, maxres = true;
-
-				for (int i = 0; i < min.Length; i++) {
-					match += min[i];
-					lres &= i < left.Length && left[i] == min[i];
-					rres &= i < right.Length && right[i] == min[i];
-					maxres &= i < max.Length && max[i] == min[i];
-
-					if (lres || rres || !maxres) continue;
-					match.WL();
-					return;
-				}
-
-				"-1".WL();
+				 CustomLevenshteinDistance(S).WL();
 
 				return;
+			}
+
+			private int CustomLevenshteinDistance(string str) {
+				var l1 = str.Length;
+
+				var dp = new int[5];
+				5.REP(i => dp[i] = i);
+				var yahoo = "yahoo";
+
+				l1.REP(i =>
+				{
+					var next = new int[5];
+					5.REP(j => { next[j] = dp[j] + 1; });
+					5.REP(j =>
+					{
+						int t = (j + 1) % 5;
+						if (str[i] == yahoo[j]) {
+							next[t] = Min(next[t], dp[j]);
+						}
+						for(int k=1;k<5;k++)
+						{
+							var l = (j + k) % 5;
+							next[l] = Min(next[l], dp[j] + k);
+						}
+					});
+					dp = next;
+					5.REP(j => { next[j] = Min(next[j], dp[j] + 1); });
+					5.REP(j =>
+					{
+						for (int k = 1; k < 5; k++) {
+							var t = (j + k) % 5;
+							next[t] = Min(next[t], dp[j] + k);
+						}
+					});
+					5.REP(j => { dp[j] = Min(dp[j], next[j]); });
+
+				});
+				return dp[0];
 			}
 		}
 
