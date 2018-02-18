@@ -154,6 +154,67 @@ namespace CS_Contest {
 namespace CS_Contest.Graph {
 	using Ll = List<long>;
 	using Li = List<int>;
+	public class MaxFlow {
+		private class Edge {
+			public int To, Reverse, Capacity;
+		}
+
+		private int V { get; set; }
+		private List<Edge>[] graph { get; set; }
+		private int[] leveList, itr;
+		public MaxFlow(int v) {
+			V = v;
+			graph = Enumerable.Repeat(1, V).Select(x => new List<Edge>()).ToArray();
+		}
+
+		public void Add(int from, int to, int capa, bool dir = true) {
+			graph[from].Add(new Edge { Capacity = capa, Reverse = graph[to].Count, To = to });
+			graph[to].Add(new Edge { To = from, Capacity = dir ? 0 : capa, Reverse = graph[from].Count - 1 });
+		}
+
+		private void Bfs(int s) {
+			leveList = Enumerable.Repeat(-1, V).ToArray();
+			var queue = new Queue<int>();
+			leveList[s] = 0;
+			queue.Enqueue(s);
+			while (queue.Any()) {
+				var src = queue.Dequeue();
+				foreach (var edge in graph[src]) {
+					if (edge.Capacity <= 0 || leveList[edge.To] >= 0) continue;
+					leveList[edge.To] = leveList[src] + 1;
+					queue.Enqueue(edge.To);
+				}
+			}
+		}
+
+		private int Dfs(int v, int t, int f) {
+			if (v == t) return f;
+			for (; itr[v] < graph[v].Count; itr[v]++) {
+				var edge = graph[v][itr[v]];
+				if (edge.Capacity <= 0 || leveList[v] >= leveList[edge.To]) continue;
+				var d = Dfs(edge.To, t, Min(f, edge.Capacity));
+				if (d <= 0) continue;
+				edge.Capacity -= d;
+				graph[edge.To][edge.Reverse].Capacity += d;
+				return d;
+			}
+
+			return 0;
+		}
+
+		public int Run(int s, int t) {
+			int rt = 0;
+			Bfs(s);
+			while (leveList[t] >= 0) {
+				itr = new int[V];
+				int f;
+				while ((f = Dfs(s, t, int.MaxValue)) > 0) rt += f;
+				Bfs(s);
+			}
+
+			return rt;
+		}
+	}
 
 	public struct WeightedUnionFind {
 		private readonly int N;

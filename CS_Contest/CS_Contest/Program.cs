@@ -29,102 +29,50 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int r = NextInt(), c = NextInt();
-				var box = new List<string>();
-				var cIndex = new int[r, c];
-				var cnt = 0;
-				r.REP(i =>
-				{
-					box.Add(ReadLine());
-					for (int j = 0; j < c; j++) {
-						if (box[i][j] == '.') cIndex[i, j] = cnt++;
-					}
-				});
-				var mf=new MaxFlow(cnt+2);
-				int s = cnt, t = cnt + 1;
-				var dx = new[] {0, -1, 1, 0};
-				var dy = new[] {1, 0, 0, -1};
-				r.REP(i=>c.REP(j =>
-				{
-					if(box[i][j]!='.') return;
-					if ((i + j) % 2 == 0) {
-						mf.Add(s, cIndex[i, j], 1);
-						4.REP(k =>
-						{
-							var x = dx[k] + j;
-							var y = dy[k] + i;
-							if (!Utils.Utils.Within(x, y, c, r)) return;
-							if(box[y][x]!='.') return;
-							mf.Add(cIndex[i, j], cIndex[y, x], 1);
-						});
-					}
-					else {
-						mf.Add(cIndex[i, j], t, 1);
-					}
-				}));
-				(cnt-mf.Run(s, t)).WL();
+				int N = NextInt(), K = NextInt();
+				var A = NextIntList().Select(x => x - 1);
+				var list = new List<string>();
+				N.REP(i => { list.Add(ReadLine()); });
+
+				var request = A.Select(i => list[i]).OrderBy(i => i).ToList();
+				list = list.OrderBy(x => x).ToList();
+
+				var minIdx = list.FindIndex(x => x == request[0]);
+				var maxIdx = list.FindLastIndex(x => x == request[K - 1]);
+
+				if (maxIdx - minIdx + 1 != K) {
+					"-1".WL();
+					return;
+				}
+
+				if (K == N) {
+					"".WL();
+					return;
+				}
+
+				var match = "";
+
+				var left = minIdx == 0 ? "1" : list[minIdx - 1];
+				var right = maxIdx == N - 1 ? "1" : list[maxIdx + 1];
+				var min = request[0];
+				var max = request[K - 1];
+
+				bool lres = true, rres = true, maxres = true;
+
+				for (int i = 0; i < min.Length; i++) {
+					match += min[i];
+					lres &= i < left.Length && left[i] == min[i];
+					rres &= i < right.Length && right[i] == min[i];
+					maxres &= i < max.Length && max[i] == min[i];
+
+					if (lres || rres || !maxres) continue;
+					match.WL();
+					return;
+				}
+
+				"-1".WL();
+
 				return;
-			}
-		}
-		public class MaxFlow {
-			private class Edge {
-				public int To, Reverse, Capacity;
-			}
-
-			private int V { get; set; }
-			private List<Edge>[] graph { get; set; }
-			private int[] leveList, itr;
-			public MaxFlow(int v) {
-				V = v;
-				graph = Enumerable.Repeat(1, V).Select(x => new List<Edge>()).ToArray();
-			}
-
-			public void Add(int from, int to, int capa,bool dir=true) {
-				graph[from].Add(new Edge {Capacity = capa, Reverse = graph[to].Count, To = to});
-				graph[to].Add(new Edge {To = from, Capacity = dir ? 0 : capa, Reverse = graph[from].Count - 1});
-			}
-
-			private void Bfs(int s) {
-				leveList = Enumerable.Repeat(-1, V).ToArray();
-				var queue = new Queue<int>();
-				leveList[s] = 0;
-				queue.Enqueue(s);
-				while (queue.Any()) {
-					var src = queue.Dequeue();
-					foreach (var edge in graph[src]) {
-						if (edge.Capacity <= 0 || leveList[edge.To] >= 0) continue;
-						leveList[edge.To] = leveList[src] + 1;
-						queue.Enqueue(edge.To);
-					}
-				}
-			}
-
-			private int Dfs(int v, int t, int f) {
-				if (v == t) return f;
-				for (; itr[v] < graph[v].Count; itr[v]++) {
-					var edge = graph[v][itr[v]];
-					if (edge.Capacity <= 0 || leveList[v] >= leveList[edge.To]) continue;
-					var d = Dfs(edge.To, t, Min(f, edge.Capacity));
-					if (d <= 0) continue;
-					edge.Capacity -= d;
-					graph[edge.To][edge.Reverse].Capacity += d;
-					return d;
-				}
-
-				return 0;
-			}
-
-			public int Run(int s, int t) {
-				int rt = 0;
-				Bfs(s);
-				while (leveList[t] >= 0) {
-					itr = new int[V];
-					int f;
-					while ((f = Dfs(s, t, int.MaxValue)) > 0) rt += f;
-					Bfs(s);
-				}
-
-				return rt;
 			}
 		}
 

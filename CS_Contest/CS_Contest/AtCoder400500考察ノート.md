@@ -769,3 +769,54 @@ N.REP(i => {
   - 偶数番目が4近傍と辺を張るときそこに広告が置けないとダメ。
     - 広告のおける頂点の中で最大独立集合を求めたいので
   - これでこの問題に沿う二部グラフができる
+
+# みんなのプロコン 予選: C 検索
+- N個の文字列から指定されたK個文字列だけが一致するような文字列は存在するかを判定する問題
+  - 一致は文字列の先頭を見る
+  - 存在する場合は最短のもの。しない場合は-1
+  - TLEギリギリだったけどACした
+- 前準備としてN個の文字列のリストをソートする　⇒ `list`。
+- K個の文字列もソートする ⇒ `request`
+- まず`N==K`のとき
+  - このとき全てをマッチさせたい
+  - 全てにマッチする最短の文字列は空文字なので出力する
+- K個の文字列の先頭が一致するような文字列というのは`request`が`list`に現れないといけない
+  - 間に何か挟まっていたり、抜けていたりすると一致するような文字列は存在しない
+    - `request[K-1]の位置 - request[0] + 1`が`K`じゃないときは存在しない
+      - この場合は-1を出力
+    - 逆にこれが成立するなら __この部分を含めた部分集合を__ マッチする文字列は存在する
+- このまま`request[0]`と`request[K-1]`の最短一致を出力すると`list`内で`request[0]`より前、もしくは`request[K-1]`より後ろの文字列にもマッチしてしまう可能性がある
+- これを`request`だけにマッチするような文字列を求めるために4つの文字列を見る
+  - `min = reqest[0]`
+  - `max = reqest[K-1]`
+  - `left = list[request[0]の位置-1] 無ければ"1"`
+  - `right = list[request[K-1]の位置+1] 無ければ"1"`
+  - 無ければというのはダミーの文字列
+- マッチする文字列は`min.Length`以下の長さであるのでこれについてforを回す
+```cs
+var match = "";
+
+var left = minIdx == 0 ? "1" : list[minIdx - 1];
+var right = maxIdx == N - 1 ? "1" : list[maxIdx + 1];
+var min = request[0];
+var max = request[K - 1];
+
+bool lres = true, rres = true, maxres = true;
+
+for (int i = 0; i < min.Length; i++) {
+	match += min[i];
+	lres &= i < left.Length && left[i] == min[i];
+	rres &= i < right.Length && right[i] == min[i];
+	maxres &= i < max.Length && max[i] == min[i];
+
+	if (lres || rres || !maxres) continue;
+	match.WL();
+	return;
+}
+```
+- `min`と`max`がマッチしつつ`left`と`right`がマッチしない`i`を探す
+  - 文字列の長さが`i`以下のとき明らかにマッチしないので`false`
+  - i番目の文字が`min[i]`とマッチしないなら`false`
+  - 条件がそろったときに文字列を出力しておわり
+  - 全部試してダメなら-1を出力して終わり
+- 割とギリギリだった
