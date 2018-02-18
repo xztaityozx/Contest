@@ -30,49 +30,39 @@ namespace CS_Contest {
 		public class Calc {
 			public void Solve() {
 				var S = ReadLine();
+				var length = S.Length;
 
-				 CustomLevenshteinDistance(S).WL();
+				var dp = new int[length + 1, length + 1, length + 1]; // dp[i,j,k]=i文字目までで最後にj文字目を変更して(と)の差がkの最小値
+				(length + 1).REP(i => { (length + 1).REP(j => (length + 1).REP(k => dp[i, j, k] = int.MaxValue / 2)); });
+				dp[0, 0, 0] = 0;
+
+				length.REP(i =>
+				{
+					length.REP(j =>
+					{
+						(length + 1).REP(k =>
+						{
+							if (dp[i, j, k] == int.MaxValue / 2) return;
+							if (S[i] == '(') {
+								dp[i + 1, j, k + 1] = Min(dp[i + 1, j, k + 1], dp[i, j, k]); //無変更で1増える
+								if (k > 0) dp[i + 1, i, k - 1] = Min(dp[i + 1, i, k - 1], dp[i, j, k] + 1); //(⇒)にして差を1減らす
+							}
+							else {
+								if (k > 0) dp[i + 1, j, k - 1] = Min(dp[i + 1, j, k - 1], dp[i, j, k]); //無変更で1減る
+								dp[i + 1, i, k + 1] = Min(dp[i + 1, i, k + 1], dp[i, j, k] + 1); //)⇒(にして差を増やす
+							}
+						});
+					});
+				});
+
+				var ans = int.MaxValue;
+				length.REP(i => ans = Min(ans, dp[length, i, 0] + i)); //変更回数+移動回数
+				ans.WL();
 
 				return;
 			}
 
-			private int CustomLevenshteinDistance(string str) {
-				var l1 = str.Length;
-
-				var dp = new int[5];
-				5.REP(i => dp[i] = i);
-				var yahoo = "yahoo";
-
-				l1.REP(i =>
-				{
-					var next = new int[5];
-					5.REP(j => { next[j] = dp[j] + 1; });
-					5.REP(j =>
-					{
-						int t = (j + 1) % 5;
-						if (str[i] == yahoo[j]) {
-							next[t] = Min(next[t], dp[j]);
-						}
-						for(int k=1;k<5;k++)
-						{
-							var l = (j + k) % 5;
-							next[l] = Min(next[l], dp[j] + k);
-						}
-					});
-					dp = next;
-					5.REP(j => { next[j] = Min(next[j], dp[j] + 1); });
-					5.REP(j =>
-					{
-						for (int k = 1; k < 5; k++) {
-							var t = (j + k) % 5;
-							next[t] = Min(next[t], dp[j] + k);
-						}
-					});
-					5.REP(j => { dp[j] = Min(dp[j], next[j]); });
-
-				});
-				return dp[0];
-			}
+			
 		}
 
 	}
