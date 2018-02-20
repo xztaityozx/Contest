@@ -31,58 +31,40 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var bf=new BellmanFord(N);
+				int N = NextInt(), M = NextInt(), R = NextInt();
+				var r = NextIntList().Select(x => x - 1).ToList();
+				var warshallFloyd=new WarshallFloyd(N);
+
 				M.REP(i =>
 				{
-					int ai = NextInt(), bi = NextInt(), ci = NextInt();
-					ai--;
-					bi--;
-					bf.Add(ai,bi,-ci);
+					int ai = NextInt() - 1, bi = NextInt() - 1, ci = NextInt();
+					warshallFloyd.Add(ai,bi,ci,false);
 				});
-				bf.Run(0);
 
-				if (bf.HasCycle) "inf".WL();
-				else (-bf.Distance[N-1]).WL();
-				return;
-			}
-		}
+				var res = warshallFloyd.Run();
 
+				var used = new bool[R];
+				R.REP(i => used[i] = false);
+				Func<int,int,long, long> dfs = null;
+				dfs = (from, step, distance) =>
+				{
+					if (used[from]) return long.MaxValue;
+					if (step == R-1) return distance;
 
-		public class BellmanFord : CostGraph {
-			public BellmanFord(int size) : base(size) {
-			}
+					var rt = long.MaxValue;
 
-			public List<long> Distance { get; set; }
+					used[from] = true;
 
-			private bool[] _negative;
-			public bool HasCycle => _negative[Size - 1];
-
-			public void Run(int s) {
-				Distance = new Ll();
-				Size.REP(i => Distance.Add(Inf));
-				Distance[s] = 0;
-				_negative = new bool[Size];
-
-				(Size - 1).REP(i => Size.REP(j => Adjacency[j].Count.REP(k =>
-					{
-						var src = Adjacency[j][k];
-						if (Distance[src.To] > Distance[j] + src.Cost) Distance[src.To] = Distance[j] + src.Cost;
+					for (int i = 0; i < R; i++) {
+						rt = Min(rt, dfs(i, step + 1, distance + res[r[from]][r[i]]));
 					}
-				)));
 
-				for (int i = 0; i < Size; i++) {
-					Size.REP(j => {
-						Adjacency[j].Count.REP(k => {
-							var src = Adjacency[j][k];
-							if (Distance[src.To] > Distance[j] + src.Cost) {
-								Distance[src.To] = Distance[j] + src.Cost;
-								_negative[src.To] = true;
-							}
-							if (_negative[j]) _negative[src.To] = true;
-						});
-					});
-				}
+					used[from] = false;
+
+					return rt;
+				};
+				var ans = Enumerable.Range(0, R).Select(i => dfs(i, 0, 0)).Min();
+				ans.WL();
 			}
 		}
 		public class CostGraph {
@@ -114,6 +96,30 @@ namespace CS_Contest {
 			}
 
 		}
+		public class WarshallFloyd : CostGraph {
+			public WarshallFloyd(int size) : base(size) {
+			}
+
+			public List<Ll> Run() {
+				var rt = new List<Ll>();
+				Size.REP(_ => rt.Add(new Ll()));
+
+				Size.REP(i => Size.REP(k => rt[i].Add(i == k ? 0 : Inf)));
+
+				Adjacency.ForeachWith((i, item) => {
+					foreach (var k in item) {
+						rt[i][k.To] = k.Cost;
+					}
+				});
+
+				Size.REP(i => Size.REP(j => Size.REP(k => {
+					rt[j][k] = Min(rt[j][k], rt[j][i] + rt[i][k]);
+				})));
+
+				return rt;
+			}
+		}
+
 	}
 }
 namespace Nakov.IO {
