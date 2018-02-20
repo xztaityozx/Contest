@@ -31,42 +31,89 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int H = NextInt(), M = NextInt(), S = NextInt();
-				int C1 = NextInt(), C2 = NextInt();
-
-				Func<long, long, long, double> func = (x, y, z) => (double) (x % z + y);
-
-				long t = ((H * 60) + M) * 60 + S;
-				long t0 = t;
-				long t1 = long.MaxValue, t2 = long.MinValue;
-				Action act = () =>
+				int N = NextInt(), M = NextInt();
+				var bf=new BellmanFord(N);
+				M.REP(i =>
 				{
-					var l1 = func(t, 0, 60);
-					var r1 = func(t, 1, 60);
-					var l2 = func(t, 0, 3600);
-					var r2 = func(t, 1, 3600);
-					var l3 = func(t, 0, 12 * 3600);
-					var r3 = func(t, 1, 12 * 3600);
-					t++;
-					if (l1 * 60 <= l2 && r1 * 60 > r2) C1--;
-					if (l2 * 12 <= l3 && r2 * 12 > r3) C2--;
+					int ai = NextInt(), bi = NextInt(), ci = NextInt();
+					ai--;
+					bi--;
+					bf.Add(ai,bi,-ci);
+				});
+				bf.Run(0);
 
-				};
-
-				while (Min(C1,C2)>=0) {
-					act();
-					if (C1 != 0 || C2 != 0 || (t % (3600 * 12)) == 0) continue;
-					t1 = Min(t1, t - t0);
-					t2 = Max(t2, t - t0);
-				}
-
-				if(t1<=t2) $"{t1} {t2}".WL();
-				else "-1".WL();
-
+				if (bf.HasCycle) "inf".WL();
+				else (-bf.Distance[N-1]).WL();
 				return;
 			}
 		}
 
+
+		public class BellmanFord : CostGraph {
+			public BellmanFord(int size) : base(size) {
+			}
+
+			public List<long> Distance { get; set; }
+
+			private bool[] _negative;
+			public bool HasCycle => _negative[Size - 1];
+
+			public void Run(int s) {
+				Distance = new Ll();
+				Size.REP(i => Distance.Add(Inf));
+				Distance[s] = 0;
+				_negative = new bool[Size];
+
+				(Size - 1).REP(i => Size.REP(j => Adjacency[j].Count.REP(k =>
+					{
+						var src = Adjacency[j][k];
+						if (Distance[src.To] > Distance[j] + src.Cost) Distance[src.To] = Distance[j] + src.Cost;
+					}
+				)));
+
+				for (int i = 0; i < Size; i++) {
+					Size.REP(j => {
+						Adjacency[j].Count.REP(k => {
+							var src = Adjacency[j][k];
+							if (Distance[src.To] > Distance[j] + src.Cost) {
+								Distance[src.To] = Distance[j] + src.Cost;
+								_negative[src.To] = true;
+							}
+							if (_negative[j]) _negative[src.To] = true;
+						});
+					});
+				}
+			}
+		}
+		public class CostGraph {
+			public struct Edge {
+				public int To { get; set; }
+				public long Cost { get; set; }
+
+
+				public Edge(int to, long cost) {
+					To = to;
+					Cost = cost;
+				}
+
+			}
+
+			public int Size { get; set; }
+			public List<List<Edge>> Adjacency { get; set; }
+			public const long Inf = (long)1e15;
+
+			public CostGraph(int size) {
+				Size = size;
+				Adjacency = new List<List<Edge>>();
+				Size.REP(_ => Adjacency.Add(new List<Edge>()));
+			}
+
+			public void Add(int s, int t, long c, bool dir = true) {
+				Adjacency[s].Add(new Edge(t, c));
+				if (!dir) Adjacency[t].Add(new Edge(s, c));
+			}
+
+		}
 	}
 }
 namespace Nakov.IO {
