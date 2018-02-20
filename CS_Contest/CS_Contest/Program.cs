@@ -30,53 +30,34 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int H = NextInt(), W = NextInt();
-				var G = new List<string>();
-				H.REP(x => G.Add(ReadLine()));
+				int N = NextInt();
+				var dic = new[] {0, 0, 0, 0};
+				N.REP(i =>
+				{
+					var Ai = NextInt();
+					dic[Ai - 1]++;
+				});
 
-				var dx = new int[] { 1, 0, -1, 0 };
-				var dy = new int[] { 0, -1, 0, 1 };
+				var cnt = dic[3];
 
-				var used = new bool[H, W];
+				var t = Min(dic[0], dic[2]);
+				cnt += t;
+				dic[0] -= t;
+				dic[2] -= t;
 
-				var queue = new Queue<ti3>();
-				queue.Enqueue(new ti3(0, 0, 1));
-				used[0, 0] = true;
-				var min = int.MaxValue;
-				while (queue.Any()) {
-					var src = queue.Dequeue();
-					for (int i = 0; i < 4; i++) {
-						var x = dx[i] + src.Item1;
-						var y = dy[i] + src.Item2;
-						if (!Utils.Utils.Within(x, y, W, H)) continue;
-						if (G[y][x] == '#') continue;
-						if (used[y, x]) continue;
+				cnt += dic[2];
 
-						if (x == W - 1 && y == H - 1) {
-							min = Min(min, src.Item3 + 1);
-							continue;
-						}
+				cnt += dic[1] / 2;
+				dic[1] %= 2;
 
-						used[y, x] = true;
-						queue.Enqueue(new ti3(x, y, src.Item3 + 1));
-					}
+				if (dic[1] == 1) {
+					dic[0] = Max(dic[0] - 2, 0);
+					cnt++;
 				}
 
-
-				if (min == int.MaxValue) {
-					"-1".WL();
-					return;
-				}
-
-				var cnt = 0;
-
-				H.REP(i => W.REP(j => {
-					if (G[i][j] == '.') cnt++;
-				}));
-
-				(cnt - min).WL();
-
-				return;
+				t = dic[0] / 4;
+				cnt += t + (dic[0] % 4 == 0 ? 0 : 1);
+				cnt.WL();
 			}
 
 

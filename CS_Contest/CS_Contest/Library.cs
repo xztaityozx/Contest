@@ -154,6 +154,55 @@ namespace CS_Contest {
 namespace CS_Contest.Graph {
 	using Ll = List<long>;
 	using Li = List<int>;
+
+	public class Labyrinth
+	{
+		private char Road { get; set; }
+		private int H { get; set; }
+		private int W { get; set; }
+		private List<string> labyrinth;
+
+		public Labyrinth(int h,int w,char road) {
+			H = h;
+			W = w;
+			Road = road;
+			labyrinth=new List<string>();
+
+			for (int i = 0; i < H; i++) {
+				labyrinth.Add(ReadLine());
+			}
+		}
+
+		public int ShortestPath(int sx,int sy,int gx,int gy) {
+			var queue = new Queue<Tuple<int, int, int>>();
+			var used = new bool[H, W];
+			var dx = new[] {1, 0, -1, 0};
+			var dy = new[] {0, -1, 0, 1};
+			queue.Enqueue(new Tuple<int, int, int>(sx, sy, 0));
+			used[sy, sx] = true;
+			var min = int.MaxValue;
+			while (queue.Any()) {
+				var v = queue.Dequeue();
+				for (int i = 0; i < 4; i++) {
+					var x = v.Item1 + dx[i];
+					var y = v.Item2 + dy[i];
+					if(y<0||x<0||y>=H||x>=W) continue;
+					if(labyrinth[y][x]!=Road) continue;
+					if (x == W - 1 && y == H - 1) {
+						min = Min(min, v.Item3 + 1);
+						continue;
+					}
+					if(used[y,x]) continue;
+					used[y, x] = true;
+					queue.Enqueue(new Tuple<int, int, int>(x, y, v.Item3 + 1));
+				}
+			}
+
+			return min;
+		}
+
+	}
+
 	public class MaxFlow {
 		private class Edge {
 			public int To, Reverse, Capacity;
