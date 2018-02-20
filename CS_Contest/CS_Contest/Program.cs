@@ -7,6 +7,7 @@ using System.Net;
 using static System.Console;
 using static System.Math;
 using System.Numerics;
+using System.Runtime.InteropServices.WindowsRuntime;
 //using CS_Contest.Graph;
 using CS_Contest.Loop;
 using CS_Contest.Utils;
@@ -30,37 +31,40 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt();
-				var dic = new[] {0, 0, 0, 0};
-				N.REP(i =>
+				int H = NextInt(), M = NextInt(), S = NextInt();
+				int C1 = NextInt(), C2 = NextInt();
+
+				Func<long, long, long, double> func = (x, y, z) => (double) (x % z + y);
+
+				long t = ((H * 60) + M) * 60 + S;
+				long t0 = t;
+				long t1 = long.MaxValue, t2 = long.MinValue;
+				Action act = () =>
 				{
-					var Ai = NextInt();
-					dic[Ai - 1]++;
-				});
+					var l1 = func(t, 0, 60);
+					var r1 = func(t, 1, 60);
+					var l2 = func(t, 0, 3600);
+					var r2 = func(t, 1, 3600);
+					var l3 = func(t, 0, 12 * 3600);
+					var r3 = func(t, 1, 12 * 3600);
+					t++;
+					if (l1 * 60 <= l2 && r1 * 60 > r2) C1--;
+					if (l2 * 12 <= l3 && r2 * 12 > r3) C2--;
 
-				var cnt = dic[3];
+				};
 
-				var t = Min(dic[0], dic[2]);
-				cnt += t;
-				dic[0] -= t;
-				dic[2] -= t;
-
-				cnt += dic[2];
-
-				cnt += dic[1] / 2;
-				dic[1] %= 2;
-
-				if (dic[1] == 1) {
-					dic[0] = Max(dic[0] - 2, 0);
-					cnt++;
+				while (Min(C1,C2)>=0) {
+					act();
+					if (C1 != 0 || C2 != 0 || (t % (3600 * 12)) == 0) continue;
+					t1 = Min(t1, t - t0);
+					t2 = Max(t2, t - t0);
 				}
 
-				t = dic[0] / 4;
-				cnt += t + (dic[0] % 4 == 0 ? 0 : 1);
-				cnt.WL();
+				if(t1<=t2) $"{t1} {t2}".WL();
+				else "-1".WL();
+
+				return;
 			}
-
-
 		}
 
 	}
