@@ -31,7 +31,23 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				
+				int N = NextInt(), T = NextInt();
+				var A = NextLongList();
+
+				var dic = new Map<long, int>();
+				var min = long.MaxValue;
+				var max = 0L;
+
+				foreach (var item in A) {
+					min = Min(min, item);
+					var diff = Abs(item - min);
+					max = Max(diff, max);
+					dic[diff]++;
+				}
+
+				dic[max].WL();
+
+
 				return;
 			}
 		}
