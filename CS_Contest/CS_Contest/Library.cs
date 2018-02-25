@@ -38,9 +38,9 @@ namespace CS_Contest {
 
 		public static long LCM(long m, long n) => m * (n / GCD(m, n));
 
-		public static long ModValue = (long)1e9 + 7;
 		public static long INF = long.MaxValue;
 
+		public static long ModValue = (long)1e9 + 7;
 		public static long Mod(long x) => x % ModValue;
 		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
 		public static long[,] CombinationTable(int n) {

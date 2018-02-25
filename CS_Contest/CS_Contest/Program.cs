@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,30 +31,9 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), W = NextInt();
-				var dp = Enumerable.Repeat(0, N+1).Select(i => new Map<long, long>()).ToArray(); // dp[i][j]=i個から重さjになるように選んだ価値の最大値
-
-				dp[0][0] = 0;
-
-				N.REP(i =>
-				{
-					long wi = NextLong(), vi = NextLong();
-					foreach (var item in dp[i]) {
-						var w = item.Key;
-						dp[i + 1][w] = Max(dp[i][w], dp[i + 1][w]);
-						if (w + wi <= W) {
-							dp[i + 1][w + wi] = Max(dp[i + 1][w + wi], dp[i][w] + vi);
-						}
-					}
-				});
-
-				dp[N].Max(x=>x.Value).WL();
-
 				return;
 			}
 		}
-		
-
 	}
 }
 namespace Nakov.IO {
