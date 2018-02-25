@@ -13,6 +13,7 @@ using CS_Contest.Loop;
 using CS_Contest.Utils;
 using static Nakov.IO.Cin;
 using static CS_Contest.IO.IO;
+using static CS_Contest.Utils.MyMath;
 
 
 namespace CS_Contest {
@@ -31,26 +32,29 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
-				int N = NextInt(), T = NextInt();
-				var A = NextLongList();
+				int N = NextInt(), W = NextInt();
+				var dp = Enumerable.Repeat(0, N+1).Select(i => new Map<long, long>()).ToArray(); // dp[i][j]=i個から重さjになるように選んだ価値の最大値
 
-				var dic = new Map<long, int>();
-				var min = long.MaxValue;
-				var max = 0L;
+				dp[0][0] = 0;
 
-				foreach (var item in A) {
-					min = Min(min, item);
-					var diff = Abs(item - min);
-					max = Max(diff, max);
-					dic[diff]++;
-				}
+				N.REP(i =>
+				{
+					long wi = NextLong(), vi = NextLong();
+					foreach (var item in dp[i]) {
+						var w = item.Key;
+						dp[i + 1][w] = Max(dp[i][w], dp[i + 1][w]);
+						if (w + wi <= W) {
+							dp[i + 1][w + wi] = Max(dp[i + 1][w + wi], dp[i][w] + vi);
+						}
+					}
+				});
 
-				dic[max].WL();
-
+				dp[N].Max(x=>x.Value).WL();
 
 				return;
 			}
 		}
+		
 
 	}
 }
@@ -129,28 +133,6 @@ namespace CS_Contest.Loop {
 				act(i);
 			}
 		}
-
-		public static void RREP(this int @n, Action<int> act) {
-			for (var i = n - 1; i >= 0; i--) act(i);
-		}
-
-		public static void REP(this long n, Action<long> act) {
-			for (var i = 0; i < n; i++) act(i);
-		}
-
-		public static void FOR(this Tuple<int, int, int> t, Action<int> action) {
-			for (var i = t.Item1; i < t.Item2; i += t.Item3) action(i);
-		}
-
-		public static void FOR(this Tuple<int, int> t, Action<int> action) =>
-			new Tuple<int, int, int>(t.Item1, t.Item2, 1).FOR(action);
-
-		public static void FOR(this Tuple<long, long, long> t, Action<long> action) {
-			for (var i = t.Item1; i < t.Item2; i += t.Item3) action(i);
-		}
-
-		public static void FOR(this Tuple<long, long> t, Action<long> act) =>
-			new Tuple<long, long, long>(t.Item1, t.Item2, 1).FOR(act);
 
 		public static void ForeachWith<T>(this IEnumerable<T> ie, Action<int, T> act) {
 			var i = 0;
@@ -250,69 +232,9 @@ namespace CS_Contest.Utils {
 	}
 
 	public static class MyMath {
-		public static long GCD(long m, long n) {
-			long tmp;
-			if (m < n) { tmp = n; n = m; m = tmp; }
-			while (m % n != 0) {
-				tmp = n;
-				n = m % n;
-				m = tmp;
-			}
-			return n;
-		}
-
-		public static long LCM(long m, long n) => m * (n / GCD(m, n));
-
-		public static long ModValue = (long)1e9 + 7;
-		public static long INF = long.MaxValue;
-
-		public static long Mod(long x) => x % ModValue;
-		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
-		public static long[,] CombinationTable(int n) {
-			var rt = new long[n + 1, n + 1];
-			for (var i = 0; i <= n; i++) {
-				for (var j = 0; j <= i; j++) {
-					if (j == 0 || i == j) rt[i, j] = 1L;
-					else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
-				}
-			}
-			return rt;
-		}
-		public static long ModPow(long x, long n) {
-			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
-			return tmp;
-		}
-		public static bool IsPrime(long n) {
-			if (n == 2) return true;
-			if (n < 2 || n % 2 == 0) return false;
-			var i = 3;
-			var sq = (long)Sqrt(n);
-			while (i <= sq) {
-				if (n % i == 0) return false;
-				i += 2;
-			}
-			return true;
-		}
-
-		public static IEnumerable<int> Primes(int maxnum) {
-			yield return 2;
-			yield return 3;
-			var sieve = new BitArray(maxnum + 1);
-			int squareroot = (int)Math.Sqrt(maxnum);
-			for (int i = 2; i <= squareroot; i++) {
-				if (sieve[i] == false) {
-					for (int n = i * 2; n <= maxnum; n += i)
-						sieve[n] = true;
-				}
-				for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++) {
-					if (!sieve[n])
-						yield return n;
-				}
-			}
-		}
-		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
-		public static T Min<T>(params T[] a) where T : IComparable<T> => a.Min();
-		public static T Max<T>(params T[] a) where T : IComparable<T> => a.Max();
+		
+		public static T EMin<T>(params T[] a) where T : IComparable<T> => a.Min();
+		public static T EMax<T>(params T[] a) where T : IComparable<T> => a.Max();
 
 	}
 

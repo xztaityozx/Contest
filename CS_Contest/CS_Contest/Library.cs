@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,7 +25,67 @@ namespace CS_Contest {
 			return Max(0, idx - 1);
 		}
 
+		public static long GCD(long m, long n) {
+			long tmp;
+			if (m < n) { tmp = n; n = m; m = tmp; }
+			while (m % n != 0) {
+				tmp = n;
+				n = m % n;
+				m = tmp;
+			}
+			return n;
+		}
 
+		public static long LCM(long m, long n) => m * (n / GCD(m, n));
+
+		public static long ModValue = (long)1e9 + 7;
+		public static long INF = long.MaxValue;
+
+		public static long Mod(long x) => x % ModValue;
+		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+		public static long[,] CombinationTable(int n) {
+			var rt = new long[n + 1, n + 1];
+			for (var i = 0; i <= n; i++) {
+				for (var j = 0; j <= i; j++) {
+					if (j == 0 || i == j) rt[i, j] = 1L;
+					else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
+				}
+			}
+			return rt;
+		}
+		public static long ModPow(long x, long n) {
+			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
+			return tmp;
+		}
+		public static bool IsPrime(long n) {
+			if (n == 2) return true;
+			if (n < 2 || n % 2 == 0) return false;
+			var i = 3;
+			var sq = (long)Sqrt(n);
+			while (i <= sq) {
+				if (n % i == 0) return false;
+				i += 2;
+			}
+			return true;
+		}
+
+		public static IEnumerable<int> Primes(int maxnum) {
+			yield return 2;
+			yield return 3;
+			var sieve = new BitArray(maxnum + 1);
+			int squareroot = (int)Math.Sqrt(maxnum);
+			for (int i = 2; i <= squareroot; i++) {
+				if (sieve[i] == false) {
+					for (int n = i * 2; n <= maxnum; n += i)
+						sieve[n] = true;
+				}
+				for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++) {
+					if (!sieve[n])
+						yield return n;
+				}
+			}
+		}
+		public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Abs(x2 - x1) + Abs(y2 - y1);
 	}
 
 	public static class Local
@@ -541,5 +602,4 @@ namespace CS_Contest.Graph {
 			return rt;
 		}
 	}
-
 }
