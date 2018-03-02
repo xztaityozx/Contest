@@ -31,6 +31,41 @@ namespace CS_Contest {
 
 		public class Calc {
 			public void Solve() {
+				//ARC087 D FTRobot
+				var S = ReadLine().Split('T');
+				int X = NextInt(), Y = NextInt();
+
+
+				var xl = new Li();
+				var yl = new Li() {0};
+
+				S.ForeachWith((i, s) =>
+				{
+					if (i % 2 == 0) xl.Add(s.Length);
+					else yl.Add(s.Length);
+				});
+
+				Func<int, Li, bool> dp = (goal, list) =>
+				{
+					var set = new HashSet<int>() {list[0]};
+					list.RemoveAt(0);
+					var N = list.Count;
+					N.REP(i =>
+					{
+						var next = new HashSet<int>();
+						foreach (var item in set) {
+							next.Add(item + list[i]);
+							next.Add(item - list[i]);
+						}
+
+						set = next;
+					});
+					return set.Contains(goal);
+
+				};
+
+				(dp(X,xl)&&dp(Y,yl)?"Yes":"No").WL();
+
 				return;
 			}
 		}

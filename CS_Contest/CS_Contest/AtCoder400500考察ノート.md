@@ -912,3 +912,32 @@ while (queue.Any()) {
     - A[i]がすべて違うということは差が同じ値になる組の値もそれぞれ違う
     - よって操作はお互いに干渉しない
 - なのでA[j]-A[i]の最大値が何個あるかを求めればOK。`O(N)`
+
+# ARC087 D FTRobot
+- 500点問題
+- 文字列が与えられる。Fのときは前進、Tのときは右か左に90度回る。XとYが与えられるのでそこにたどり着くことができるかという問題
+  - DP
+- 文字列をTで分割する。Fが連続する部分は1つにまとめる続く分だけ進むと読み替えられるので分割した長さのInt配列にする
+- これの偶数番目はX軸方向、奇数番目はY軸方向に進む命令になる
+- XとYそれぞれについてDPする。setを使うと楽に実装できる
+  - ただしXについては最初は前進しかできない（後退できない）のでXの初期位置はxl[0]
+```cs
+Func<int, Li, bool> dp = (goal, list) =>
+{
+	var set = new HashSet<int>() {list[0]};
+	list.RemoveAt(0);
+	var N = list.Count;
+	N.REP(i =>
+	{
+		var next = new HashSet<int>();
+		foreach (var item in set) {
+			next.Add(item + list[i]);
+			next.Add(item - list[i]);
+		}
+
+		set = next;
+	});
+	return set.Contains(goal);
+
+};
+```
