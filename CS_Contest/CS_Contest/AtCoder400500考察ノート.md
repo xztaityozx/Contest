@@ -941,3 +941,61 @@ Func<int, Li, bool> dp = (goal, list) =>
 
 };
 ```
+
+# ARC060 D 桁和/Digit Sum
+- nをb進数だとした時の桁和がsになる最小のbを求める問題
+- 桁和は
+```cs
+f(b,n) = n<b? n : f(b,n/b)+n%b
+```
+- で求める
+- まず`s==n`のとき。明らかに答えは`n+1`
+- そうじゃないとき
+  - 初めに`2 <= b <= Sqrt(N)`の範囲を全探索する
+  - 次に`b>Sqrt(N)`の範囲を探索するがここで式を立てる
+    - `b>Sqrt(N)`ということはNはb進数で表すとき2桁以上の数字になる
+    - このときの上位桁をp,下位桁をq(どちらもb未満)とすると
+      - `n = pb+q`
+    - になる。ここで条件`b>Sqrt(N)`から
+      - `n=pb+q => pb > p^2`
+      - `n>p^2`
+      - `p<Sqrt(n)`
+    - が成り立つ
+    - さらに
+      - `s=p+q`
+    - なので、式から
+      - `b=(n-s)/p+1`
+      - `n-s=p(b-1) `
+    - がもとまる。
+  - 以上よりpからbが一意に求まり`Sqrt(N)`の範囲になることが分かるのでこれを全探索する
+  - オーダーは全体で`O(Sqrt(N))`
+
+# ABC089 D Practical Skill Test
+- H×WマスにA[i,j]が書いてある。(x,y)=>(i,j)と移動するときにAbs(x-i)+Abs(y-j)のコストがかかるときLiが書いてあるマスからRiが書いてあるマスへいくコストはいくつかをQ個答える問題
+  - ただし移動はD飛ばしでしかできない（Ri-Li)%D==0は保証される
+  - さらにA[i,j]は全て違う
+  - 文章力
+- ワーシャルフロイドっぽいけど頂点数が最大で90,000なのでTLE
+- D飛ばしで道が作られていくことを考えると、1~Dを始点としたD本の道ができることが分かる。
+- これについて累積和をとりimos[Ri]-imos[Li]を出せばいい
+- 提出を見て賢いと思ったimosの方法をメモ
+```cs
+int H = NextInt(), W = NextInt(), D = NextInt();
+var dic = new Map<int, ti2>();
+
+H.REP(y => W.REP(x => { dic[NextInt()] = new ti2(x, y); }));
+
+var imos = new int[H * W+1];
+
+for (int i = 1+D; i <= H*W; i++) {
+	var s = dic[i];
+	var t = dic[i - D];
+	imos[i] = imos[i - D] + Abs(s.Item1 - t.Item1) + Abs(s.Item2 - t.Item2);
+}
+
+NextInt().REP(i =>
+{
+	int li = NextInt(), ri = NextInt();
+	(imos[ri]-imos[li]).WL();
+});
+```

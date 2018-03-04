@@ -104,15 +104,6 @@ namespace CS_Contest {
 
 		}
 	}
-	
-
-
-
-
-
-
-
-
 
 	public class Deque<T> {
 		private T[] buf;

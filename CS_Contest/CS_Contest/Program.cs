@@ -29,46 +29,34 @@ namespace CS_Contest {
 			Out.Flush();
 		}
 
-		public class Calc {
+		public class Calc
+		{
 			public void Solve() {
-				//ARC087 D FTRobot
-				var S = ReadLine().Split('T');
-				int X = NextInt(), Y = NextInt();
+				int H = NextInt(), W = NextInt(), D = NextInt();
+				var dic = new Map<int, ti2>();
 
+				H.REP(y => W.REP(x => { dic[NextInt()] = new ti2(x, y); }));
 
-				var xl = new Li();
-				var yl = new Li() {0};
+				var imos = new int[H * W+1];
 
-				S.ForeachWith((i, s) =>
+				for (int i = 1+D; i <= H*W; i++) {
+					var s = dic[i];
+					var t = dic[i - D];
+					imos[i] = imos[i - D] + Abs(s.Item1 - t.Item1) + Abs(s.Item2 - t.Item2);
+				}
+
+				NextInt().REP(i =>
 				{
-					if (i % 2 == 0) xl.Add(s.Length);
-					else yl.Add(s.Length);
+					int li = NextInt(), ri = NextInt();
+					(imos[ri]-imos[li]).WL();
 				});
-
-				Func<int, Li, bool> dp = (goal, list) =>
-				{
-					var set = new HashSet<int>() {list[0]};
-					list.RemoveAt(0);
-					var N = list.Count;
-					N.REP(i =>
-					{
-						var next = new HashSet<int>();
-						foreach (var item in set) {
-							next.Add(item + list[i]);
-							next.Add(item - list[i]);
-						}
-
-						set = next;
-					});
-					return set.Contains(goal);
-
-				};
-
-				(dp(X,xl)&&dp(Y,yl)?"Yes":"No").WL();
 
 				return;
 			}
+			
 		}
+
+
 	}
 }
 namespace Nakov.IO {
