@@ -32,24 +32,15 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int H = NextInt(), W = NextInt(), D = NextInt();
-				var dic = new Map<int, ti2>();
+				var s = ReadLine();
+				var n = s.Length;
 
-				H.REP(y => W.REP(x => { dic[NextInt()] = new ti2(x, y); }));
 
-				var imos = new int[H * W+1];
+				if ((s.Length % 2 == 0) ^ (s[0] == s[n-1])) {
+					"Second".WL();
+				} else "First".WL();
 
-				for (int i = 1+D; i <= H*W; i++) {
-					var s = dic[i];
-					var t = dic[i - D];
-					imos[i] = imos[i - D] + Abs(s.Item1 - t.Item1) + Abs(s.Item2 - t.Item2);
-				}
 
-				NextInt().REP(i =>
-				{
-					int li = NextInt(), ri = NextInt();
-					(imos[ri]-imos[li]).WL();
-				});
 
 				return;
 			}
