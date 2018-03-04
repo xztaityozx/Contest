@@ -32,16 +32,15 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				var s = ReadLine();
-				var n = s.Length;
+				int N = NextInt();
+				long A = NextLong(), B = NextLong();
+				var X = NextLongList();
+				var ans = 0L;
+				for (int i = 1; i < N; i++) {
+					ans += Min(A * (X[i] - X[i - 1]), B);
+				}
 
-
-				if ((s.Length % 2 == 0) ^ (s[0] == s[n-1])) {
-					"Second".WL();
-				} else "First".WL();
-
-
-
+				ans.WL();
 				return;
 			}
 			

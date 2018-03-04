@@ -593,4 +593,53 @@ namespace CS_Contest.Graph {
 			return rt;
 		}
 	}
+
+	public class Kruskal
+	{
+		public class ComparablePair<T, U> : IComparable where T : IComparable<T> {
+			public readonly T Item1;
+			public readonly U Item2;
+
+			public int CompareTo(object obj) {
+				ComparablePair<T, U> castedObj = (ComparablePair<T, U>)obj;
+				return this.Item1.CompareTo(castedObj.Item1);
+			}
+
+			public ComparablePair(T t, U u) {
+				Item1 = t;
+				Item2 = u;
+			}
+		}
+
+		private int N { get; set; }
+
+		private SortedSet<ComparablePair<long, Tuple<int, int>>> sortedSet =
+			new SortedSet<ComparablePair<long, Tuple<int, int>>>();
+
+		public Kruskal(int n) {
+			N = n;
+		}
+
+		public void Add(int s, int t, long cost) {
+			var tuple=new Tuple<int,int>(s,t);
+			sortedSet.Add(new ComparablePair<long, Tuple<int, int>>(cost, tuple));
+		}
+
+		public long Run() {
+			var uf=new UnionFind(N);
+			var rt = 0L;
+			foreach (var item in sortedSet) {
+				var cost = item.Item1;
+				var s = item.Item2.Item1;
+				var t = item.Item2.Item2;
+				if (uf.IsSameGroup(s, t)) continue;
+				uf.Unite(s, t);
+				rt += cost;
+			}
+
+			return rt;
+		}
+
+		
+	}
 }
