@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using static System.Console;
 using static System.Math;
-using System.Numerics;
-using System.Runtime.InteropServices.WindowsRuntime;
+
 //using CS_Contest.Graph;
 using CS_Contest.Loop;
 using CS_Contest.Utils;
@@ -32,28 +30,13 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var X = NextLongList();
-				var Y = NextLongList();
-
-
-				var x = 0L;
-				for (int i = 1; i < N; i++) {
-					x += Mod(X[i] - X[i - 1]) * i % ModValue * (N - i) % ModValue;
-					x = Mod(x);
-				}
-				var y = 0L;
-				for (int i = 1; i < M; i++) {
-					y += Mod(Y[i] - Y[i - 1]) * i % ModValue * (M - i) % ModValue;
-					y = Mod(y);
-				}
-
-				Mod(x*y).WL();
+				long X = NextLong(), Y = NextLong();
+				
+				if(Abs(X-Y)<=1) "Brown".WL();
+				else "Alice".WL();
 
 				return;
 			}
-			public static long ModValue = (long)1e9 + 7;
-			public static long Mod(long x) => x % ModValue;
 		}
 
 
