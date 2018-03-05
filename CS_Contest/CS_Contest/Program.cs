@@ -33,14 +33,44 @@ namespace CS_Contest {
 		{
 			public void Solve() {
 				int N = NextInt();
-				long A = NextLong(), B = NextLong();
-				var X = NextLongList();
-				var ans = 0L;
-				for (int i = 1; i < N; i++) {
-					ans += Min(A * (X[i] - X[i - 1]), B);
-				}
+				var S = ReadLine();
 
-				ans.WL();
+				var box = S.Select(x => x == 'o').ToArray();
+
+				var stPattern = new [,] {{true, true}, {true, false}, {false, false}, {false, true}}; //開始パターン
+
+				Func<List<bool>, List<bool>> make = (input) =>
+				{
+					//発言と初期パターンからNまでの列を作ってみる
+					//矛盾は外で判断して
+					for (int i = 2; i < N+2; i++) {
+						input.Add(
+							input[i - 1] ? 
+								box[(i - 1) % N] ? input[i - 2] : !input[i - 2] :
+								box[(i - 1) % N] ? !input[i - 2] : input[i - 2]
+						);
+					}
+
+					return input;
+				};
+
+				Func<List<bool>, string> fil = (input) => input.Take(N).Select(x => x ? 'S' : 'W').StringJoin();
+
+				var last = N - 1;
+				var boo = last - 1;
+
+				for (int i = 0; i < 4; i++) {
+					var list = new List<bool> {stPattern[i, 0], stPattern[i, 1]};
+					list = make(list);
+					//矛盾チェック
+					if (list[0] == list[N] && list[1] == list[N + 1]) {
+						fil(list).WL();
+						return;
+					}
+				}
+				"-1".WL();
+
+
 				return;
 			}
 			
