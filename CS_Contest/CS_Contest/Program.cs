@@ -32,48 +32,28 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt();
-				var S = ReadLine();
+				int N = NextInt(), M = NextInt();
+				var X = NextLongList();
+				var Y = NextLongList();
 
-				var box = S.Select(x => x == 'o').ToArray();
 
-				var stPattern = new [,] {{true, true}, {true, false}, {false, false}, {false, true}}; //開始パターン
-
-				Func<List<bool>, List<bool>> make = (input) =>
-				{
-					//発言と初期パターンからNまでの列を作ってみる
-					//矛盾は外で判断して
-					for (int i = 2; i < N+2; i++) {
-						input.Add(
-							input[i - 1] ? 
-								box[(i - 1) % N] ? input[i - 2] : !input[i - 2] :
-								box[(i - 1) % N] ? !input[i - 2] : input[i - 2]
-						);
-					}
-
-					return input;
-				};
-
-				Func<List<bool>, string> fil = (input) => input.Take(N).Select(x => x ? 'S' : 'W').StringJoin();
-
-				var last = N - 1;
-				var boo = last - 1;
-
-				for (int i = 0; i < 4; i++) {
-					var list = new List<bool> {stPattern[i, 0], stPattern[i, 1]};
-					list = make(list);
-					//矛盾チェック
-					if (list[0] == list[N] && list[1] == list[N + 1]) {
-						fil(list).WL();
-						return;
-					}
+				var x = 0L;
+				for (int i = 1; i < N; i++) {
+					x += Mod(X[i] - X[i - 1]) * i % ModValue * (N - i) % ModValue;
+					x = Mod(x);
 				}
-				"-1".WL();
+				var y = 0L;
+				for (int i = 1; i < M; i++) {
+					y += Mod(Y[i] - Y[i - 1]) * i % ModValue * (M - i) % ModValue;
+					y = Mod(y);
+				}
 
+				Mod(x*y).WL();
 
 				return;
 			}
-			
+			public static long ModValue = (long)1e9 + 7;
+			public static long Mod(long x) => x % ModValue;
 		}
 
 

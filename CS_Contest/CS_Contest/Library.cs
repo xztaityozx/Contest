@@ -43,6 +43,10 @@ namespace CS_Contest {
 		public static long ModValue = (long)1e9 + 7;
 		public static long Mod(long x) => x % ModValue;
 		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+		public static long ModPow(long x, long n) {
+			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
+			return tmp;
+		}
 		public static long[,] CombinationTable(int n) {
 			var rt = new long[n + 1, n + 1];
 			for (var i = 0; i <= n; i++) {
@@ -52,10 +56,6 @@ namespace CS_Contest {
 				}
 			}
 			return rt;
-		}
-		public static long ModPow(long x, long n) {
-			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
-			return tmp;
 		}
 		public static bool IsPrime(long n) {
 			if (n == 2) return true;
