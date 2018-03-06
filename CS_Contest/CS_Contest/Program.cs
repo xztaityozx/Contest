@@ -30,36 +30,15 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				var N = NextInt();
-				var g = new int [N, N];
-				var d = new int[N, N];
+				int N = NextInt(), Z = NextInt(), W = NextInt();
+				var A = NextIntList();
 
-				N.REP(i=>N.REP(j => {
-					g[i, j] = NextInt();
-					d[i, j] = g[i, j];
-				}));
-
-
-				for (int k = 0; k < N; k++) {
-					for (int i = 0; i < N; i++) {
-						for (int j = 0; j < N; j++) {
-							if(k==i||i==j||j==k||g[i,k]==int.MaxValue||g[k,j]==int.MaxValue) continue;
-							if (g[i, k] + g[k, j] == d[i, j]) {
-								g[i, j] = int.MaxValue;
-							}else if (g[i, k] + g[k, j] < d[i, j]) {
-								"-1".WL();
-								return;
-							}
-						}
-					}
+				if (N == 1) {
+					Abs(A[N-1]-W).WL();
+					return;
 				}
 
-				var ans = 0L;
-				N.REP(i=>N.REP(j =>
-				{
-					if (g[i, j] != int.MaxValue) ans += g[i, j];
-				}));
-				(ans / 2).WL();
+				Max(Abs(A[N-1]-A[N-2]),Abs(W-A[N-1])).WL();
 
 				return;
 			}
