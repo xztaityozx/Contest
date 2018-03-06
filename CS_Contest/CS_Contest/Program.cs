@@ -31,99 +31,41 @@ namespace CS_Contest {
 		{
 			public void Solve() {
 				var N = NextInt();
-				var kruskal=new Kruskal(N);
+				var g = new int [N, N];
+				var d = new int[N, N];
 
-				var xlist = new List<ti2>();
-				var ylist = new List<ti2>();
+				N.REP(i=>N.REP(j => {
+					g[i, j] = NextInt();
+					d[i, j] = g[i, j];
+				}));
 
 
-				for (int i = 0; i < N; i++) {
-					xlist.Add(NextInt(), i);
-					ylist.Add(NextInt(), i);
-				}
-
-				xlist = xlist.OrderBy(x => x.Item1).ToList();
-				ylist = ylist.OrderBy(x => x.Item1).ToList();
-
-				var list = new List<ti3>();
-
-				for (int i = 0; i < N-1; i++) {
-					{
-						var s = xlist[i];
-						var t = xlist[i + 1];
-						kruskal.Add(s.Item2, t.Item2, t.Item1 - s.Item1);
-					}
-					{
-						var s = ylist[i];
-						var t = ylist[i + 1];
-						kruskal.Add(s.Item2, t.Item2, t.Item1 - s.Item1);
+				for (int k = 0; k < N; k++) {
+					for (int i = 0; i < N; i++) {
+						for (int j = 0; j < N; j++) {
+							if(k==i||i==j||j==k||g[i,k]==int.MaxValue||g[k,j]==int.MaxValue) continue;
+							if (g[i, k] + g[k, j] == d[i, j]) {
+								g[i, j] = int.MaxValue;
+							}else if (g[i, k] + g[k, j] < d[i, j]) {
+								"-1".WL();
+								return;
+							}
+						}
 					}
 				}
 
-				kruskal.Run().WL();
+				var ans = 0L;
+				N.REP(i=>N.REP(j =>
+				{
+					if (g[i, j] != int.MaxValue) ans += g[i, j];
+				}));
+				(ans / 2).WL();
+
 				return;
 			}
 		}
 
-		public struct UnionFind {
-			private readonly int[] _data;
 
-			public UnionFind(int size) {
-				_data = new int[size];
-				for (var i = 0; i < size; i++) _data[i] = -1;
-			}
-
-			public bool Unite(int x, int y) {
-				x = Root(x);
-				y = Root(y);
-
-				if (x == y) return x != y;
-				if (_data[y] < _data[x]) {
-					var tmp = y;
-					y = x;
-					x = tmp;
-				}
-				_data[x] += _data[y];
-				_data[y] = x;
-				return x != y;
-			}
-
-			public bool IsSameGroup(int x, int y) {
-				return Root(x) == Root(y);
-			}
-
-			public int Root(int x) {
-				return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
-			}
-		}
-
-		public class Kruskal
-		{
-			private List<Tuple<int, int, long>> edgeList;
-			private int N { get; set; }
-			public Kruskal(int n) {
-				N = n;
-				edgeList=new List<Tuple<int, int, long>>();
-			}
-
-			public void Add(int s, int t, long cost) => edgeList.Add(new Tuple<int, int, long>(s, t, cost));
-
-			public long Run() {
-				edgeList.Sort((a, b) => a.Item3.CompareTo(b.Item3));
-				var rt = 0L;
-				var uf=new UnionFind(N);
-				foreach (var tuple in edgeList) {
-					var s = tuple.Item1;
-					var t = tuple.Item2;
-					var cost = tuple.Item3;
-					if(uf.IsSameGroup(s,t)) continue;
-					uf.Unite(s, t);
-					rt += cost;
-				}
-
-				return rt;
-			}
-		}
 
 
 	}
