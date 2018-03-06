@@ -30,17 +30,15 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), Z = NextInt(), W = NextInt();
-				var A = NextIntList();
+				var S = ReadLine();
+				var N = S.Length;
 
-				if (N == 1) {
-					Abs(A[N-1]-W).WL();
-					return;
+				var t = int.MaxValue;
+				for (int i = 0; i < N-1; i++) {
+					if (S[i] != S[i + 1]) t = Min(Max(i + 1, N - i - 1), t);
 				}
 
-				Max(Abs(A[N-1]-A[N-2]),Abs(W-A[N-1])).WL();
-
-				return;
+				(t == int.MaxValue ? N : t).WL();
 			}
 		}
 
