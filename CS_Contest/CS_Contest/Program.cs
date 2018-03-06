@@ -30,113 +30,98 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt();
-				var A = NextLongList();
+				var N = NextInt();
+				var kruskal=new Kruskal(N);
 
-				var pq=new PriorityQueue<long>();
+				var xlist = new List<ti2>();
+				var ylist = new List<ti2>();
 
-				var pqb = new PriorityQueue<long>();
-
-				long bsum = 0L;
-				long asum = A.Take(N).Sum();
 
 				for (int i = 0; i < N; i++) {
-					pq.Enqueue(A[i]);
+					xlist.Add(NextInt(), i);
+					ylist.Add(NextInt(), i);
 				}
 
-				for (int i = 3 * N - 1; i >= 2 * N; i--) {
-					pqb.Enqueue(-A[i]);
-					bsum += A[i];
+				xlist = xlist.OrderBy(x => x.Item1).ToList();
+				ylist = ylist.OrderBy(x => x.Item1).ToList();
+
+				var list = new List<ti3>();
+
+				for (int i = 0; i < N-1; i++) {
+					{
+						var s = xlist[i];
+						var t = xlist[i + 1];
+						kruskal.Add(s.Item2, t.Item2, t.Item1 - s.Item1);
+					}
+					{
+						var s = ylist[i];
+						var t = ylist[i + 1];
+						kruskal.Add(s.Item2, t.Item2, t.Item1 - s.Item1);
+					}
 				}
 
-				var max = new long[3 * N];
-				max[N - 1] = asum;
-				var min = new long[3 * N];
-				min[2 * N] = bsum;
-
-				for (int k = N; k <= 2*N; k++) {
-					pq.Enqueue(A[k]);
-					var src = pq.Dequeue();
-					asum = asum - src + A[k];
-					max[k] = asum;
-				}
-
-
-				for (int k = 2 * N - 1; k >= N; k--) {
-					bsum += A[k];
-					pqb.Enqueue(-A[k]);
-					var m = pqb.Dequeue();
-					bsum -= -m;
-					min[k] = bsum;
-				}
-
-				var ans = long.MinValue;
-				for (int k = N-1; k < 2*N; k++) {
-					ans = Max(ans, max[k] - min[k + 1]);
-				}
-				ans.WL();
-
+				kruskal.Run().WL();
 				return;
 			}
 		}
-		public class PriorityQueue<T> {
-			private readonly List<T> heap;
-			private readonly Comparison<T> compare;
-			private int size;
 
-			public PriorityQueue() : this(Comparer<T>.Default) {
+		public struct UnionFind {
+			private readonly int[] _data;
+
+			public UnionFind(int size) {
+				_data = new int[size];
+				for (var i = 0; i < size; i++) _data[i] = -1;
 			}
 
-			public PriorityQueue(IComparer<T> comparer) : this(16, comparer.Compare) {
-			}
+			public bool Unite(int x, int y) {
+				x = Root(x);
+				y = Root(y);
 
-			public PriorityQueue(Comparison<T> comparison) : this(16, comparison) {
-			}
-
-			public PriorityQueue(int capacity, Comparison<T> comparison) {
-				this.heap = new List<T>(capacity);
-				this.compare = comparison;
-			}
-
-			public void Enqueue(T item) {
-				this.heap.Add(item);
-				var i = size++;
-				while (i > 0) {
-					var p = (i - 1) >> 1;
-					if (compare(this.heap[p], item) <= 0)
-						break;
-					this.heap[i] = heap[p];
-					i = p;
+				if (x == y) return x != y;
+				if (_data[y] < _data[x]) {
+					var tmp = y;
+					y = x;
+					x = tmp;
 				}
-				this.heap[i] = item;
+				_data[x] += _data[y];
+				_data[y] = x;
+				return x != y;
 			}
 
-			public T Dequeue() {
-				var ret = this.heap[0];
-				var x = this.heap[--size];
-				var i = 0;
-				while ((i << 1) + 1 < size) {
-					var a = (i << 1) + 1;
-					var b = (i << 1) + 2;
-					if (b < size && compare(heap[b], heap[a]) < 0) a = b;
-					if (compare(heap[a], x) >= 0)
-						break;
-					heap[i] = heap[a];
-					i = a;
+			public bool IsSameGroup(int x, int y) {
+				return Root(x) == Root(y);
+			}
+
+			public int Root(int x) {
+				return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
+			}
+		}
+
+		public class Kruskal
+		{
+			private List<Tuple<int, int, long>> edgeList;
+			private int N { get; set; }
+			public Kruskal(int n) {
+				N = n;
+				edgeList=new List<Tuple<int, int, long>>();
+			}
+
+			public void Add(int s, int t, long cost) => edgeList.Add(new Tuple<int, int, long>(s, t, cost));
+
+			public long Run() {
+				edgeList.Sort((a, b) => a.Item3.CompareTo(b.Item3));
+				var rt = 0L;
+				var uf=new UnionFind(N);
+				foreach (var tuple in edgeList) {
+					var s = tuple.Item1;
+					var t = tuple.Item2;
+					var cost = tuple.Item3;
+					if(uf.IsSameGroup(s,t)) continue;
+					uf.Unite(s, t);
+					rt += cost;
 				}
-				heap[i] = x;
-				heap.RemoveAt(size);
-				return ret;
-			}
 
-			public T Peek() {
-				return heap[0];
-			}
-
-			public int Count => size;
-
-			public bool Any() {
-				return size > 0;
+				return rt;
 			}
 		}
 
