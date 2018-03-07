@@ -31,20 +31,31 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				long N = NextLong(), X = NextLong();
+				int N = NextInt(), L = NextInt();
+				var A = NextIntList();
 
-				Func<long, long, long> rc = null;
-				rc = (a, b) =>
-				{
-					var x = Min(a, b);
-					var y = Max(a, b);
+				var p = -1;
 
-					if (y % x == 0) return y / x * x * 2 - x;
-					return 2 * x * (y / x) + rc(x, y % x);
-				};
+				for (int i = 0; i < N-1; i++) {
+					if (A[i] + A[i + 1] >= L) {
+						p = i + 1;
+					}
+				}
 
-				(N + rc(X, N - X)).WL();
+				if (p == -1) {
+					"Impossible".WL();
+					return;
+				}
 
+				"Possible".WL();
+				for (int i = 1; i < p; i++) {
+					i.WL();
+				}
+
+				for (int i = N-1; i >=p; i--) {
+					i.WL();
+				}
+				
 			}
 		}
 
@@ -143,6 +154,21 @@ namespace CS_Contest.Loop {
 				act(item);
 			}
 		}
+
+		
+	}
+
+	public class Generate
+	{
+		public static IEnumerable<int> Seq(int s, int e) => Seq(s, e, 1);
+		public static IEnumerable<int> Seq(int s, int e, int a) {
+			while (s != e) {
+				yield return s;
+				s += a;
+			}
+		}
+		public static List<T> Repeat<T>(Func<int, T> result, int range) =>
+			Enumerable.Range(0, range).Select(result).ToList();
 	}
 }
 
@@ -175,8 +201,7 @@ namespace CS_Contest.Utils {
 	using Ll = List<long>;
 	[DebuggerStepThrough]
 	public static class Utils {
-		public static List<T> Repeat<T>(Func<int, T> result, int range) =>
-			Enumerable.Range(0, range).Select(result).ToList();
+		
 
 		public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
 
