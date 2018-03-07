@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using static System.Console;
@@ -30,15 +31,65 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				var S = ReadLine();
-				var N = S.Length;
+				int N = NextInt(), K = NextInt();
+				int KK = K * 2;
 
-				var t = int.MaxValue;
-				for (int i = 0; i < N-1; i++) {
-					if (S[i] != S[i + 1]) t = Min(Max(i + 1, N - i - 1), t);
+				var imos = new int[KK, KK];
+
+				N.REP(i =>
+				{
+					int xi = NextInt(), yi = NextInt();
+					var ci = (char) Read();
+
+					if (ci == 'W') yi += K;
+
+					xi %= KK;
+					yi %= KK;
+
+					imos[yi, xi]++;
+				});
+
+
+				// =>
+				for (int i = 0; i < KK; i++) {
+					for (int j = 0; j < KK - 1; j++) {
+						imos[i, j + 1] += imos[i, j];
+					}
 				}
 
-				(t == int.MaxValue ? N : t).WL();
+				//v
+				for (int i = 0; i < KK; i++) {
+					for (int j = 0; j < KK - 1; j++) {
+						imos[j + 1, i] += imos[j, i];
+					}
+				}
+
+				Func<int, int, int, int, int> func = (y1, x1, y2, x2) =>
+				{
+					var a = x1 == 0 ? 0 : imos[y2, x1 - 1];
+					var b = y1 == 0 ? 0 : imos[y1 - 1, x2];
+					var c = x1 == 0 || y1 == 0 ? 0 : imos[y1 - 1, x1 - 1];
+					return imos[y2, x2] - a - b + c;
+				};
+
+				var ans = 0;
+
+				K.REP(y =>
+				{
+					K.REP(x =>
+					{
+						var sum = func(y, x, y + K - 1, x + K - 1);
+
+						if (0 < y) sum += func(0, x + K, y - 1, KK - 1);
+						if (0 < x && 0 < y) sum += func(0, 0, y - 1, x - 1);
+						if (0 < x) sum += func(y + K, 0, KK - 1, x - 1);
+						sum += func(y + K, x + K, KK - 1, KK - 1);
+
+						ans = Max(ans, N - sum);
+						ans = Max(ans, sum);
+					});
+				});
+				ans.WL();
 			}
 		}
 
@@ -116,6 +167,7 @@ namespace Nakov.IO {
 }
 
 namespace CS_Contest.Loop {
+	[DebuggerStepThrough]
 	public static class Loop {
 		public static void REP(this int n, Action<int> act) {
 			for (var i = 0; i < n; i++) {
@@ -166,6 +218,7 @@ namespace CS_Contest.IO {
 namespace CS_Contest.Utils {
 	using Li = List<int>;
 	using Ll = List<long>;
+	[DebuggerStepThrough]
 	public static class Utils {
 		public static List<T> Repeat<T>(Func<int, T> result, int range) =>
 			Enumerable.Range(0, range).Select(result).ToList();
