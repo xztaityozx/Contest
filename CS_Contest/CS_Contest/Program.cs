@@ -31,31 +31,39 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), L = NextInt();
-				var A = NextIntList();
+				
 
-				var p = -1;
+				var N = NextLong();
+				var A = NextLongList().ToArray();
 
-				for (int i = 0; i < N-1; i++) {
-					if (A[i] + A[i + 1] >= L) {
-						p = i + 1;
-					}
-				}
+				var sum = A.Sum();
+				var sub = (N * (N + 1)) / 2;
 
-				if (p == -1) {
-					"Impossible".WL();
+				long k = sum / sub;
+
+				if (sum%sub!=0) {
+					"NO".WL();
 					return;
 				}
 
-				"Possible".WL();
-				for (int i = 1; i < p; i++) {
-					i.WL();
+				var list = new long[N];
+				for (int i = 0; i < N; i++) {
+					list[i] = A[(i + 1) % N] - A[i] - k;
 				}
 
-				for (int i = N-1; i >=p; i--) {
-					i.WL();
+				var cnt = 0L;
+
+				foreach (var item in list) {
+					if (Abs(item) % N != 0 || item > 0) {
+						"NO".WL();
+						return;
+					}
+					if(item==0) continue;
+					cnt += Abs(item) / N;
 				}
-				
+
+				(k == cnt ? "YES" : "NO").WL();
+
 			}
 		}
 
