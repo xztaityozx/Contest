@@ -31,65 +31,20 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), K = NextInt();
-				int KK = K * 2;
+				long N = NextLong(), X = NextLong();
 
-				var imos = new int[KK, KK];
-
-				N.REP(i =>
+				Func<long, long, long> rc = null;
+				rc = (a, b) =>
 				{
-					int xi = NextInt(), yi = NextInt();
-					var ci = (char) Read();
+					var x = Min(a, b);
+					var y = Max(a, b);
 
-					if (ci == 'W') yi += K;
-
-					xi %= KK;
-					yi %= KK;
-
-					imos[yi, xi]++;
-				});
-
-
-				// =>
-				for (int i = 0; i < KK; i++) {
-					for (int j = 0; j < KK - 1; j++) {
-						imos[i, j + 1] += imos[i, j];
-					}
-				}
-
-				//v
-				for (int i = 0; i < KK; i++) {
-					for (int j = 0; j < KK - 1; j++) {
-						imos[j + 1, i] += imos[j, i];
-					}
-				}
-
-				Func<int, int, int, int, int> func = (y1, x1, y2, x2) =>
-				{
-					var a = x1 == 0 ? 0 : imos[y2, x1 - 1];
-					var b = y1 == 0 ? 0 : imos[y1 - 1, x2];
-					var c = x1 == 0 || y1 == 0 ? 0 : imos[y1 - 1, x1 - 1];
-					return imos[y2, x2] - a - b + c;
+					if (y % x == 0) return y / x * x * 2 - x;
+					return 2 * x * (y / x) + rc(x, y % x);
 				};
 
-				var ans = 0;
+				(N + rc(X, N - X)).WL();
 
-				K.REP(y =>
-				{
-					K.REP(x =>
-					{
-						var sum = func(y, x, y + K - 1, x + K - 1);
-
-						if (0 < y) sum += func(0, x + K, y - 1, KK - 1);
-						if (0 < x && 0 < y) sum += func(0, 0, y - 1, x - 1);
-						if (0 < x) sum += func(y + K, 0, KK - 1, x - 1);
-						sum += func(y + K, x + K, KK - 1, KK - 1);
-
-						ans = Max(ans, N - sum);
-						ans = Max(ans, sum);
-					});
-				});
-				ans.WL();
 			}
 		}
 
