@@ -32,46 +32,23 @@ namespace CS_Contest {
 		{
 			public void Solve() {
 				int N = NextInt(), M = NextInt();
-				var g = Generate.Repeat(i => new Li(), N);
-				
+				var map = new Map<int, int>();
+
 				M.REP(i =>
 				{
 					int ai = NextInt() - 1, bi = NextInt() - 1;
-					g[ai].Add(bi);
-					g[bi].Add(ai);
+					map[ai]++;
+					map[bi]++;
 				});
 
-				var used = new bool[N];
-				var ll = new LinkedList<int>();
-				ll.AddLast(0);
-				ll.AddLast(g[0][0]);
-
-				while (true) {
-					var s = ll.First.Value;
-					var t = ll.Last.Value;
-					used[s] = used[t] = true;
-					bool updated = false;
-					foreach (var node in g[s]) {
-						if (used[node]) continue;
-						ll.AddFirst(node);
-						updated = true;
-						break;
+				foreach (var item in map) {
+					if (item.Value % 2 != 0) {
+						"NO".WL();
+						return;
 					}
-
-					if (updated) continue;
-					foreach (var node in g[t]) {
-						if (used[node]) continue;
-						ll.AddLast(node);
-						updated = true;
-						break;
-					}
-
-					if (updated) continue;
-					break;
 				}
-				ll.Count.WL();
-				ll.Select(x=>x+1).JoinWL();
 
+				"YES".WL();
 			}
 		}
 
