@@ -31,24 +31,14 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var map = new Map<int, int>();
+				var S = ReadLine();
+				long N = S.Length;
+				var dic = S.CountUp();
 
-				M.REP(i =>
-				{
-					int ai = NextInt() - 1, bi = NextInt() - 1;
-					map[ai]++;
-					map[bi]++;
-				});
+				long sum = dic.Select(x => x.Value).Select(item => (long) item * (item - 1) / 2)
+					.Aggregate((N * (N - 1)) / 2, (current, x) => current - x);
 
-				foreach (var item in map) {
-					if (item.Value % 2 != 0) {
-						"NO".WL();
-						return;
-					}
-				}
-
-				"YES".WL();
+				(sum + 1).WL();
 			}
 		}
 
