@@ -31,38 +31,46 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
+				int N = NextInt(), M = NextInt();
+				var g = Generate.Repeat(i => new Li(), N);
 				
+				M.REP(i =>
+				{
+					int ai = NextInt() - 1, bi = NextInt() - 1;
+					g[ai].Add(bi);
+					g[bi].Add(ai);
+				});
 
-				var N = NextLong();
-				var A = NextLongList().ToArray();
+				var used = new bool[N];
+				var ll = new LinkedList<int>();
+				ll.AddLast(0);
+				ll.AddLast(g[0][0]);
 
-				var sum = A.Sum();
-				var sub = (N * (N + 1)) / 2;
-
-				long k = sum / sub;
-
-				if (sum%sub!=0) {
-					"NO".WL();
-					return;
-				}
-
-				var list = new long[N];
-				for (int i = 0; i < N; i++) {
-					list[i] = A[(i + 1) % N] - A[i] - k;
-				}
-
-				var cnt = 0L;
-
-				foreach (var item in list) {
-					if (Abs(item) % N != 0 || item > 0) {
-						"NO".WL();
-						return;
+				while (true) {
+					var s = ll.First.Value;
+					var t = ll.Last.Value;
+					used[s] = used[t] = true;
+					bool updated = false;
+					foreach (var node in g[s]) {
+						if (used[node]) continue;
+						ll.AddFirst(node);
+						updated = true;
+						break;
 					}
-					if(item==0) continue;
-					cnt += Abs(item) / N;
-				}
 
-				(k == cnt ? "YES" : "NO").WL();
+					if (updated) continue;
+					foreach (var node in g[t]) {
+						if (used[node]) continue;
+						ll.AddLast(node);
+						updated = true;
+						break;
+					}
+
+					if (updated) continue;
+					break;
+				}
+				ll.Count.WL();
+				ll.Select(x=>x+1).JoinWL();
 
 			}
 		}

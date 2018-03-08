@@ -1233,3 +1233,47 @@ Func<int, int, int, int, int> func = (y1, x1, y2, x2) =>
     - そもそもの目的なので
 - を満たしているかをチェックすればAC
 - `O(N)`
+
+# AGC013 B Hamiltonish Path
+- 無効グラフのハミルトン路を求める問題
+  - 必ず存在することが保証されている
+- 必ずハミルトン路があるのでDequeやLinkedListなどで貪欲をやるといい
+- まず頂点0とそれにつながっている頂点を仮のハミルトン路の端っこだとする
+  - これをLinkedListに追加しておくこれがハミルトン路を表す
+- 以下の操作を全ての頂点を通るまで繰り替えす
+  - ハミルトン路の端っこ2点を取り出す
+    - sとtとする
+  - グラフでsにつながる頂点kをみる
+    - kが既に既に通った頂点ならスキップ
+    - 通ってないならハミルトン路の端っことしてsの前に追加する
+    - ここまでで更新があったら戻る
+  - グラフtにつながる頂点lをみる
+    - lについても同じように操作する
+    - tの後に追加するようにする
+  - ここまでで更新がないならハミルトン路が完成している
+```cs
+while (true) {
+	var s = ll.First.Value;
+	var t = ll.Last.Value;
+	used[s] = used[t] = true;
+	bool updated = false;
+	foreach (var node in g[s]) {
+		if (used[node]) continue;
+		ll.AddFirst(node);
+		updated = true;
+		break;
+	}
+
+	if (updated) continue;
+	foreach (var node in g[t]) {
+		if (used[node]) continue;
+		ll.AddLast(node);
+		updated = true;
+		break;
+	}
+
+	if (updated) continue;
+	break;
+}
+```
+- あとは出力するだけ
