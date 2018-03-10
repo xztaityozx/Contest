@@ -31,29 +31,46 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int ax = NextInt(), ay = NextInt();
-				int bx = NextInt(), by = NextInt();
-				int cx = NextInt(), cy = NextInt();
+				var N = NextInt();
+				var A = new Li();
+				N.REP(i=>A.Add(NextInt()));
 
-				Func<int, int, int, int, double> Distance = (x1, y1, x2, y2) => Sqrt(Pow(x1 - x2, 2) + Pow(y1 - y2, 2));
+				var box = new bool[30];
+				var sum = 0;
 
-				var A = Distance(ax, ay, bx, by);
-				var B = Distance(ax, ay, cx, cy);
-				var C = Distance(bx, by, cx, cy);
+				Func<int, int> Ctz = (x) =>
+				{
+					var rt = 0;
+					while (x % 2 == 0) {
+						rt++;
+						x >>= 1;
+					}
 
-				var s = (A + B + C);
-				var S = (double)(cx - ax) * (by - ay) - (bx - ax) * (cy - ay);
-				S = S > 0 ? S : -S;
+					return rt;
+				};
 
-				var r = S / s; //内接円の半径
-				var M = EMax(A, B, C);
+				A.ForEach(ai =>
+				{
+					sum ^= ai;
+					box[Ctz(ai)] = true;
+				});
 
-				var Fractal = r * M;
-				var Denominator = 2 * r + M;
-
-				$"{Fractal/Denominator:F15}".WL();
-
+				int res = 0;
+				for (int i = 29; i >= 0; i--) {
+					if ((sum & (1 << i))!=0) {
+						if (!box[i]) {
+							res = -1;
+							break;
+						}
+						else {
+							res++;
+							sum^= (1 << (i + 1)) - 1;
+						}
+					}
+				}
+				res.WL();
 			}
+			
 		}
 		
 	}
