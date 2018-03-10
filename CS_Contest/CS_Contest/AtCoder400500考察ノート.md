@@ -1348,3 +1348,47 @@ foreach (var item in A) {
   - mが偶数でres==front　もしくは　mは奇数でres!=frontならl=m+1
   - ちがうならr=m-1
 - これを19回まで行う。絶対1つに絞れるのでこれでOK
+
+# CODE FESTIVAL 2016 Grand Final A - 1D Matching
+- 1次元に並んでいるPCと電源を1対1で接続していく。その長さの合計が最小になる組み合わせはいくつあるか
+  - 解説が簡単すぎて解説の解説が必要な問題
+  - http://ferin-tech.hatenablog.com/entry/2017/12/18/211329
+- 区間がないか探してみる。
+  - PCを+1,電源を-1としてimosして、累積和が0になった部分までを1つの区間としてみると電源⇒PCという矢印が1方向しか向かないことが分かる
+    - `k={PC,PC,AL,PC,AL,AL}` これは `k[0]=>k[2],k[1]=>k[4],k[3]=>k[5]`というふうにつなぐのが最小
+  - なのでこの区間ごとに組み合わせが独立している
+- PCと電源を座標で並べ替えるとPCと電源でランレングスみたいなのができる。
+- 上の参考のテストケースを使うと
+```
+電源,電源,電源,PC,PC,電源,PC,電源,PC,PC  
+              電 PC 電 PC 電 PC
+連続してる数  3  2  1  1  1  2
+     何通り  1  6  6  12 12 24
+残りの電源数  3  1  2  1  2  0
+```
+- 今注目しているのが電源のときは残りの電源数に加算する
+- PCで、PCの数が電源数以下なら答えに`Combination(電源数,PC数)×PC数!`を追加する。
+- そうでないなら電源対PCは(電源数!)個しか組み合わせがないので答えに加算する。このときPCと電源は入れ替わる（見るのは残りの電源数から残りのPC数にかわる）
+```cs
+var al = 0L;
+var T = true;
+foreach (var item in box) {
+	if (T) {
+		al += item;
+	}
+	else {
+		if (al >= item) {
+			var x = Mod(Combination(al, item) * factorial[item]);
+			ans = Mod(ans * x);
+			al -= item;
+		}
+		else {
+			ans = Mod(ans * factorial[al]);
+			al = item - al;
+			T = !T;
+		}
+	}
+
+	T = !T;
+}
+```

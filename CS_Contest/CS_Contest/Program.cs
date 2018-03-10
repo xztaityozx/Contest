@@ -22,10 +22,10 @@ namespace CS_Contest {
 	using ti2 = Tuple<int, int>;
 	internal class Program {
 		private static void Main(string[] args) {
-			//var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
-			//SetOut(sw);
+			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
+			SetOut(sw);
 			new Calc().Solve();
-			//Out.Flush();
+			Out.Flush();
 		}
 
 		public class Calc
@@ -33,25 +33,86 @@ namespace CS_Contest {
 			public void Solve() {
 				int N = NextInt();
 
-				0.WL();
+				var list = new List<Tuple<int, bool>>();
+				N.REP(i => {
+					list.Add(Tuple.Create(NextInt(), true));
+				});
 
-				var front = ReadLine();
-				var response = front;
+				N.REP(i => {
+					list.Add(Tuple.Create(NextInt(), false));
+				});
 
-				var l = 0;
-				var r = N - 1;
+				list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
 
-				for (int i = 0; i < 19 && response[0] != 'V'; i++) {
-					var m = (l + r) / 2;
-					m.WL();
-					response = ReadLine();
+				var ans = 1L;
 
-					if (response[0] != 'V') {
-						if (m % 2 == 0 && response == front || m % 2 == 1 && response != front) l = m + 1;
-						else r = m - 1;
-					}
+				var factorial = new long[100001 * 2];
+				var inverse = new long[100001 * 2];
+				factorial[0] = inverse[0] = 1;
+				for (var i = 1; i < factorial.Length; i++) {
+					factorial[i] = Mod(factorial[i - 1] * i);
+					inverse[i] = ModPow(factorial[i], ModValue - 2);
 				}
+
+				Func<long, long, long> Combination = (n, k) =>
+				{
+					if (n - k < 0) return 0;
+					var rt = factorial[n];
+					rt *= inverse[k];
+					rt %= ModValue;
+					rt *= inverse[n - k];
+					return Mod(rt);
+				};
+
+				var front = list[0].Item2;
+				var cnt = 0L;
+				var box = new Ll();
+				foreach (var item in list.Select(x=>x.Item2)) {
+					if (item != front) {
+						box.Add(cnt);
+						cnt = 1;
+						front = item;
+					}
+					else cnt++;
+				}
+				box.Add(cnt);
+
+				var al = 0L;
+				var T = true;
+				foreach (var item in box) {
+					if (T) {
+						al += item;
+					}
+					else {
+						if (al >= item) {
+							var x = Mod(Combination(al, item) * factorial[item]);
+							ans = Mod(ans * x);
+							al -= item;
+						}
+						else {
+							ans = Mod(ans * factorial[al]);
+							al = item - al;
+							T = !T;
+						}
+					}
+
+					T = !T;
+				}
+
+				Mod(ans).WL();
+
 			}
+			public static long ModValue = (long)1e9 + 7;
+			public static long Mod(long x) => x % ModValue;
+			
+
+		}
+		public static long ModValue = (long)1e9 + 7;
+		public static long Mod(long x) => x % ModValue;
+		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
+		public static long ModPow(long x, long n) {
+			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
+			return tmp;
 		}
 	}
 }
