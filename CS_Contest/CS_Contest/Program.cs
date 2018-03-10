@@ -22,29 +22,37 @@ namespace CS_Contest {
 	using ti2 = Tuple<int, int>;
 	internal class Program {
 		private static void Main(string[] args) {
-			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
-			SetOut(sw);
+			//var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
+			//SetOut(sw);
 			new Calc().Solve();
-			Out.Flush();
+			//Out.Flush();
 		}
 
 		public class Calc
 		{
 			public void Solve() {
-				var S = ReadLine();
-				long N = S.Length;
-				var dic = S.CountUp();
+				int N = NextInt();
 
-				long sum = dic.Select(x => x.Value).Select(item => (long) item * (item - 1) / 2)
-					.Aggregate((N * (N - 1)) / 2, (current, x) => current - x);
+				0.WL();
 
-				(sum + 1).WL();
+				var front = ReadLine();
+				var response = front;
+
+				var l = 0;
+				var r = N - 1;
+
+				for (int i = 0; i < 19 && response[0] != 'V'; i++) {
+					var m = (l + r) / 2;
+					m.WL();
+					response = ReadLine();
+
+					if (response[0] != 'V') {
+						if (m % 2 == 0 && response == front || m % 2 == 1 && response != front) l = m + 1;
+						else r = m - 1;
+					}
+				}
 			}
 		}
-
-
-
-
 	}
 }
 namespace Nakov.IO {
