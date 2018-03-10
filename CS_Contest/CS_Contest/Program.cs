@@ -31,89 +31,31 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt();
+				int ax = NextInt(), ay = NextInt();
+				int bx = NextInt(), by = NextInt();
+				int cx = NextInt(), cy = NextInt();
 
-				var list = new List<Tuple<int, bool>>();
-				N.REP(i => {
-					list.Add(Tuple.Create(NextInt(), true));
-				});
+				Func<int, int, int, int, double> Distance = (x1, y1, x2, y2) => Sqrt(Pow(x1 - x2, 2) + Pow(y1 - y2, 2));
 
-				N.REP(i => {
-					list.Add(Tuple.Create(NextInt(), false));
-				});
+				var A = Distance(ax, ay, bx, by);
+				var B = Distance(ax, ay, cx, cy);
+				var C = Distance(bx, by, cx, cy);
 
-				list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
+				var s = (A + B + C);
+				var S = (double)(cx - ax) * (by - ay) - (bx - ax) * (cy - ay);
+				S = S > 0 ? S : -S;
 
-				var ans = 1L;
+				var r = S / s; //内接円の半径
+				var M = EMax(A, B, C);
 
-				var factorial = new long[100001 * 2];
-				var inverse = new long[100001 * 2];
-				factorial[0] = inverse[0] = 1;
-				for (var i = 1; i < factorial.Length; i++) {
-					factorial[i] = Mod(factorial[i - 1] * i);
-					inverse[i] = ModPow(factorial[i], ModValue - 2);
-				}
+				var Fractal = r * M;
+				var Denominator = 2 * r + M;
 
-				Func<long, long, long> Combination = (n, k) =>
-				{
-					if (n - k < 0) return 0;
-					var rt = factorial[n];
-					rt *= inverse[k];
-					rt %= ModValue;
-					rt *= inverse[n - k];
-					return Mod(rt);
-				};
-
-				var front = list[0].Item2;
-				var cnt = 0L;
-				var box = new Ll();
-				foreach (var item in list.Select(x=>x.Item2)) {
-					if (item != front) {
-						box.Add(cnt);
-						cnt = 1;
-						front = item;
-					}
-					else cnt++;
-				}
-				box.Add(cnt);
-
-				var al = 0L;
-				var T = true;
-				foreach (var item in box) {
-					if (T) {
-						al += item;
-					}
-					else {
-						if (al >= item) {
-							var x = Mod(Combination(al, item) * factorial[item]);
-							ans = Mod(ans * x);
-							al -= item;
-						}
-						else {
-							ans = Mod(ans * factorial[al]);
-							al = item - al;
-							T = !T;
-						}
-					}
-
-					T = !T;
-				}
-
-				Mod(ans).WL();
+				$"{Fractal/Denominator:F15}".WL();
 
 			}
-			public static long ModValue = (long)1e9 + 7;
-			public static long Mod(long x) => x % ModValue;
-			
-
 		}
-		public static long ModValue = (long)1e9 + 7;
-		public static long Mod(long x) => x % ModValue;
-		public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long)(1e9 + 5)));
-		public static long ModPow(long x, long n) {
-			long tmp = 1; while (n != 0) { if (n % 2 == 1) { tmp = Mod(tmp * x); } x = Mod(x * x); n /= 2; }
-			return tmp;
-		}
+		
 	}
 }
 namespace Nakov.IO {
