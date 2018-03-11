@@ -31,46 +31,31 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				var N = NextInt();
-				var A = new Li();
-				N.REP(i=>A.Add(NextInt()));
 
-				var box = new bool[30];
-				var sum = 0;
+				long N = NextLong(), K = NextLong();
 
-				Func<int, int> Ctz = (x) =>
-				{
-					var rt = 0;
-					while (x % 2 == 0) {
-						rt++;
-						x >>= 1;
-					}
-
-					return rt;
-				};
-
-				A.ForEach(ai =>
-				{
-					sum ^= ai;
-					box[Ctz(ai)] = true;
-				});
-
-				int res = 0;
-				for (int i = 29; i >= 0; i--) {
-					if ((sum & (1 << i))!=0) {
-						if (!box[i]) {
-							res = -1;
-							break;
-						}
-						else {
-							res++;
-							sum^= (1 << (i + 1)) - 1;
-						}
-					}
+				if (K == 0) {
+					(N * N).WL();
+					return;
 				}
-				res.WL();
+
+				var box = new Ll();
+
+				var cnt = 0L;
+
+				for (long i = K+1; i <= N; i++) {
+					box.Add(i);
+				}
+
+				foreach (var b in box) {
+					var p = N / b;
+					var r = N % b;
+					cnt += p * Max(0, b - K) + Max(0, r - K + 1);
+
+				}
+
+				cnt.WL();
 			}
-			
 		}
 		
 	}
