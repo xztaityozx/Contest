@@ -31,33 +31,35 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
+				int W = NextInt(), H = NextInt();
+				var list = new List<Tuple<long, bool>>();
 
-				long N = NextLong(), K = NextLong();
+				W.REP(i => list.Add(NextLong(), true));
+				H.REP(i => list.Add(NextLong(), false));
 
-				if (K == 0) {
-					(N * N).WL();
-					return;
+				list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
+
+				W++;
+				H++;
+
+				var cost = 0L;
+
+				foreach (var edge in list) {
+					if (edge.Item2) {
+						cost += H * edge.Item1; //横方向にH本使う
+						W--;
+					}
+					else {
+						cost += W * edge.Item1; //縦方向にW本使う
+						H--;
+					}
 				}
 
-				var box = new Ll();
-
-				var cnt = 0L;
-
-				for (long i = K+1; i <= N; i++) {
-					box.Add(i);
-				}
-
-				foreach (var b in box) {
-					var p = N / b;
-					var r = N % b;
-					cnt += p * Max(0, b - K) + Max(0, r - K + 1);
-
-				}
-
-				cnt.WL();
+				cost.WL();
 			}
 		}
-		
+
+
 	}
 }
 namespace Nakov.IO {
@@ -178,6 +180,7 @@ namespace CS_Contest.IO {
 		public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
 
 		public static Li NextIntList() => ReadLine().Split().Select(int.Parse).ToList();
+		public static Li NextIntList(int n) => Enumerable.Repeat(0, n).Select(x => ReadLine()).Select(int.Parse).ToList();
 		public static Ll NextLongList() => ReadLine().Split().Select(long.Parse).ToList();
 
 		public static T Tee<T>(this T t, Func<T, string> formatter = null) {
