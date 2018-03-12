@@ -31,77 +31,101 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt();
-				var D = NextIntList();
+				int N = NextInt(), M = NextInt();
+				var bipartG = new BipartiteGraph(N);
 
-				var dic = new int[13];
-
-				D.ForEach(i=>dic[i]++);
-
-				if (dic[0] == 1 || dic.Any(x => x > 2) || dic[12] > 1) {
-					0.WL();
-					return;
-				}
-
-				var circle = new int[24];
-				var list = new Li();
-
-				circle[0] = 1;
-
-				for (int i = 1; i < 12; i++) {
-					if (dic[i] == 1) list.Add(i);
-					else if (dic[i] == 2) circle[i] = circle[24 - i] = 1;
-					else if (dic[i] > 2) {
-						0.WL();
-						return;
-					}
-				}
-
-
-				if (dic[12] == 1) circle[12] = 1;
-				var M = list.Count;
-
-				Func<int> search = () =>
+				M.REP(i =>
 				{
-					var rt = int.MaxValue;
-					for (int i = 0; i < 24; i++) {
-						for (int j = 0; j < 24; j++) {
-							if (circle[i] < 1 || circle[j] < 1 || i == j) continue;
-							var d1 =  Abs(j - i);
-							var d = Min(d1, 24 - d1);
-							rt = Min(d, rt);
-						}
+					int ai = NextInt() - 1, bi = NextInt() - 1;
+					bipartG.Add(ai, bi, 1, false);
+				});
+
+				if (bipartG.IsBipartGraph()) {
+					//二部グラフだった
+					//B=>Wの辺はBW個ある
+					//もとの辺はM辺なのでBW-M
+					var B = bipartG.BlackCount;
+					var W = bipartG.WhiteCount;
+					(B*W-M).WL();
+				}
+				else {
+					//二部グラフじゃなかった
+					//奇数サイクルがある
+					//s=>tが偶数パスなら奇数サイクルを通ってパスを奇数にできる
+					//全ての頂点間に奇数パスがあることになる
+					//完全グラフになるまで辺を追加できる
+					//完全グラフの辺数はN(N-1)/2個
+					//元の辺数はM個なので増えたのはその差
+					var n = (long) N;
+					var m = (long) M;
+					(n*(n-1)/2-m).WL();
+
+				}
+			}
+		}
+		public class CostGraph {
+			public struct Edge {
+				public int To { get; set; }
+				public long Cost { get; set; }
+
+
+				public Edge(int to, long cost) {
+					To = to;
+					Cost = cost;
+				}
+
+			}
+
+			public int Size { get; set; }
+			public List<List<Edge>> Adjacency { get; set; }
+			public const long Inf = (long)1e15;
+
+			public CostGraph(int size) {
+				Size = size;
+				Adjacency = new List<List<Edge>>();
+				Size.REP(_ => Adjacency.Add(new List<Edge>()));
+			}
+
+			public void Add(int s, int t, long c, bool dir = true) {
+				Adjacency[s].Add(new Edge(t, c));
+				if (!dir) Adjacency[t].Add(new Edge(s, c));
+			}
+
+		}
+		public class BipartiteGraph : CostGraph {
+			public BipartiteGraph(int size) : base(size) {
+			}
+
+			public enum State {
+				Undefined,
+				Black,
+				White
+			}
+
+			public long BlackCount { get; private set; }
+			public long WhiteCount {
+				get { return Size - BlackCount; }
+			}
+
+			public bool IsBipartGraph() {
+				Func<int,  State, bool> dfs = null;
+				var state = new State[Size];
+				BlackCount = 0;
+				dfs = (to,  nextState) =>
+				{
+					if (state[to] != State.Undefined) {
+						return state[to] == nextState;
 					}
+					state[to] = nextState;
+					if (nextState == State.Black) BlackCount++;
+					var rt = true;
+					foreach (var edge in Adjacency[to]) {
+						rt &= dfs(edge.To,  nextState == State.Black ? State.White : State.Black);
+					}
+
 					return rt;
 				};
-
-				if (M == 0) {
-					search().WL();
-					return;
-				}
-
-				var ans = 0;
-				(1<<M).REP(bit =>
-				{
-					//0~1<<Mまで2^M通り
-					M.REP(i =>
-					{
-						var dx = list[i];
-						var dy = 24 - dx;
-						//状態は2つ、bitが1なら右側、0なら左側
-						if ((bit & (1 << i)) != 0) {
-							circle[dx] = 1;
-							circle[dy] = 0;
-						}
-						else {
-							circle[dx] = 0;
-							circle[dy] = 1;
-						}
-					});
-					ans = Max(ans, search());
-				});
-				ans.WL();
-
+				return dfs(0,  State.Black);
 			}
 		}
 

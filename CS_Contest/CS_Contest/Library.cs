@@ -652,4 +652,41 @@ namespace CS_Contest.Graph {
 			return rt;
 		}
 	}
+
+	public class BipartiteGraph : CostGraph {
+		public BipartiteGraph(int size) : base(size) {
+		}
+
+		public enum State {
+			Undefined,
+			Black,
+			White
+		}
+
+		public long BlackCount { get; private set; }
+		public long WhiteCount {
+			get { return Size - BlackCount; }
+		}
+
+		public bool IsBipartGraph() {
+			Func<int, State, bool> dfs = null;
+			var state = new State[Size];
+			BlackCount = 0;
+			dfs = (to, nextState) =>
+			{
+				if (state[to] != State.Undefined) {
+					return state[to] == nextState;
+				}
+				state[to] = nextState;
+				if (nextState == State.Black) BlackCount++;
+				var rt = true;
+				foreach (var edge in Adjacency[to]) {
+					rt &= dfs(edge.To, nextState == State.Black ? State.White : State.Black);
+				}
+
+				return rt;
+			};
+			return dfs(0, State.Black);
+		}
+	}
 }
