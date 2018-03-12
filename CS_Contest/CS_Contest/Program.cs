@@ -31,31 +31,77 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int W = NextInt(), H = NextInt();
-				var list = new List<Tuple<long, bool>>();
+				int N = NextInt();
+				var D = NextIntList();
 
-				W.REP(i => list.Add(NextLong(), true));
-				H.REP(i => list.Add(NextLong(), false));
+				var dic = new int[13];
 
-				list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
+				D.ForEach(i=>dic[i]++);
 
-				W++;
-				H++;
+				if (dic[0] == 1 || dic.Any(x => x > 2) || dic[12] > 1) {
+					0.WL();
+					return;
+				}
 
-				var cost = 0L;
+				var circle = new int[24];
+				var list = new Li();
 
-				foreach (var edge in list) {
-					if (edge.Item2) {
-						cost += H * edge.Item1; //横方向にH本使う
-						W--;
-					}
-					else {
-						cost += W * edge.Item1; //縦方向にW本使う
-						H--;
+				circle[0] = 1;
+
+				for (int i = 1; i < 12; i++) {
+					if (dic[i] == 1) list.Add(i);
+					else if (dic[i] == 2) circle[i] = circle[24 - i] = 1;
+					else if (dic[i] > 2) {
+						0.WL();
+						return;
 					}
 				}
 
-				cost.WL();
+
+				if (dic[12] == 1) circle[12] = 1;
+				var M = list.Count;
+
+				Func<int> search = () =>
+				{
+					var rt = int.MaxValue;
+					for (int i = 0; i < 24; i++) {
+						for (int j = 0; j < 24; j++) {
+							if (circle[i] < 1 || circle[j] < 1 || i == j) continue;
+							var d1 =  Abs(j - i);
+							var d = Min(d1, 24 - d1);
+							rt = Min(d, rt);
+						}
+					}
+					return rt;
+				};
+
+				if (M == 0) {
+					search().WL();
+					return;
+				}
+
+				var ans = 0;
+				(1<<M).REP(bit =>
+				{
+					//0~1<<Mまで2^M通り
+					M.REP(i =>
+					{
+						var dx = list[i];
+						var dy = 24 - dx;
+						//状態は2つ、bitが1なら右側、0なら左側
+						if ((bit & (1 << i)) != 0) {
+							circle[dx] = 1;
+							circle[dy] = 0;
+						}
+						else {
+							circle[dx] = 0;
+							circle[dy] = 1;
+						}
+					});
+					ans = Max(ans, search());
+				});
+				ans.WL();
+
 			}
 		}
 
@@ -220,8 +266,8 @@ namespace CS_Contest.Utils {
 			x = y;
 			y = tmp;
 		}
-		public static Dictionary<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
-			var dic = new Dictionary<TKey, int>();
+		public static Map<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
+			var dic = new Map<TKey, int>();
 			foreach (var item in l) {
 				if (dic.ContainsKey(item)) dic[item]++;
 				else dic.Add(item, 1);
