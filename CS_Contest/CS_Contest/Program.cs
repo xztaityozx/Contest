@@ -31,27 +31,41 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), K = NextInt();
-				var A = NextIntList(N).OrderBy(x => x).ToArray();
-				var dp = Generate.Repeat(i => new Map<int, long>(), N + 1);
+				int N = NextInt(), X = NextInt();
+				var dp = new long[N][];
+				N.REP(i => dp[i] = new long[N + 1]);
+				dp[0][1] = X;
+				var T = NextIntList(N);
 
-				Func<long, long> mod = (x) => x % ((int) 1e9 + 7);
+				var n = 0;
 
-				dp[0][0] = 1;
-				var limit = 0;
 				N.REP(i =>
 				{
-					foreach (var item in dp[i]) {
-						var key = item.Key;
-						var value = item.Value;
-						if(limit<key) continue;
-						dp[i + 1][key] = mod(dp[i + 1][key] + item.Value);
-						dp[i + 1][key ^ A[i]] = mod(dp[i + 1][key ^ A[i]] + item.Value);
-					}
+					while (n < N && T[n] - T[i] < X) n++;
 
-					limit |= A[i];
+					for (int j = 0; j+1 <= N; j++) {
+						var v = dp[i][j];
+						if (i + 1 < N) {
+							dp[i + 1][j + 1] = Max(dp[i + 1][j + 1], v + Min(X, T[i + 1] - T[i]));
+						}
+
+						if (n - 1 > i) {
+							dp[n-1][j + 1] = Max(dp[n-1][j + 1], v + Min(X, T[n - 1] - T[i]));
+						}
+
+						if (n > i && n < N) {
+							dp[n][j + 1] = Max(dp[n][j + 1], v + Min(X, T[n] - T[i]));
+						}
+					}
 				});
-				dp[N][K].WL();
+
+				for (int i = 1; i <= N; i++) {
+					var ans = 0L;
+					N.REP(j => ans = Max(ans, dp[j][i]));
+					ans.WL();
+				}
+
+				return;
 			}
 		}
 
