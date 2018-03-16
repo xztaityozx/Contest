@@ -31,101 +31,27 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int N = NextInt(), M = NextInt();
-				var bipartG = new BipartiteGraph(N);
+				int N = NextInt(), K = NextInt();
+				var A = NextIntList(N).OrderBy(x => x).ToArray();
+				var dp = Generate.Repeat(i => new Map<int, long>(), N + 1);
 
-				M.REP(i =>
+				Func<long, long> mod = (x) => x % ((int) 1e9 + 7);
+
+				dp[0][0] = 1;
+				var limit = 0;
+				N.REP(i =>
 				{
-					int ai = NextInt() - 1, bi = NextInt() - 1;
-					bipartG.Add(ai, bi, 1, false);
+					foreach (var item in dp[i]) {
+						var key = item.Key;
+						var value = item.Value;
+						if(limit<key) continue;
+						dp[i + 1][key] = mod(dp[i + 1][key] + item.Value);
+						dp[i + 1][key ^ A[i]] = mod(dp[i + 1][key ^ A[i]] + item.Value);
+					}
+
+					limit |= A[i];
 				});
-
-				if (bipartG.IsBipartGraph()) {
-					//二部グラフだった
-					//B=>Wの辺はBW個ある
-					//もとの辺はM辺なのでBW-M
-					var B = bipartG.BlackCount;
-					var W = bipartG.WhiteCount;
-					(B*W-M).WL();
-				}
-				else {
-					//二部グラフじゃなかった
-					//奇数サイクルがある
-					//s=>tが偶数パスなら奇数サイクルを通ってパスを奇数にできる
-					//全ての頂点間に奇数パスがあることになる
-					//完全グラフになるまで辺を追加できる
-					//完全グラフの辺数はN(N-1)/2個
-					//元の辺数はM個なので増えたのはその差
-					var n = (long) N;
-					var m = (long) M;
-					(n*(n-1)/2-m).WL();
-
-				}
-			}
-		}
-		public class CostGraph {
-			public struct Edge {
-				public int To { get; set; }
-				public long Cost { get; set; }
-
-
-				public Edge(int to, long cost) {
-					To = to;
-					Cost = cost;
-				}
-
-			}
-
-			public int Size { get; set; }
-			public List<List<Edge>> Adjacency { get; set; }
-			public const long Inf = (long)1e15;
-
-			public CostGraph(int size) {
-				Size = size;
-				Adjacency = new List<List<Edge>>();
-				Size.REP(_ => Adjacency.Add(new List<Edge>()));
-			}
-
-			public void Add(int s, int t, long c, bool dir = true) {
-				Adjacency[s].Add(new Edge(t, c));
-				if (!dir) Adjacency[t].Add(new Edge(s, c));
-			}
-
-		}
-		public class BipartiteGraph : CostGraph {
-			public BipartiteGraph(int size) : base(size) {
-			}
-
-			public enum State {
-				Undefined,
-				Black,
-				White
-			}
-
-			public long BlackCount { get; private set; }
-			public long WhiteCount {
-				get { return Size - BlackCount; }
-			}
-
-			public bool IsBipartGraph() {
-				Func<int,  State, bool> dfs = null;
-				var state = new State[Size];
-				BlackCount = 0;
-				dfs = (to,  nextState) =>
-				{
-					if (state[to] != State.Undefined) {
-						return state[to] == nextState;
-					}
-					state[to] = nextState;
-					if (nextState == State.Black) BlackCount++;
-					var rt = true;
-					foreach (var edge in Adjacency[to]) {
-						rt &= dfs(edge.To,  nextState == State.Black ? State.White : State.Black);
-					}
-
-					return rt;
-				};
-				return dfs(0,  State.Black);
+				dp[N][K].WL();
 			}
 		}
 
