@@ -124,11 +124,11 @@ namespace CS_Contest {
 	{
 		public static void Main(string[] args) {
 			Stopwatch stopwatch=new Stopwatch();
-			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
-			SetOut(sw);
+			//var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
+			//SetOut(sw);
 			stopwatch.Start();
 			new Program.Calc().Solve();
-			Out.Flush();
+			//Out.Flush();
 			stopwatch.Stop();
 			"===============End of Solve================".WL();
 			(stopwatch.ElapsedMilliseconds+" ms").WL();
