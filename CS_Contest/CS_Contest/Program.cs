@@ -33,55 +33,7 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-				int A = NextInt(), B = NextInt();
-
-				var box = new char[100, 100];
-
-				for (int i = 0; i < 50; i++) {
-					for (int j = 0; j < 100; j++) {
-						box[i, j] = '#';
-					}
-				}
-				for (int i = 0; i < 50; i++) {
-					for (int j = 0; j < 100; j++) {
-						box[i+50, j] = '.';
-					}
-				}
-
-				var nx = 1;
-				var ny = 1;
-
-				(A-1).REP(i =>
-				{
-					box[ny, nx] = '.';
-					nx += 2;
-					if (nx > 100) {
-						nx = 1;
-						ny += 2;
-					}
-				});
-
-				nx = 1;
-				ny = 51;
-
-				(B-1).REP(i =>
-				{
-					box[ny, nx] = '#';
-					nx += 2;
-					if (nx > 100) {
-						nx = 1;
-						ny += 2;
-					}
-				});
-
-				"100 100".WL();
-
-				for (int i = 0; i < 100; i++) {
-					for (int j = 0; j < 100; j++) {
-						box[i, j].W();
-					}
-					"".WL();
-				}
+			    
 
 				return;
 			}
@@ -179,12 +131,12 @@ namespace CS_Contest.Loop {
 				act(item);
 			}
 		}
-
 		
 	}
 
 	public class Generate
 	{
+	    public static IEnumerable<int> Seq(int e) => Seq(0, e, 1);
 		public static IEnumerable<int> Seq(int s, int e) => Seq(s, e, 1);
 		public static IEnumerable<int> Seq(int s, int e, int a) {
 			while (s != e) {
@@ -217,6 +169,18 @@ namespace CS_Contest.IO {
 		}
 		public static void JoinWL<T>(this IEnumerable<T> @this, string sp = " ") => @this.StringJoin(sp).WL();
 		public static void W(this object @this) => Write(@this);
+
+	    public static T[,] GetBox<T>(int h, int w, Func<int, int, T> getFunc) {
+	        var rt = new T[h, w];
+	        for (int i = 0; i < h; i++) {
+	            for (int j = 0; j < w; j++) {
+	                rt[i, j] = getFunc(i, j);
+	            }
+	        }
+
+	        return rt;
+	    }
+
 	}
 
 
@@ -250,8 +214,7 @@ namespace CS_Contest.Utils {
 		public static Map<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
 			var dic = new Map<TKey, int>();
 			foreach (var item in l) {
-				if (dic.ContainsKey(item)) dic[item]++;
-				else dic.Add(item, 1);
+			    dic[item]++;
 			}
 			return dic;
 		}
