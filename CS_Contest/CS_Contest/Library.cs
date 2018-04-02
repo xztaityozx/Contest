@@ -13,17 +13,6 @@ namespace CS_Contest {
 	public static class Utils2 {
 		
 
-		public static int UpperBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
-			var idx = list.ToList().BinarySearch(target);
-			idx = idx < 0 ? ~idx : (idx + 1);
-			return Min(idx, list.Count());
-		}
-
-		public static int LowerBound<T>(this IEnumerable<T> list, T target) where T : IComparable {
-			var idx = list.ToList().BinarySearch(target);
-			idx = idx < 0 ? ~idx : idx;
-			return Max(0, idx - 1);
-		}
 
 		public static long GCD(long m, long n) {
 			long tmp;
@@ -124,12 +113,12 @@ namespace CS_Contest {
 	{
 		public static void Main(string[] args) {
 			Stopwatch stopwatch=new Stopwatch();
-			//var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
-			//SetOut(sw);
-			stopwatch.Start();
+            var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
+            SetOut(sw);
+            stopwatch.Start();
 			new Program.Calc().Solve();
-			//Out.Flush();
-			stopwatch.Stop();
+            Out.Flush();
+            stopwatch.Stop();
 			"===============End of Solve================".WL();
 			(stopwatch.ElapsedMilliseconds+" ms").WL();
 			Out.Flush();

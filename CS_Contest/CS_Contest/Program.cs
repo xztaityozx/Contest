@@ -34,48 +34,11 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-			    var S = ReadLine();
-
-			    var list = "abcdefghijklmnopqrstuvwxyz".ToList();
-
-			    foreach (var c in S) {
-			        list.Remove(c);
-			    }
-
-			    if (list.Count != 0) {
-			        var next = list[0];
-                    $"{S}{next}".WL();
-                    return;
-			    }
-
-			    var max = -1;
-			    var k = 'a';
-
-			    for (int i = 25; i >= 0; i--) {
-			        var n = S[i];
-			        for (int j = i-1; j >= 0; j--) {
-			            if (n > S[j]) {
-			                if (max < j) {
-			                    max = j;
-			                    k = n;
-			                }
-			            }
-			        }
-			    }
-
-			    if (max == -1) {
-                    max.WL();
-                    return;
-                }
-			    else {
-                    $"{S.Substring(0,max)}{k}".WL();
-			    }
-
                 return;
-			}
-		}
+		    }
+        }
 
-	}
+    }
 }
 namespace Nakov.IO {
 	using System;
@@ -167,7 +130,7 @@ namespace CS_Contest.Loop {
 				act(item);
 			}
 		}
-		
+
 	}
 
 	public class Generate
@@ -263,7 +226,29 @@ namespace CS_Contest.Utils {
 				yield return enumerable.ElementAt(i);
 			}
 		}
-	}
+	    public static int LowerBound<T>(this T[] @this, T x) where T : IComparable
+	    {
+            int lb = -1, ub = @this.Length;
+	        while (ub - lb > 1)
+	        {
+	            int mid = (ub + lb) >> 1;
+	            if (@this[mid].CompareTo(x) >= 0) ub = mid;
+	            else lb = mid;
+	        }
+	        return ub;
+	    }
+	    public static int UpperBound<T>(this T[] @this, T x) where T : IComparable
+	    {
+	        int lb = -1, ub = @this.Length;
+	        while (ub - lb > 1)
+	        {
+	            int mid = (ub + lb) >> 1;
+	            if (@this[mid].CompareTo(x) > 0) ub = mid;
+	            else lb = mid;
+	        }
+	        return ub;
+	    }
+    }
 
 	public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
 		public Map() : base() { }
