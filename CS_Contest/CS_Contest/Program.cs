@@ -34,8 +34,11 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
+
                 return;
 		    }
+		   
+
         }
 
     }
@@ -190,7 +193,9 @@ namespace CS_Contest.Utils {
 	using Ll = List<long>;
 	[DebuggerStepThrough]
 	public static class Utils {
-		
+	    public static bool AnyOf<T>(this T @this, params T[] these) where T:IComparable {
+	        return these.Contains(@this);
+	    }
 
 		public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
 
