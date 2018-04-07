@@ -34,6 +34,29 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
+			    int A = NextInt(), B = NextInt(), C = NextInt();
+
+			    var box = new[] {A, B, C}.OrderByDescending(x => x).ToArray();
+
+
+			    var ans = (box[0] - box[1]) / 2;
+                //ans.WL();
+			    box[1] += ans * 2;
+			    var ac = (box[0] - box[2]) / 2;
+                //ac.WL();
+			    box[2] += ac * 2;
+			    ans += ac;
+
+
+
+			    if (box[0]==box[1]&&box[1]==box[2]) {
+                    ans.WL();
+                }else if (box[1]==box[2]) {
+                    (ans+1).WL();
+			    }
+			    else {
+                    (ans+2).WL();
+			    }
 
                 return;
 		    }
