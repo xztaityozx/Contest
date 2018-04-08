@@ -678,4 +678,59 @@ namespace CS_Contest.Graph {
 			return dfs(0, State.Black);
 		}
 	}
+
+    /// <summary>
+    /// 橋検出
+    /// </summary>
+    public class Bridge
+    {
+        public List<int>[] Graph;
+        public int V;
+
+        public Bridge(int N) {
+            V = N;
+            Graph=new Li[N];
+            for (int i = 0; i < N; i++) {
+                Graph[i]=new Li();
+            }
+        }
+
+        public void Add(int s, int t, bool dir = true) {
+            Graph[s].Add(t);
+            if(!dir) Graph[t].Add(t);
+        }
+
+        public int Run() {
+            var pre = Enumerable.Repeat(-1, V).ToArray();
+            var low = Enumerable.Repeat(-1, V).ToArray();
+            var res = new List<Tuple<int,int>>();
+            var cnt = 0;
+
+            Func<int, int, int> dfs = null;
+            dfs = (v, from) =>
+            {
+                pre[v] = cnt++;
+                low[v] = pre[v];
+                foreach (var node in Graph[v])
+                {
+                    if (pre[node] == -1)
+                    {
+                        low[v] = Min(low[v], dfs(node, v));
+                        if (low[node] == pre[node]) {
+                            res.Add(new Tuple<int, int>(v, node));
+                        }
+                    }
+                    else
+                    {
+                        if (from == node) continue;
+                        low[v] = Min(low[v], low[node]);
+                    }
+                }
+
+                return low[v];
+            };
+            dfs(0, -1);
+            return res.Count;
+        }
+    }
 }

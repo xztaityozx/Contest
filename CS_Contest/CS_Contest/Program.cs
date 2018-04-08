@@ -34,34 +34,10 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-			    int A = NextInt(), B = NextInt(), C = NextInt();
-
-			    var box = new[] {A, B, C}.OrderByDescending(x => x).ToArray();
-
-
-			    var ans = (box[0] - box[1]) / 2;
-                //ans.WL();
-			    box[1] += ans * 2;
-			    var ac = (box[0] - box[2]) / 2;
-                //ac.WL();
-			    box[2] += ac * 2;
-			    ans += ac;
-
-
-
-			    if (box[0]==box[1]&&box[1]==box[2]) {
-                    ans.WL();
-                }else if (box[1]==box[2]) {
-                    (ans+1).WL();
-			    }
-			    else {
-                    (ans+2).WL();
-			    }
+			   
 
                 return;
 		    }
-		   
-
         }
 
     }
@@ -238,6 +214,11 @@ namespace CS_Contest.Utils {
 			x = y;
 			y = tmp;
 		}
+
+	    public static List<Tuple<TKey, TValue>> ToTupleList<TKey, TValue>(this Map<TKey, TValue> @this) =>
+	        @this.Select(x => Tuple.Create(x.Key, x.Value)).ToList();
+
+
 		public static Map<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
 			var dic = new Map<TKey, int>();
 			foreach (var item in l) {
@@ -254,9 +235,9 @@ namespace CS_Contest.Utils {
 				yield return enumerable.ElementAt(i);
 			}
 		}
-	    public static int LowerBound<T>(this T[] @this, T x) where T : IComparable
+	    public static int LowerBound<T>(this List<T> @this, T x) where T : IComparable
 	    {
-            int lb = -1, ub = @this.Length;
+            int lb = -1, ub = @this.Count;
 	        while (ub - lb > 1)
 	        {
 	            int mid = (ub + lb) >> 1;
@@ -265,9 +246,9 @@ namespace CS_Contest.Utils {
 	        }
 	        return ub;
 	    }
-	    public static int UpperBound<T>(this T[] @this, T x) where T : IComparable
+	    public static int UpperBound<T>(this List<T> @this, T x) where T : IComparable
 	    {
-	        int lb = -1, ub = @this.Length;
+	        int lb = -1, ub = @this.Count;
 	        while (ub - lb > 1)
 	        {
 	            int mid = (ub + lb) >> 1;
