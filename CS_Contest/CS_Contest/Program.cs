@@ -34,10 +34,33 @@ namespace CS_Contest {
 		public class Calc
 		{
 			public void Solve() {
-			   
+			    var n = NextInt();
+			    var A = NextLongList().OrderBy(x => x).ToList();
 
+			    if (n == 2) {
+                    $"{A.Max()} {A.Min()}".WL();
+                    return;
+			    }
+
+			    var max = A.Max();
+
+
+			    var half = (max+1) / 2;
+
+			    var upper = A.UpperBound(half);
+			    var lower = A.LowerBound(half);
+
+			    if (upper == lower) lower = Max(0, lower - 1);
+
+			    $"{max} ".W();
+
+			    if (Abs(half - A[upper]) > Abs(half - A[lower])) {
+                    A[lower].WL();
+			    }else A[upper].WL();
+			    
                 return;
 		    }
+
         }
 
     }
