@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using static System.Console;
 using static System.Math;
@@ -31,38 +30,37 @@ namespace CS_Contest {
 			Out.Flush();
 		}
 
-		public class Calc
-		{
-			public void Solve() {
-			    var n = NextInt();
-			    var A = NextLongList().OrderBy(x => x).ToList();
+	    public class Calc
+	    {
+	        public void Solve() {
+                // ABC096 D
+	            Primes(55555).Where(x=>x%5==1).Take(NextInt()).WL();
+	            
 
-			    if (n == 2) {
-                    $"{A.Max()} {A.Min()}".WL();
-                    return;
-			    }
-
-			    var max = A.Max();
-
-
-			    var half = (max+1) / 2;
-
-			    var upper = A.UpperBound(half);
-			    var lower = A.LowerBound(half);
-
-			    if (upper == lower) lower = Max(0, lower - 1);
-
-			    $"{max} ".W();
-
-			    if (Abs(half - A[upper]) > Abs(half - A[lower])) {
-                    A[lower].WL();
-			    }else A[upper].WL();
-			    
                 return;
-		    }
+	        }
+            public static IEnumerable<int> Primes(int maxnum)
+	        {
+	            yield return 2;
+	            yield return 3;
+	            var sieve = new System.Collections.BitArray(maxnum + 1);
+	            int squareroot = (int)Math.Sqrt(maxnum);
+	            for (int i = 2; i <= squareroot; i++)
+	            {
+	                if (sieve[i] == false)
+	                {
+	                    for (int n = i * 2; n <= maxnum; n += i)
+	                        sieve[n] = true;
+	                }
+	                for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++)
+	                {
+	                    if (!sieve[n])
+	                        yield return n;
+	                }
+	            }
+	        }
 
         }
-
     }
 }
 namespace Nakov.IO {
