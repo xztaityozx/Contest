@@ -33,32 +33,54 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-                // ABC096 D
-	            Primes(55555).Where(x=>x%5==1).Take(NextInt()).WL();
-	            
+                // ARC097 C
+	            var s = ReadLine();
+	            var K = NextInt();
+	            var list = new List<string>();
+
+	            var dic = new Map<char, List<int>>();
+	            for(var c = 'a'; c <= 'z'; c++) dic[c]=new Li();
+
+	            s.ForeachWith((i, c) =>
+	            {
+	                dic[c].Add(s.Length - i);
+	            });
+
+	            if (K == 1) {
+	                s.OrderBy(x=>x).ElementAt(0).WL();
+                    return;
+                }
+
+	            var ans = new List<string>();
+	            for (var c = 'a'; c <= 'z'; c++) {
+	                var src = dic[c];
+	                foreach (var item in src) {
+	                    ans.Add(s.Substring(s.Length - item,item));
+	                }
+	            }
+
+
+	            var map = new Map<string, bool>();
+	            foreach (var item in ans.Distinct().OrderBy(x=>x)) {
+	                for (int i = 1; i <= item.Length; i++) {
+	                    try {
+	                        map[item.Substring(0, i)] = true;
+	                    }
+	                    catch (Exception e) {
+	                        WriteLine(e);
+	                        throw;
+	                    }
+	                }
+
+	                if (map.Count > K) break;
+	            }
+
+                map.Keys.OrderBy(x=>x).ElementAt(K-1).WL();
+                
 
                 return;
 	        }
-            public static IEnumerable<int> Primes(int maxnum)
-	        {
-	            yield return 2;
-	            yield return 3;
-	            var sieve = new System.Collections.BitArray(maxnum + 1);
-	            int squareroot = (int)Math.Sqrt(maxnum);
-	            for (int i = 2; i <= squareroot; i++)
-	            {
-	                if (sieve[i] == false)
-	                {
-	                    for (int n = i * 2; n <= maxnum; n += i)
-	                        sieve[n] = true;
-	                }
-	                for (var n = i * i + 1; n <= maxnum && n < (i + 1) * (i + 1); n++)
-	                {
-	                    if (!sieve[n])
-	                        yield return n;
-	                }
-	            }
-	        }
+            
 
         }
     }
