@@ -33,54 +33,59 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-                // ARC097 C
-	            var s = ReadLine();
-	            var K = NextInt();
-	            var list = new List<string>();
+                // ARC097 D
+	            int N = NextInt(), M = NextInt();
+	            var P = NextIntList();
 
-	            var dic = new Map<char, List<int>>();
-	            for(var c = 'a'; c <= 'z'; c++) dic[c]=new Li();
+	            var uf=new UnionFind(N);
 
-	            s.ForeachWith((i, c) =>
-	            {
-	                dic[c].Add(s.Length - i);
-	            });
+                M.REP(i =>
+                {
+                    int xi = NextInt() - 1, yi = NextInt() - 1;
+                    uf.Unite(xi, yi);
+                });
 
-	            if (K == 1) {
-	                s.OrderBy(x=>x).ElementAt(0).WL();
-                    return;
-                }
-
-	            var ans = new List<string>();
-	            for (var c = 'a'; c <= 'z'; c++) {
-	                var src = dic[c];
-	                foreach (var item in src) {
-	                    ans.Add(s.Substring(s.Length - item,item));
-	                }
+	            var cnt = 0;
+	            for (int i = 0; i < N; i++) {
+	                if (uf.IsSameGroup(P[i]-1, i)) cnt++;
 	            }
 
-
-	            var map = new Map<string, bool>();
-	            foreach (var item in ans.Distinct().OrderBy(x=>x)) {
-	                for (int i = 1; i <= item.Length; i++) {
-	                    try {
-	                        map[item.Substring(0, i)] = true;
-	                    }
-	                    catch (Exception e) {
-	                        WriteLine(e);
-	                        throw;
-	                    }
-	                }
-
-	                if (map.Count > K) break;
-	            }
-
-                map.Keys.OrderBy(x=>x).ElementAt(K-1).WL();
-                
+                cnt.WL();
 
                 return;
 	        }
-            
+
+	        public struct UnionFind {
+	            private readonly int[] _data;
+
+	            public UnionFind(int size) {
+	                _data = new int[size];
+	                for (var i = 0; i < size; i++) _data[i] = -1;
+	            }
+
+	            public bool Unite(int x, int y) {
+	                x = Root(x);
+	                y = Root(y);
+
+	                if (x == y) return x != y;
+	                if (_data[y] < _data[x]) {
+	                    var tmp = y;
+	                    y = x;
+	                    x = tmp;
+	                }
+	                _data[x] += _data[y];
+	                _data[y] = x;
+	                return x != y;
+	            }
+
+	            public bool IsSameGroup(int x, int y) {
+	                return Root(x) == Root(y);
+	            }
+
+	            public int Root(int x) {
+	                return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
+	            }
+	        }
 
         }
     }
