@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using static System.Console;
 using static System.Math;
@@ -33,59 +34,51 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-                // ARC097 D
-	            int N = NextInt(), M = NextInt();
-	            var P = NextIntList();
+                // ABC098 C
 
-	            var uf=new UnionFind(N);
+	            int N = NextInt();
+	            var S = ReadLine();
 
-                M.REP(i =>
+	            var W = new int[N];
+	            var E = new int[N];
+
+                S.ForeachWith((i, c) =>
                 {
-                    int xi = NextInt() - 1, yi = NextInt() - 1;
-                    uf.Unite(xi, yi);
+                    if (c == 'W') {
+                        W[i]++;
+                    }
+                    else {
+                        E[i]++;
+                    }
                 });
 
-	            var cnt = 0;
-	            for (int i = 0; i < N; i++) {
-	                if (uf.IsSameGroup(P[i]-1, i)) cnt++;
+	            for (int i = 0; i < N-1; i++) {
+	                W[i + 1] += W[i];
+	                E[i + 1] += E[i];
+                }
+
+	            var ans = int.MaxValue;
+
+
+                for (int i = 0; i < N; i++) {
+	                var item = S[i] == 'E';
+	                var next = 0;
+                    //西むかないといけない人
+	                next += E[N - 1] - (E[Max(0,i-1)])-(item?1:0);
+
+                    //東むかいないといけないひと
+                    next += W[i] - (!item ? 1 : 0);
+
+                    if (next<0) continue;
+
+	                ans = Min(ans, next);
 	            }
 
-                cnt.WL();
-
+                ans.WL();
                 return;
 	        }
 
-	        public struct UnionFind {
-	            private readonly int[] _data;
-
-	            public UnionFind(int size) {
-	                _data = new int[size];
-	                for (var i = 0; i < size; i++) _data[i] = -1;
-	            }
-
-	            public bool Unite(int x, int y) {
-	                x = Root(x);
-	                y = Root(y);
-
-	                if (x == y) return x != y;
-	                if (_data[y] < _data[x]) {
-	                    var tmp = y;
-	                    y = x;
-	                    x = tmp;
-	                }
-	                _data[x] += _data[y];
-	                _data[y] = x;
-	                return x != y;
-	            }
-
-	            public bool IsSameGroup(int x, int y) {
-	                return Root(x) == Root(y);
-	            }
-
-	            public int Root(int x) {
-	                return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
-	            }
-	        }
+	        
 
         }
     }
