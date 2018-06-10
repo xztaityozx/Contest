@@ -34,46 +34,41 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-                // ABC098 C
+                // ABC099 D
 
-	            int N = NextInt();
-	            var S = ReadLine();
+	            var N = NextInt();
+	            var C = NextInt();
+	            var D = GetBox(C, C, (x, y) => NextInt());
+	            var box = GetBox(N, N, (x, y) => NextInt()-1);
 
-	            var W = new int[N];
-	            var E = new int[N];
+	            var list = new List<int[]>();
+	            for (int i = 0; i < 3; i++) {
+	                list.Add(new int[C]);
 
-                S.ForeachWith((i, c) =>
-                {
-                    if (c == 'W') {
-                        W[i]++;
-                    }
-                    else {
-                        E[i]++;
-                    }
-                });
-
-	            for (int i = 0; i < N-1; i++) {
-	                W[i + 1] += W[i];
-	                E[i + 1] += E[i];
-                }
-
-	            var ans = int.MaxValue;
-
-
-                for (int i = 0; i < N; i++) {
-	                var item = S[i] == 'E';
-	                var next = 0;
-                    //西むかないといけない人
-	                next += E[N - 1] - (E[Max(0,i-1)])-(item?1:0);
-
-                    //東むかいないといけないひと
-                    next += W[i] - (!item ? 1 : 0);
-
-                    if (next<0) continue;
-
-	                ans = Min(ans, next);
+                    N.REP(k =>
+                    {
+                        N.REP(m =>
+                        {
+                            if ((k + m) % 3 == i) list[i][box[k, m]]++;
+                        });
+                    });
 	            }
 
+	            var ans = int.MaxValue;
+	            C.REP(i=>C.REP(j =>
+	            {
+                    if(i==j) return;
+                    C.REP(k =>
+                    {
+                        if(k==i||k==j)return;
+
+                        var sum = list[0].Select((v, idx) => v * D[idx, j]).Sum();
+                        sum += list[1].Select((v, idx) => v * D[idx, i]).Sum();
+                        sum += list[2].Select((v, idx) => v * D[idx, k]).Sum();
+
+                        ans = Min(ans,sum);
+                    });
+	            }));
                 ans.WL();
                 return;
 	        }
