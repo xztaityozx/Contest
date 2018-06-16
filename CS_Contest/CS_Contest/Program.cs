@@ -23,6 +23,7 @@ namespace CS_Contest {
 	using Ll = List<long>;
 	using ti3 = Tuple<int, int, int>;
 	using ti2 = Tuple<int, int>;
+    using tl3=Tuple<long,long,long>;
 	internal class Program {
 		private static void Main(string[] args) {
 			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -34,42 +35,29 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-                // ABC099 D
+                // ABC100
+	            int N = NextInt(), M = NextInt();
+	            var list = new List<tl3>();
+	            N.REP(i => { list.Add(Tuple.Create(NextLong(), NextLong(), NextLong())); });
 
-	            var N = NextInt();
-	            var C = NextInt();
-	            var D = GetBox(C, C, (x, y) => NextInt());
-	            var box = GetBox(N, N, (x, y) => NextInt()-1);
+	            var dp = new Ll();
 
-	            var list = new List<int[]>();
-	            for (int i = 0; i < 3; i++) {
-	                list.Add(new int[C]);
-
-                    N.REP(k =>
-                    {
-                        N.REP(m =>
-                        {
-                            if ((k + m) % 3 == i) list[i][box[k, m]]++;
-                        });
-                    });
-	            }
-
-	            var ans = int.MaxValue;
-	            C.REP(i=>C.REP(j =>
+	            Func<int, int, int, long> get = (x, y, z) =>
 	            {
-                    if(i==j) return;
-                    C.REP(k =>
-                    {
-                        if(k==i||k==j)return;
+	                return list.Select(t => t.Item1 * x + t.Item2 * y + t.Item3 * z).OrderByDescending(k => k).Take(M)
+	                    .Sum();
+	            };
+	            dp.Add(get(1, 1, 1));
+	            dp.Add(get(1, -1, 1));
+	            dp.Add(get(1, 1, -1));
+	            dp.Add(get(-1, 1, 1));
+	            dp.Add(get(-1, -1, 1));
+	            dp.Add(get(-1, 1, -1));
+	            dp.Add(get(1, -1, -1));
+	            dp.Add(get(-1, -1, -1));
 
-                        var sum = list[0].Select((v, idx) => v * D[idx, j]).Sum();
-                        sum += list[1].Select((v, idx) => v * D[idx, i]).Sum();
-                        sum += list[2].Select((v, idx) => v * D[idx, k]).Sum();
+                dp.Max(k=>k).WL();
 
-                        ans = Min(ans,sum);
-                    });
-	            }));
-                ans.WL();
                 return;
 	        }
 

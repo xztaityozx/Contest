@@ -1631,3 +1631,32 @@ Primes(55555).Where(x=>x%5==1).Take(NextInt()).JoinWL()
 - `list[x][c]=(i+j)%3=xになるマス群にある色cの個数`を用意する
   - これに対してO(C^3^)で全探索する。コストの合計はLINQではい
 - O(N^2^+C^3^)
+
+# ABC100 D Patisserie ABC
+- DPじゃなかった
+- 最大化したい要素が絶対値な0-1ナップザック問題
+- 3要素をそれぞれ正か負かに極大化すればいいので2^3^通り並べて貪欲
+- これはLINQが得意
+```cs
+var list = new List<tl3>();
+N.REP(i => { list.Add(Tuple.Create(NextLong(), NextLong(), NextLong())); });
+
+var dp = new Ll();
+
+Func<int, int, int, long> get = (x, y, z) =>
+{
+	return list.Select(t => t.Item1 * x + t.Item2 * y + t.Item3 * z)
+        .OrderByDescending(k => k).Take(M)
+	.Sum();
+};
+dp.Add(get(1, 1, 1));
+dp.Add(get(1, -1, 1));
+dp.Add(get(1, 1, -1));
+dp.Add(get(-1, 1, 1));
+dp.Add(get(-1, -1, 1));
+dp.Add(get(-1, 1, -1));
+dp.Add(get(1, -1, -1));
+dp.Add(get(-1, -1, -1));
+
+dp.Max(k=>k).WL();
+```
