@@ -11,39 +11,69 @@ using pii=pair<int,int>;
 using ll=long long;
 template<typename T> void removeAt(vector<T>& v, int index) { v.erase(v.begin() + index); }
 
+struct node {
+    vector<node*> next;
+    ll cost;
+    node* before;
+    node(ll c) : cost(c){};
+    node():cost(0){};
+};
 
-bool box[21][41];
-void solve(int r,int n){
-  rep(y,21) rep(x,41) box[y][x]=false;
-  rep(i,n) {
-    int li,ri,hi;
-    cin >> li >> ri >> hi;
+node* make(string s){
+    node* root = new node();
+    auto pos=root;
+    int c=0,n=s.size();
+    while (1){
+        if(c>=n) break;
+        if(s[c]=='['){
+            node* tmp=new node();
+            tmp->before=pos;
+            pos->next.push_back(tmp);
+            pos=tmp;
+            c++;
+        }else if(s[c]==']'){
+            pos=pos->before;
+            c++;
+        }else{
+            int i=c;
+            int num=0;
+            while(1) {
+                if(!isdigit(s[i])) break; else num=num*10+(s[i]-'0');
+                i++;
+            }
+            c=i;
+            pos->cost=(num+1)/2;
+        }
+    }
+    return root;
+}
 
-    for(int y=0;y<hi;++y) {
-      for(int x=li+20;x<ri+20;++x){
-        box[y][x]=true;
-      }
+ll dfs(node* now){
+    if(now->cost!=0) return now->cost;
+    int n=(now->next).size();
+    vector<ll> sum;
+    rep(i,n){
+        sum.push_back(dfs(now->next[i]));
     }
-  }
-  auto ans=numeric_limits<double>::max();
-  rep(y,21){
-    for(int x=-r+20;x<r+20;++x) {
-      if(!box[y][x]){
-        double time;
-        if(x<20) time = (double) y+r-sqrt(pow((double)r,2.0)-pow(x-19.0, 2.0));
-        else time = (double) y+r-sqrt(pow((double)r,2.0)-pow(x-20.0, 2.0));
-        ans=min(ans,time);
-      }
+    sort(beginend(sum));
+    ll rt=0;
+    for (int j = 0; j < (n + 1) / 2; ++j) {
+        rt+=sum[j];
     }
-  }
-  printf("%.4lf\n",ans);
+    return rt;
+}
+
+int solve(){
+  string s;
+  cin >> s;
+  auto root=make(s);
+  cout<<dfs(root)<<endl;
 }
 
 int main()
 {
-  int r,n;
-  while(cin>>r>>n && r){
-    solve(r,n);
-  }
+    int n;
+    cin >> n;
+    rep(i,n) solve();
   return 0;
 }
