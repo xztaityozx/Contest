@@ -11,45 +11,73 @@ using pii=pair<int,int>;
 using ll=long long;
 using ull=unsigned long long;
 using vi=vector<int>;
+using vvc=vector<vector<char>>;
 template<typename T> void removeAt(vector<T>& v, int index) { v.erase(v.begin() + index); }
 
-void solve(int n){
-  bool box[n][31]{{false}};
-  rep(i,n) {
-    int f;
-    cin >> f;
-    rep(k,f) {
-      int x;
-      cin >> x;
-      box[i][x]=true;
-    }
-  }
-  ull dp[n];
-  rep(i,n) dp[i] = 1ULL << i;
 
-  for(int i=1;i<=30;++i){
-    vector<bool> get(n,false);
-    ull sub = 0ULL;
-    rep(k,n){
-      for(int m=k+1;m<n;++m) if(box[k][i]&&box[m][i]){
-        get[k]=get[m]=true;
-        sub|=dp[k]|dp[m];
-      }
-    }
-    if(sub==(1ULL<<n)-1){
-      cout << i<< endl;
-      return;
-    }
-    rep(i,n) if(get[i]) dp[i]=sub;
+bool isRect(const vvc& sq,int l,int r,int t,int b,char c){
+  for(int y=t;y<=b;++y)for(int x=l;x<=r;++x){
+    if(sq[y][x]!='-'&&sq[y][x]!=c) return false;
   }
-  cout << -1 << endl;
+  return true;
 }
 
-int main()
-{
-  int n;
-  while(cin>>n,n){
-    solve(n);
+void trim(vvc& sq,int l,int r,int t,int b){
+  for(int y=t;y<=b;++y)for(int x=l;x<=r;++x) sq[y][x]='-';
+}
+
+bool isClear(vvc& sq,int h,int w){
+  rep(y,h)rep(x,w) if(sq[y][x]!='.'&&sq[y][x]!='-') return false;
+  return true;
+}
+
+bool solve3(vvc& sq,int h,int w,char c){
+  int t=h,b=0,l=w,r=0;
+  rep(y,h) rep(x,w) if(sq[y][x]==c){
+    t=min(t,y);
+    b=max(b,y);
+    l=min(l,x);
+    r=max(r,x);
   }
-  return 0;
+
+
+  if(isRect(sq,l,r,t,b,c)){
+    trim(sq,l,r,t,b);
+    return true;
+  }
+  return false;
+}
+
+bool solve2(vvc& sq,int h,int w){
+  map<char,bool> hash;
+  hash['-']=true;
+  hash['.']=true;
+  for(char c='A';c<='Z';c++) hash[c]=false;
+  rep(y,h)rep(x,w) {
+    if(!hash[sq[y][x]]){
+      if(solve3(sq,h,w,sq[y][x])) return true;
+    }
+    hash[sq[y][x]]=true;
+  }
+  return false;
+}
+
+bool solve(){
+  int h,w;
+  cin >> h>>w;
+  vvc box(h,vector<char>(w));
+  rep(y,h)rep(x,w){
+    cin >> box[y][x];
+  }
+
+  while(solve2(box,h,w));
+  
+
+  return isClear(box,h,w);
+}
+
+int main(){
+  int n;
+  cin >> n;
+  rep(i,n) if(solve()) cout << "SAFE" << endl; else cout << "SUSPICIOUS" << endl;
 }
