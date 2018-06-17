@@ -15,48 +15,62 @@ using vvc=vector<vector<char>>;
 using ti3=tuple<int,int,int>;
 template<typename T> void removeAt(vector<T>& v, int index) { v.erase(v.begin() + index); }
 
-string S;
-int Len;
-bool used[500];
-int dfs(int n){
-  if(n==Len) return Len;
+struct pos {
+  int lx,ly,rx,ry;
+  pos(int lx,int ly,int rx,int ry):lx(lx),rx(rx),ly(ly),ry(ry){};
+};
 
-  //まずm
-  if(S[n]!='m') return Len;
-  used[n]=true;
-  //CAT
-  n++;
-  bool rt=true;
-  //mが見つかるたび潜る
-  while(n<Len&&S[n]=='m'){
-    n=dfs(n);
+
+bool used[51][51][51][51];
+bool bfs(int w, int h){
+  vvc roomL(h,vector<char>(w)),roomR(h,vector<char>(w));
+  rep(i,51)rep(j,51)rep(k,51)rep(l,51) used[i][j][k][l]=false;
+  auto s=pos(0,0,0,0);
+  rep(i,h){
+    rep(j,w) {cin>>roomL[i][j];if(roomL[i][j]=='L'){s.lx=j;s.ly=i;}}
+    rep(j,w) {cin>>roomR[i][j];if(roomR[i][j]=='R'){s.rx=j;s.ry=i;}}
   }
-  //次はe
-  if(n>=Len||S[n]!='e') return Len;
-  used[n]=true;
-  n++;
-  //mが見つかるたび潜る
-  while(n<Len&&S[n]=='m'){
-    n=dfs(n);
+
+  queue<pos> Q;
+  Q.push(s);
+
+  pii dx[4]{pii(1,-1),pii(-1,1),pii(0,0),pii(0,0)};
+  pii dy[4]{pii(0,0), pii(0,0) ,pii(1,1),pii(-1,-1)};
+
+  while(!Q.empty()){
+    int lx,ly,rx,ry;
+    auto src=Q.front();Q.pop();
+    lx=src.lx;rx=src.rx;ly=src.ly;ry=src.ry;
+
+    for (int i = 0; i < 4; ++i) {
+      int LX,LY,RX,RY;
+      LX=lx+dx[i].first;
+      RX=rx+dx[i].second;
+      LY=ly+dy[i].first;
+      RY=ry+dy[i].second;
+
+      if(LX<0||LX>=w) LX=lx;
+      if(RX<0||RX>=w) RX=rx;
+      if(LY<0||LY>=h) LY=ly;
+      if(RY<0||RY>=h) RY=ry;
+      if(roomR[RY][RX]=='#') RY=ry,RX=rx;
+      if(roomL[LY][LX]=='#') LY=ly,LX=lx;
+
+      
+      if(roomR[RY][RX]=='%'&&roomL[LY][LX]=='%') return true;
+      if(roomR[RY][RX]=='%') continue;
+      if(roomL[LY][LX]=='%') continue;
+      
+      if(!used[LX][LY][RX][RY])Q.push(pos(LX,LY,RX,RY)),used[LX][LY][RX][RY]=true;
+    }
   }
-  //最後はw
-  if(n>=Len||S[n]!='w') return Len;
-  used[n]=true;
-  n++;
-  return n;
-}
+  return false;
 
-bool solve(){
-  cin >> S;
-  Len = S.size();
-  rep(i,Len) used[i]=false;
-  auto res = dfs(0);
-  if(res!=Len) return false;
-
-  rep(i,Len) if(!used[i]) return false;
-  return true;
 }
 
 int main(){
-  out(solve()?"Cat":"Rabbit");
+  int W,H;
+  while(cin>>W>>H,(W|H)){
+    cout << (bfs(W,H)?"Yes":"No") << endl;
+  }
 }
