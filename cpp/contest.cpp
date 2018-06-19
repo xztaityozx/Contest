@@ -8,6 +8,7 @@ using namespace std;
 #define beginend(v) v.begin(),v.end()
 
 using pii=pair<int,int>;
+using vb=vector<bool>;
 using ll=long long;
 using ull=unsigned long long;
 using vi=vector<int>;
@@ -15,30 +16,34 @@ using vvi=vector<vi>;
 using vvc=vector<vector<char>>;
 using ti3=tuple<int,int,int>;
 template<typename T> void removeAt(vector<T>& v, int index) { v.erase(v.begin() + index); }
+#define OCB(c) (c&1)|(c&2)<<2|(c&4)<<4|(c&8)<<6|(c&16)<<8|(c&32)<<10|(c&64)<<12|(c&128)<<14
 
+//dp[i]=iで表せるステージをクリアしたときの最小の攻略時間
+int dp[1<<16];
 
-int solve(int n,int m){
-  vi w(m+1,0),h(n+1,0);
-  rep(i,n) cin>>h[i+1];
-  rep(i,m) cin>>w[i+1];
+int solve(int n){
+  vvi t(n,vi(n+1,0));
+  rep(i,n) rep(j,n+1) cin>>t[i][j];
+  rep(i,(1<<n)) dp[i]=1e9;
 
-  rep(i,n) h[i+1]+=h[i];
-  rep(i,m) w[i+1]+=w[i];
+  dp[0]=0;
 
-
-  map<int,int> hm,wm;
-  rep(i,n+1) for(int j=i+1;j<=n;++j) hm[h[j]-h[i]]++;
-  rep(i,m+1) for(int j=i+1;j<=m;++j) wm[w[j]-w[i]]++;
-
-
-  int ans=0;
-  rep(i,max(h[n],w[n])+1) ans+=(hm[i]*wm[i]);
-  return ans;
+  rep(bit,1<<n){
+    rep(j,n) if(!((bit>>j)&1)) {
+      int ns=bit|(1<<j);
+      int nc=t[j][0];
+      rep(k,n) if((bit>>k)&1) nc=min(nc,t[j][k+1]);
+      nc+=dp[bit];
+      dp[ns]=min(nc,dp[ns]);
+    }
+  }
+  
+  return dp[(1<<n)-1];
 }
 
 int main(){
-  int N,M;
-  while(cin >> N >> M,N|M){
-    out(solve(N,M));
+  int n;
+  while(cin>>n,n){
+    out(solve(n));
   }
 }
