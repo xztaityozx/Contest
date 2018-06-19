@@ -16,42 +16,29 @@ using vvc=vector<vector<char>>;
 using ti3=tuple<int,int,int>;
 template<typename T> void removeAt(vector<T>& v, int index) { v.erase(v.begin() + index); }
 
-int N,M,K,D[16];
-bool used[1<<16];
-int G[101][101];
 
-int solve(){
-  cin >> N>>M>>K;
-  rep(i,1<<16) used[i]=false;
-  rep(i,M) cin>>D[i],D[i]--;
-  rep(i,N)rep(j,K){
-    int v;
-    cin >> v;
-    v--;
-    G[i][j]=-1;
-    rep(k,M) if(i==D[k]) rep(l,M) if(v==D[l]) G[i][j]=l;
-  }
+int solve(int n,int m){
+  vi w(m+1,0),h(n+1,0);
+  rep(i,n) cin>>h[i+1];
+  rep(i,m) cin>>w[i+1];
 
-  queue<pii> Q;
-  Q.push(pii((1<<M)-1,0));
+  rep(i,n) h[i+1]+=h[i];
+  rep(i,m) w[i+1]+=w[i];
 
-  while(!Q.empty()){
-    int s,distance;
-    tie(s,distance)=Q.front();Q.pop();
 
-    if(used[s]) continue;
-    used[s]=true;
-    if(s==0) return distance;
+  map<int,int> hm,wm;
+  rep(i,n+1) for(int j=i+1;j<=n;++j) hm[h[j]-h[i]]++;
+  rep(i,m+1) for(int j=i+1;j<=m;++j) wm[w[j]-w[i]]++;
 
-    rep(i,K){
-      int t=0;
-      rep(j,M) if(((s>>j)&1) && G[D[j]][i] >= 0) t|=1<<G[D[j]][i];
-      Q.push(pii(t,distance+1));
-    }
-  }
-  return 0;
+
+  int ans=0;
+  rep(i,max(h[n],w[n])+1) ans+=(hm[i]*wm[i]);
+  return ans;
 }
 
 int main(){
-  out(solve());
+  int N,M;
+  while(cin >> N >> M,N|M){
+    out(solve(N,M));
+  }
 }
