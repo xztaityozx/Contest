@@ -20,11 +20,19 @@ template<typename T> void removeAt(vector<T>& v, int index) { v.erase(v.begin() 
 #define OCB(c) (c&1)|(c&2)<<2|(c&4)<<4|(c&8)<<6|(c&16)<<8|(c&32)<<10|(c&64)<<12|(c&128)<<14
 
 
+const int MAX=7368791+1;
+ll solve(int m,int n){
+    vb box(MAX,false);
+    int j=m;
+    rep(i,n) {
+        while(box[j]) ++j;
+        for(int k=j;k<MAX; k+=j) box[k]=true;
+        while(box[j])++j;
+    }
+    return j;
+}
+
 int main(){
-  auto f=[](int X)->int{
-    if(X<0) return 0;
-    if(X>255) return 255;
-    return X;
-  };
-  for(int x=-200;x<=300;++x) out(f(x));
+    int n,m;
+    while(cin >> m>>n,n|m) out(solve(m,n));
 }
