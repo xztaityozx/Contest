@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using static System.Console;
 using static System.Math;
-
-//using CS_Contest.Graph;
 using CS_Contest.Loop;
 using CS_Contest.Utils;
 using static Nakov.IO.Cin;
@@ -23,23 +21,44 @@ namespace CS_Contest {
 	using ti3 = Tuple<int, int, int>;
 	using ti2 = Tuple<int, int>;
 	internal class Program {
-		private static void Main(string[] args) {
-			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
-			SetOut(sw);
-			new Calc().Solve();
-			Out.Flush();
-		}
+	    private static void Main(string[] args) {
+	        var sw = new StreamWriter(OpenStandardOutput()) {AutoFlush = false};
+	        SetOut(sw);
+	        new Calc().Solve();
+	        Out.Flush();
+	    }
 
-		public class Calc
+	    public class Calc
 		{
 			public void Solve() {
-			    
+			    int N = NextInt(), M = NextInt();
+                var list=new List<ti2>();
 
-				return;
+                M.REP(i => {
+                    int a = NextInt(), b = NextInt();
+                    list.Add(a,b);
+                });
+
+			    list = list.OrderBy(x => x.Item2).ToList();
+
+			    var bf = -1;
+			    var ans = 0;
+
+			    foreach (var tuple in list) {
+			        var s = tuple.Item1;
+			        var t = tuple.Item2;
+
+			        if (s <= bf && bf != -1) continue;
+			        bf = t - 1;
+			        ans++;
+			    }
+                ans.WL();
+
+			    return;
 			}
 		}
 
-	}
+    }
 }
 namespace Nakov.IO {
 	using System;
@@ -48,15 +67,15 @@ namespace Nakov.IO {
 
 	public static class Cin {
 		public static string NextToken() {
-			StringBuilder tokenChars = new StringBuilder();
-			bool tokenFinished = false;
-			bool skipWhiteSpaceMode = true;
+			var tokenChars = new StringBuilder();
+			var tokenFinished = false;
+			var skipWhiteSpaceMode = true;
 			while (!tokenFinished) {
-				int nextChar = Console.Read();
+				var nextChar = Console.Read();
 				if (nextChar == -1) {
 					tokenFinished = true;
 				} else {
-					char ch = (char)nextChar;
+					var ch = (char)nextChar;
 					if (char.IsWhiteSpace(ch)) {
 						if (!skipWhiteSpaceMode) {
 							tokenFinished = true;
@@ -71,37 +90,37 @@ namespace Nakov.IO {
 				}
 			}
 
-			string token = tokenChars.ToString();
+			var token = tokenChars.ToString();
 			return token;
 		}
 
 		public static int NextInt() {
-			string token = Cin.NextToken();
+			var token = Cin.NextToken();
 			return int.Parse(token);
 		}
 		public static long NextLong() {
-			string token = Cin.NextToken();
+			var token = Cin.NextToken();
 			return long.Parse(token);
 		}
 		public static double NextDouble(bool acceptAnyDecimalSeparator = true) {
-			string token = Cin.NextToken();
+			var token = Cin.NextToken();
 			if (acceptAnyDecimalSeparator) {
 				token = token.Replace(',', '.');
-				double result = double.Parse(token, CultureInfo.InvariantCulture);
+				var result = double.Parse(token, CultureInfo.InvariantCulture);
 				return result;
 			} else {
-				double result = double.Parse(token);
+				var result = double.Parse(token);
 				return result;
 			}
 		}
 		public static decimal NextDecimal(bool acceptAnyDecimalSeparator = true) {
-			string token = Cin.NextToken();
+			var token = Cin.NextToken();
 			if (acceptAnyDecimalSeparator) {
 				token = token.Replace(',', '.');
-				decimal result = decimal.Parse(token, CultureInfo.InvariantCulture);
+				var result = decimal.Parse(token, CultureInfo.InvariantCulture);
 				return result;
 			} else {
-				decimal result = decimal.Parse(token);
+				var result = decimal.Parse(token);
 				return result;
 			}
 		}
@@ -172,18 +191,15 @@ namespace CS_Contest.IO {
 
 	    public static T[,] GetBox<T>(int h, int w, Func<int, int, T> getFunc) {
 	        var rt = new T[h, w];
-	        for (int i = 0; i < h; i++) {
-	            for (int j = 0; j < w; j++) {
+	        for (var i = 0; i < h; i++) {
+	            for (var j = 0; j < w; j++) {
 	                rt[i, j] = getFunc(i, j);
 	            }
 	        }
 
 	        return rt;
 	    }
-
 	}
-
-
 }
 
 namespace CS_Contest.Utils {
