@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static System.Console;
@@ -31,32 +32,42 @@ namespace CS_Contest {
 	    public class Calc
 		{
 			public void Solve() {
-			    int N = NextInt(), M = NextInt();
-                var list=new List<ti2>();
+			    var N = NextInt();
+			    var A = NextLongList().Select(x => new BigInteger(x)).ToList();
 
-                M.REP(i => {
-                    int a = NextInt(), b = NextInt();
-                    list.Add(a,b);
-                });
+                var bi=new BigInteger(1);
 
-			    list = list.OrderBy(x => x.Item2).ToList();
-
-			    var bf = -1;
-			    var ans = 0;
-
-			    foreach (var tuple in list) {
-			        var s = tuple.Item1;
-			        var t = tuple.Item2;
-
-			        if (s <= bf && bf != -1) continue;
-			        bf = t - 1;
-			        ans++;
+			    foreach (var item in A) {
+			        bi = LCM(bi, item);
 			    }
-                ans.WL();
+
+			    Func<BigInteger, BigInteger> F = (m) => {
+			        var sum = new BigInteger(0);
+			        foreach (var bigInteger in A) {
+			            sum += m % bigInteger;
+			        }
+
+			        return sum;
+			    };
+
+                F(bi-1).WL();
 
 			    return;
 			}
-		}
+
+		    public static BigInteger GCD(BigInteger m, BigInteger n) {
+		        BigInteger tmp;
+		        if (m < n) { tmp = n; n = m; m = tmp; }
+		        while (m % n != 0) {
+		            tmp = n;
+		            n = m % n;
+		            m = tmp;
+		        }
+		        return n;
+		    }
+
+		    public static BigInteger LCM(BigInteger m, BigInteger n) => m * (n / GCD(m, n));
+        }
 
     }
 }

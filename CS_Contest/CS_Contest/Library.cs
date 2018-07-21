@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using CS_Contest.Loop;
 using static CS_Contest.IO.IO;
 using static System.Math;
@@ -25,20 +26,20 @@ namespace CS_Contest {
 			return Max(0, idx - 1);
 		}
 
-		public static long GCD(long m, long n) {
-			long tmp;
-			if (m < n) { tmp = n; n = m; m = tmp; }
-			while (m % n != 0) {
-				tmp = n;
-				n = m % n;
-				m = tmp;
-			}
-			return n;
-		}
+	    public static BigInteger GCD(BigInteger m, BigInteger n) {
+	        BigInteger tmp;
+	        if (m < n) { tmp = n; n = m; m = tmp; }
+	        while (m % n != 0) {
+	            tmp = n;
+	            n = m % n;
+	            m = tmp;
+	        }
+	        return n;
+	    }
 
-		public static long LCM(long m, long n) => m * (n / GCD(m, n));
+	    public static BigInteger LCM(BigInteger m, BigInteger n) => m * (n / GCD(m, n));
 
-		public static long INF = long.MaxValue;
+        public static long INF = long.MaxValue;
 
 		public class MathUtils
 		{
