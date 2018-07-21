@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
+using System.Reflection.Emit;
 using System.Text;
 using static System.Console;
 using static System.Math;
+
+//using CS_Contest.Graph;
 using CS_Contest.Loop;
 using CS_Contest.Utils;
 using static Nakov.IO.Cin;
@@ -21,54 +23,47 @@ namespace CS_Contest {
 	using Ll = List<long>;
 	using ti3 = Tuple<int, int, int>;
 	using ti2 = Tuple<int, int>;
+    using tl3=Tuple<long,long,long>;
 	internal class Program {
-	    private static void Main(string[] args) {
-	        var sw = new StreamWriter(OpenStandardOutput()) {AutoFlush = false};
-	        SetOut(sw);
-	        new Calc().Solve();
-	        Out.Flush();
-	    }
+		private static void Main(string[] args) {
+			var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
+			SetOut(sw);
+			new Calc().Solve();
+			Out.Flush();
+		}
 
 	    public class Calc
-		{
-			public void Solve() {
-			    var N = NextInt();
-			    var A = NextLongList().Select(x => new BigInteger(x)).ToList();
+	    {
+	        public void Solve() {
+                // ABC100
+	            int N = NextInt(), M = NextInt();
+	            var list = new List<tl3>();
+	            N.REP(i => { list.Add(Tuple.Create(NextLong(), NextLong(), NextLong())); });
 
-                var bi=new BigInteger(1);
+	            var dp = new Ll();
 
-			    foreach (var item in A) {
-			        bi = LCM(bi, item);
-			    }
+	            Func<int, int, int, long> get = (x, y, z) =>
+	            {
+	                return list.Select(t => t.Item1 * x + t.Item2 * y + t.Item3 * z).OrderByDescending(k => k).Take(M)
+	                    .Sum();
+	            };
+	            dp.Add(get(1, 1, 1));
+	            dp.Add(get(1, -1, 1));
+	            dp.Add(get(1, 1, -1));
+	            dp.Add(get(-1, 1, 1));
+	            dp.Add(get(-1, -1, 1));
+	            dp.Add(get(-1, 1, -1));
+	            dp.Add(get(1, -1, -1));
+	            dp.Add(get(-1, -1, -1));
 
-			    Func<BigInteger, BigInteger> F = (m) => {
-			        var sum = new BigInteger(0);
-			        foreach (var bigInteger in A) {
-			            sum += m % bigInteger;
-			        }
+                dp.Max(k=>k).WL();
 
-			        return sum;
-			    };
+                return;
+	        }
 
-                F(bi-1).WL();
+	        
 
-			    return;
-			}
-
-		    public static BigInteger GCD(BigInteger m, BigInteger n) {
-		        BigInteger tmp;
-		        if (m < n) { tmp = n; n = m; m = tmp; }
-		        while (m % n != 0) {
-		            tmp = n;
-		            n = m % n;
-		            m = tmp;
-		        }
-		        return n;
-		    }
-
-		    public static BigInteger LCM(BigInteger m, BigInteger n) => m * (n / GCD(m, n));
         }
-
     }
 }
 namespace Nakov.IO {
@@ -78,15 +73,15 @@ namespace Nakov.IO {
 
 	public static class Cin {
 		public static string NextToken() {
-			var tokenChars = new StringBuilder();
-			var tokenFinished = false;
-			var skipWhiteSpaceMode = true;
+			StringBuilder tokenChars = new StringBuilder();
+			bool tokenFinished = false;
+			bool skipWhiteSpaceMode = true;
 			while (!tokenFinished) {
-				var nextChar = Console.Read();
+				int nextChar = Console.Read();
 				if (nextChar == -1) {
 					tokenFinished = true;
 				} else {
-					var ch = (char)nextChar;
+					char ch = (char)nextChar;
 					if (char.IsWhiteSpace(ch)) {
 						if (!skipWhiteSpaceMode) {
 							tokenFinished = true;
@@ -101,37 +96,37 @@ namespace Nakov.IO {
 				}
 			}
 
-			var token = tokenChars.ToString();
+			string token = tokenChars.ToString();
 			return token;
 		}
 
 		public static int NextInt() {
-			var token = Cin.NextToken();
+			string token = Cin.NextToken();
 			return int.Parse(token);
 		}
 		public static long NextLong() {
-			var token = Cin.NextToken();
+			string token = Cin.NextToken();
 			return long.Parse(token);
 		}
 		public static double NextDouble(bool acceptAnyDecimalSeparator = true) {
-			var token = Cin.NextToken();
+			string token = Cin.NextToken();
 			if (acceptAnyDecimalSeparator) {
 				token = token.Replace(',', '.');
-				var result = double.Parse(token, CultureInfo.InvariantCulture);
+				double result = double.Parse(token, CultureInfo.InvariantCulture);
 				return result;
 			} else {
-				var result = double.Parse(token);
+				double result = double.Parse(token);
 				return result;
 			}
 		}
 		public static decimal NextDecimal(bool acceptAnyDecimalSeparator = true) {
-			var token = Cin.NextToken();
+			string token = Cin.NextToken();
 			if (acceptAnyDecimalSeparator) {
 				token = token.Replace(',', '.');
-				var result = decimal.Parse(token, CultureInfo.InvariantCulture);
+				decimal result = decimal.Parse(token, CultureInfo.InvariantCulture);
 				return result;
 			} else {
-				var result = decimal.Parse(token);
+				decimal result = decimal.Parse(token);
 				return result;
 			}
 		}
@@ -161,7 +156,7 @@ namespace CS_Contest.Loop {
 				act(item);
 			}
 		}
-		
+
 	}
 
 	public class Generate
@@ -202,15 +197,18 @@ namespace CS_Contest.IO {
 
 	    public static T[,] GetBox<T>(int h, int w, Func<int, int, T> getFunc) {
 	        var rt = new T[h, w];
-	        for (var i = 0; i < h; i++) {
-	            for (var j = 0; j < w; j++) {
+	        for (int i = 0; i < h; i++) {
+	            for (int j = 0; j < w; j++) {
 	                rt[i, j] = getFunc(i, j);
 	            }
 	        }
 
 	        return rt;
 	    }
+
 	}
+
+
 }
 
 namespace CS_Contest.Utils {
@@ -218,7 +216,9 @@ namespace CS_Contest.Utils {
 	using Ll = List<long>;
 	[DebuggerStepThrough]
 	public static class Utils {
-		
+	    public static bool AnyOf<T>(this T @this, params T[] these) where T:IComparable {
+	        return these.Contains(@this);
+	    }
 
 		public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
 
@@ -238,6 +238,11 @@ namespace CS_Contest.Utils {
 			x = y;
 			y = tmp;
 		}
+
+	    public static List<Tuple<TKey, TValue>> ToTupleList<TKey, TValue>(this Map<TKey, TValue> @this) =>
+	        @this.Select(x => Tuple.Create(x.Key, x.Value)).ToList();
+
+
 		public static Map<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
 			var dic = new Map<TKey, int>();
 			foreach (var item in l) {
@@ -254,7 +259,29 @@ namespace CS_Contest.Utils {
 				yield return enumerable.ElementAt(i);
 			}
 		}
-	}
+	    public static int LowerBound<T>(this List<T> @this, T x) where T : IComparable
+	    {
+            int lb = -1, ub = @this.Count;
+	        while (ub - lb > 1)
+	        {
+	            int mid = (ub + lb) >> 1;
+	            if (@this[mid].CompareTo(x) >= 0) ub = mid;
+	            else lb = mid;
+	        }
+	        return ub;
+	    }
+	    public static int UpperBound<T>(this List<T> @this, T x) where T : IComparable
+	    {
+	        int lb = -1, ub = @this.Count;
+	        while (ub - lb > 1)
+	        {
+	            int mid = (ub + lb) >> 1;
+	            if (@this[mid].CompareTo(x) > 0) ub = mid;
+	            else lb = mid;
+	        }
+	        return ub;
+	    }
+    }
 
 	public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
 		public Map() : base() { }
