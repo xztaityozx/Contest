@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection.Emit;
 using System.Text;
 using static System.Console;
@@ -18,6 +19,7 @@ using static CS_Contest.Utils.MyMath;
 
 
 namespace CS_Contest {
+    using bint=BigInteger;
 	using Li = List<int>;
 	using LLi = List<List<int>>;
 	using Ll = List<long>;
@@ -35,34 +37,24 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-                // ABC100
-	            int N = NextInt(), M = NextInt();
-	            var list = new List<tl3>();
-	            N.REP(i => { list.Add(Tuple.Create(NextLong(), NextLong(), NextLong())); });
+	            int N = NextInt();
+	            var S = ReadLine();
 
-	            var dp = new Ll();
+	            var E = S.Select(x => x == 'E' ? 1 : 0).Imos().ToArray();
+	            var W = S.Select(x => x == 'W' ? 1 : 0).Imos().ToArray();
 
-	            Func<int, int, int, long> get = (x, y, z) =>
-	            {
-	                return list.Select(t => t.Item1 * x + t.Item2 * y + t.Item3 * z).OrderByDescending(k => k).Take(M)
-	                    .Sum();
-	            };
-	            dp.Add(get(1, 1, 1));
-	            dp.Add(get(1, -1, 1));
-	            dp.Add(get(1, 1, -1));
-	            dp.Add(get(-1, 1, 1));
-	            dp.Add(get(-1, -1, 1));
-	            dp.Add(get(-1, 1, -1));
-	            dp.Add(get(1, -1, -1));
-	            dp.Add(get(-1, -1, -1));
+	            var min = int.MaxValue;
 
-                dp.Max(k=>k).WL();
+                N.REP(i => {
+                    var e =E[N-1] - E[i];
+                    //if (S[i] == 'E') e--;
+                    var w = W[i];
+                    if (S[i] == 'W') w--;
+                    min = Min(min, e + w);
+                });
 
-                return;
+                min.WL();
 	        }
-
-	        
-
         }
     }
 }
@@ -214,76 +206,96 @@ namespace CS_Contest.IO {
 namespace CS_Contest.Utils {
 	using Li = List<int>;
 	using Ll = List<long>;
-	[DebuggerStepThrough]
-	public static class Utils {
-	    public static bool AnyOf<T>(this T @this, params T[] these) where T:IComparable {
-	        return these.Contains(@this);
-	    }
+    using bint = BigInteger;
 
-		public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
+    [DebuggerStepThrough]
+    public static class Utils {
+        public static bool AnyOf<T>(this T @this, params T[] these) where T : IComparable {
+            return these.Contains(@this);
+        }
 
-		public static void Add<T1, T2>(this List<Tuple<T1, T2>> list, T1 t1, T2 t2) => list.Add(new Tuple<T1, T2>(t1, t2));
+        public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
 
-		public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
+        public static void Add<T1, T2>(this List<Tuple<T1, T2>> list, T1 t1, T2 t2) =>
+            list.Add(new Tuple<T1, T2>(t1, t2));
 
-		public static Queue<T> ToQueue<T>(this IEnumerable<T> iEnumerable) {
-			var rt = new Queue<T>();
-			foreach (var item in iEnumerable) {
-				rt.Enqueue(item);
-			}
-			return rt;
-		}
-		public static void Swap<T>(ref T x, ref T y) {
-			var tmp = x;
-			x = y;
-			y = tmp;
-		}
+        public static string StringJoin<T>(this IEnumerable<T> l, string separator = "") => string.Join(separator, l);
 
-	    public static List<Tuple<TKey, TValue>> ToTupleList<TKey, TValue>(this Map<TKey, TValue> @this) =>
-	        @this.Select(x => Tuple.Create(x.Key, x.Value)).ToList();
+        public static Queue<T> ToQueue<T>(this IEnumerable<T> iEnumerable) {
+            var rt = new Queue<T>();
+            foreach (var item in iEnumerable) {
+                rt.Enqueue(item);
+            }
+
+            return rt;
+        }
+
+        public static void Swap<T>(ref T x, ref T y) {
+            var tmp = x;
+            x = y;
+            y = tmp;
+        }
+
+        public static List<Tuple<TKey, TValue>> ToTupleList<TKey, TValue>(this Map<TKey, TValue> @this) =>
+            @this.Select(x => Tuple.Create(x.Key, x.Value)).ToList();
 
 
-		public static Map<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
-			var dic = new Map<TKey, int>();
-			foreach (var item in l) {
-			    dic[item]++;
-			}
-			return dic;
-		}
-		public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
+        public static Map<TKey, int> CountUp<TKey>(this IEnumerable<TKey> l) {
+            var dic = new Map<TKey, int>();
+            foreach (var item in l) {
+                dic[item]++;
+            }
 
-		public static IEnumerable<T> SkipAt<T>(this IEnumerable<T> @this, int at) {
-			var enumerable = @this as T[] ?? @this.ToArray();
-			for (var i = 0; i < enumerable.Count(); i++) {
-				if (i == at) continue;
-				yield return enumerable.ElementAt(i);
-			}
-		}
-	    public static int LowerBound<T>(this List<T> @this, T x) where T : IComparable
-	    {
+            return dic;
+        }
+
+        public static int Count<T>(this IEnumerable<T> l, T target) => l.Count(x => x.Equals(target));
+
+        public static IEnumerable<T> SkipAt<T>(this IEnumerable<T> @this, int at) {
+            var enumerable = @this as T[] ?? @this.ToArray();
+            for (var i = 0; i < enumerable.Count(); i++) {
+                if (i == at) continue;
+                yield return enumerable.ElementAt(i);
+            }
+        }
+
+        public static int LowerBound<T>(this List<T> @this, T x) where T : IComparable {
             int lb = -1, ub = @this.Count;
-	        while (ub - lb > 1)
-	        {
-	            int mid = (ub + lb) >> 1;
-	            if (@this[mid].CompareTo(x) >= 0) ub = mid;
-	            else lb = mid;
-	        }
-	        return ub;
-	    }
-	    public static int UpperBound<T>(this List<T> @this, T x) where T : IComparable
-	    {
-	        int lb = -1, ub = @this.Count;
-	        while (ub - lb > 1)
-	        {
-	            int mid = (ub + lb) >> 1;
-	            if (@this[mid].CompareTo(x) > 0) ub = mid;
-	            else lb = mid;
-	        }
-	        return ub;
-	    }
+            while (ub - lb > 1) {
+                int mid = (ub + lb) >> 1;
+                if (@this[mid].CompareTo(x) >= 0) ub = mid;
+                else lb = mid;
+            }
+
+            return ub;
+        }
+
+        public static int UpperBound<T>(this List<T> @this, T x) where T : IComparable {
+            int lb = -1, ub = @this.Count;
+            while (ub - lb > 1) {
+                int mid = (ub + lb) >> 1;
+                if (@this[mid].CompareTo(x) > 0) ub = mid;
+                else lb = mid;
+            }
+
+            return ub;
+        }
+
+        public static List<int> Imos(this IEnumerable<int> @this) {
+            var rt = @this.ToList();
+            for (var i = 0; i < rt.Count-1; i++) rt[i + 1] += rt[i];
+            return rt;
+        }
+
+        public static bool IsOdd(this long @this) => @this % 2 == 1;
+        public static bool IsOdd(this int @this) => @this % 2 == 1;
+        public static bool IsOdd(this bint @this) => @this % 2 == 1;
+
     }
 
-	public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
+
+
+    public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
 		public Map() : base() { }
 		public Map(int capacity) : base(capacity) { }
 
