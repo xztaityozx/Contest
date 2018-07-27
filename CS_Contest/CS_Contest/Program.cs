@@ -37,24 +37,8 @@ namespace CS_Contest {
 	    public class Calc
 	    {
 	        public void Solve() {
-	            int N = NextInt();
-	            var S = ReadLine();
-
-	            var E = S.Select(x => x == 'E' ? 1 : 0).Imos().ToArray();
-	            var W = S.Select(x => x == 'W' ? 1 : 0).Imos().ToArray();
-
-	            var min = int.MaxValue;
-
-                N.REP(i => {
-                    var e =E[N-1] - E[i];
-                    //if (S[i] == 'E') e--;
-                    var w = W[i];
-                    if (S[i] == 'W') w--;
-                    min = Min(min, e + w);
-                });
-
-                min.WL();
 	        }
+
         }
     }
 }
@@ -122,6 +106,13 @@ namespace Nakov.IO {
 				return result;
 			}
 		}
+
+	    public static BigInteger NextBigInteger(bool acceptAnyDecimalSeparator = true) {
+	        var token = NextToken();
+	        if (!acceptAnyDecimalSeparator) return BigInteger.Parse(token);
+	        token = token.Replace(',', '.');
+	        return BigInteger.Parse(token, CultureInfo.InvariantCulture);
+	    }
 
 	}
 }
