@@ -1660,3 +1660,50 @@ dp.Add(get(-1, -1, -1));
 
 dp.Max(k=>k).WL();
 ```
+
+# ABC104 C All Green
+- 300点だけど難しかったのでメモ
+- D個の問題があり、i番目の問題は100i点です。i番目の問題はpi個あり、全完するとci点追加でもらえます
+- G点とるとき、最小で何問解けばいいですか
+- ナップザック問題だったのでDPをかきます
+  - 記述しやすくするためにGとciを100で割る（獲得できる点数は100の倍数であるため問題ない)
+    - 配列のサイズを10^6^ から10^4^ に落とせる
+- `dp[i][j]=i個目の問題まででj点とれる最小の問題数`
+  - $ 0 <= l < pi $ のとき
+    - $ dp[i+1][j + l * i] = Min(dp[i+1][j + l * i],dp[i][j]+l) $
+  - $ l == pi $ のとき
+    - $ dp[i+1][Min(j + ci + pi * i, G)] = Min(dp[i+1][Min(j + ci + pi * i, G)],dp[i][j]+pi) $
+      - `Min(j + ci + pi * i, G)`はGを超えないようにするため
+- 更新式がわけわからなくなったけど時間内にとけて良かった
+
+```cs
+public void Solve() {
+    int D = NextInt(), G = NextInt() / 100;
+    var dp = new List<int>[D + 1];
+    dp[0] = Enumerable.Repeat(int.MaxValue, G + 1).ToList();
+    dp[0][0] = 0;
+
+    D.REP(i => {
+        var ki = i + 1;
+        var pi = NextInt();
+        var ci = NextInt() / 100;
+
+        dp[i + 1] = Enumerable.Repeat(int.MaxValue, G + 1).ToList();
+        // 更新
+        for (var j = 0; j <= G; j++) {
+            var sum = dp[i][j];
+            if (sum == int.MaxValue) continue;
+            for (var l = 0; l < pi && j + (l * ki) <= G; l++) {
+                var next = j + l * ki;
+                dp[i + 1][next] = Min(dp[i + 1][next], sum + l);
+            }
+
+            //コンプリートボーナス
+            dp[i + 1][Min(j + ci + pi * ki, G)] = Min(dp[i + 1][Min(j + ci + pi * ki, G)], sum + pi);
+        }
+    });
+
+    dp[D][G].WL();
+
+}
+```
