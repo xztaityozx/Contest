@@ -1707,3 +1707,26 @@ public void Solve() {
 
 }
 ```
+
+# ABC105 D Candy Distribution
+- 400っぽい
+- 区間和がMの倍数になる区間の組み合わせはいくつか？
+  - 類題がAGCにある
+- Imosをとって各項をMでMod
+- 同じModになった同士でペアになればMの倍数になれる。
+  - Mod(M)の値が4である二つを引き算すると`0 Mod M = Mの倍数`
+- Mapを使えば楽にできる
+```cs
+public void Solve() {
+    int N = NextInt(), M = NextInt();
+
+    var map = new Map<long, long> {
+        [0] = 1L
+    };
+
+    foreach (var item in NextLongList().Imos().Select(x => x % M)) {
+        map[item]++;
+    }
+    map.Select(x=>x.Value*(x.Value-1)/2).Sum().WL();
+}
+```

@@ -37,36 +37,17 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                int D = NextInt(), G = NextInt() / 100;
-                var dp = new List<int>[D + 1];
-                dp[0] = Enumerable.Repeat(int.MaxValue, G + 1).ToList();
-                dp[0][0] = 0;
+                int N = NextInt(), M = NextInt();
 
-                D.REP(i => {
-                    var ki = i + 1;
-                    var pi = NextInt();
-                    var ci = NextInt() / 100;
+                var map = new Map<long, long> {
+                    [0] = 1L
+                };
 
-                    dp[i + 1] = Enumerable.Repeat(int.MaxValue, G + 1).ToList();
-                    // 更新
-                    for (var j = 0; j <= G; j++) {
-                        var sum = dp[i][j];
-                        if (sum == int.MaxValue) continue;
-                        for (var l = 0; l < pi && j + (l * ki) <= G; l++) {
-                            var next = j + l * ki;
-                            dp[i + 1][next] = Min(dp[i + 1][next], sum + l);
-                        }
-
-                        //コンプリートボーナス
-                        dp[i + 1][Min(j + ci + pi * ki, G)] = Min(dp[i + 1][Min(j + ci + pi * ki, G)], sum + pi);
-                    }
-                });
-
-                dp[D][G].WL();
-
+                foreach (var item in NextLongList().Imos().Select(x => x % M)) {
+                    map[item]++;
+                }
+                map.Select(x=>x.Value*(x.Value-1)/2).Sum().WL();
             }
-
-
         }
     }
 }
@@ -303,6 +284,12 @@ namespace CS_Contest.Utils {
         }
 
         public static List<int> Imos(this IEnumerable<int> @this) {
+            var rt = @this.ToList();
+            for (var i = 0; i < rt.Count - 1; i++) rt[i + 1] += rt[i];
+            return rt;
+        }
+
+        public static List<long> Imos(this IEnumerable<long> @this) {
             var rt = @this.ToList();
             for (var i = 0; i < rt.Count - 1; i++) rt[i + 1] += rt[i];
             return rt;
