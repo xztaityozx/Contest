@@ -38,15 +38,80 @@ namespace CS_Contest {
         public class Calc {
             public void Solve() {
                 int N = NextInt(), M = NextInt();
+                var box = new List<string>();
+                N.REP(i => box.Add(ReadLine()));
 
-                var map = new Map<long, long> {
-                    [0] = 1L
-                };
+                var huf = new SectionUnionFind[N];
+                N.REP(i => {
+                    huf[i] = new SectionUnionFind(M);
+                    var bf = 0;
+                    while (bf < M && box[i][bf] == '#') bf++;
+                    for (var j = bf + 1; j < M; j++) {
+                        while (j < M && box[i][j] == '#') j++;
+                        if (j >= M) break;
+                        if (j - bf != 1) bf = j;
+                        if (j == bf) continue;
+                        huf[i].Unite(j, bf);
+                        bf = j;
+                    }
 
-                foreach (var item in NextLongList().Imos().Select(x => x % M)) {
-                    map[item]++;
+                });
+                var vuf = new SectionUnionFind[M];
+                M.REP(j => {
+                    vuf[j] = new SectionUnionFind(N);
+                    var bf = 0;
+                    while (bf < N && box[bf][j] == '#') bf++;
+                    for (var i = bf + 1; i < N; i++) {
+                        while (i < N && box[i][j] == '#') i++;
+                        if (i >= N) break;
+                        if (i - bf != 1) bf = i;
+                        if (bf == i) continue;
+                        vuf[j].Unite(i, bf);
+                        bf = i;
+                    }
+
+                });
+
+                var ans = 0L;
+
+                N.REP(i => {
+                    M.REP(j => {
+                        if (box[i][j] == '#') return;
+                        var ri = huf[i].Root(j);
+                        var rj = vuf[j].Root(i);
+                        var ci = huf[i].Cost[ri] - 1;
+                        var cj = vuf[j].Cost[rj] - 1;
+
+                        ans += ci * cj;
+
+                    });
+                });
+                ans.WL();
+            }
+
+            public struct SectionUnionFind {
+                private readonly int N;
+                public int[] Parent { get; private set; }
+                public long[] Cost { get; private set; }
+
+                public SectionUnionFind(int n) {
+                    N = n;
+                    Parent = Enumerable.Range(0, N).ToArray();
+                    Cost = Enumerable.Repeat(1L, N).ToArray();
                 }
-                map.Select(x=>x.Value*(x.Value-1)/2).Sum().WL();
+
+                public int Root(int x) {
+                    return Parent[x] == x ? x : Parent[x] = Root(Parent[x]);
+                }
+
+                public long Unite(int x, int y) {
+                    x = Root(x);
+                    y = Root(y);
+                    var res = Cost[x] * Cost[y];
+                    Cost[x] += Cost[y];
+                    Parent[y] = x;
+                    return res;
+                }
             }
         }
     }
