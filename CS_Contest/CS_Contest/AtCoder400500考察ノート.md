@@ -1818,3 +1818,32 @@ public struct SectionUnionFind {
     }
 }
 ```
+
+# ABC106 D AtCoder Express 2
+- 累積和問題
+- 区間[Li,Ri]を行き来する電車がM本ある。これらの内区間[pi,qi]に完全に内包される電車は何本あるか。Q個答える問題
+- Liを基準に累積和を計算するとうまくできる
+  - `G[Li][Ri]++;` という感じで
+- 質問に答えるときは、`pi<=x<=qi`を満たす`x`で`G[x][qi]`の合計を取ればいい
+```cs
+public void Solve() {
+    int N = NextInt(), M = NextInt(), Q = NextInt();
+    var G = new List<int[]>();
+    N.REP(i => G.Add(new int[N]));
+
+    M.REP(i => {
+        int Li = NextInt() - 1, Ri = NextInt() - 1;
+        G[Li][Ri]++;
+    });
+
+    N.REP(i => { G[i] = G[i].Imos().ToArray(); });
+
+    Q.REP(i => {
+        int pi = NextInt() - 1, qi = NextInt() - 1;
+        var sum = 0;
+        for (var k = pi; k <= qi; k++) sum += G[k][qi];
+        sum.WL();
+    });
+
+}
+```
