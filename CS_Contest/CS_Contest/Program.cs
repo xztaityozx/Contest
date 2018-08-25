@@ -37,25 +37,42 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                int N = NextInt(), M = NextInt(), Q = NextInt();
-                var G = new List<int[]>();
-                N.REP(i => G.Add(new int[N]));
+                int N = NextInt(), K = NextInt();
+                var X = NextLongList();
 
-                M.REP(i => {
-                    int Li = NextInt() - 1, Ri = NextInt() - 1;
-                    G[Li][Ri]++;
+                var minus = new Ll();
+                minus.AddRange(X.Where(x => x < 0));
+                minus = minus.Select(Abs).OrderBy(x=>x).ToList();
+                var plus = X.Where(x => x > 0).OrderBy(x => x).ToList();
+
+
+                if (X.Contains(0)) K--;
+
+                var ans = long.MaxValue;
+                var mc = minus.Count;
+                var pc = plus.Count;
+
+
+                (K+1).REP(k => {
+                    // minus側からk個選ぶ
+                    if (k > 0 && mc == 0) return;
+                    if (K - k > 0 && pc == 0) return;
+                    if (k > mc) return;
+                    if (K - k > pc) return;
+
+                    var m = k == 0 ? 0 : minus[k - 1];
+                    var p = K - k == 0 ? 0 : plus[K - k - 1];
+
+                    var x = (K - k > 0) && (k > 0) ? Min(m * 2 + p, p * 2 + m) : (m + p);
+
+                    ans = Min(ans, x);
+
                 });
 
-                N.REP(i => { G[i] = G[i].Imos().ToArray(); });
-
-                Q.REP(i => {
-                    int pi = NextInt() - 1, qi = NextInt() - 1;
-                    var sum = 0;
-                    for (var k = pi; k <= qi; k++) sum += G[k][qi];
-                    sum.WL();
-                });
+                ans.WL();
 
             }
+
 
         }
     }

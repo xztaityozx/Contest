@@ -70,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="300点ノート.md" />
     <None Include="App.config" />
     <None Include="AtCoder400500考察ノート.md" />
     <None Include="packages.config" />
