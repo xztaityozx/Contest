@@ -1847,3 +1847,59 @@ public void Solve() {
 
 }
 ```
+
+# ABC109 D Make Them Even
+- HxW個のマスがある。それぞれにはコインがa[i,j]枚おいてあり、以下の操作を何回でも行うことができる
+  - 選んだことのないマスi,jから1枚コインを上下左右のマスへ移動する
+- これを何回か行って偶数枚のコインが入っているマスの個数を最大化する問題。
+- 重要なのは1度選ぶと使えなくなること
+  - 移動の過程も考えると全部のマス目をなぞる移動は一筆書きしかない。
+  - 例えばジグザグに移動するとき、奇数枚あるマスから隣のマス目に移動すると、軌跡のマスはすべて偶数枚化できる。
+    - 1枚を運んでいるとき最後のマス目が奇数ならすべてのマスを偶数化できる
+  - なのでジグザグに舐める`for`をかいてルートを出力してやればOK
+- `O(HW)`
+```cs
+public void Solve() {
+    int H = NextInt(), W = NextInt();
+    var box = new int[H, W];
+    H.REP(i => W.REP(j => {
+        box[i, j] = NextInt();
+    }));
+    var used = new bool[H, W];
+
+    var ans = new List<ti4>();
+    Action<ti4> print = (st) => { $"{st.Item1+1} {st.Item2+1} {st.Item3+1} {st.Item4+1}".WL(); };
+    Action<int, int> F = (y, x) => {
+        if (!box[y, x].IsOdd()) return;
+        if(x==W-1&&y==H-1) return;
+
+        var nx = x == W - 1 ? x : x + 1;
+        var ny = x == W - 1 ? y + 1 : y;
+        ans.Add(y, x, ny, nx);
+        box[ny, nx]++;
+    };
+    Action<int, int> F2 = (y, x) => {
+        if (!box[y, x].IsOdd()) return;
+        if (x == 0 && y == H - 1) return;
+
+        var nx = x == 0 ? x : x - 1;
+        var ny = x == 0 ? y + 1 : y;
+        ans.Add(y, x, ny, nx);
+        box[ny, nx]++;
+    };
+
+    for (var h = 0; h < H; h++) {
+        if (h % 2 == 0)
+            for (var w = 0; w < W; w++)
+                F(h, w);
+        else
+            for (var w = W - 1; w >= 0; w--)
+                F2(h, w);
+    }
+
+    ans.Count.WL();
+    foreach (var tuple in ans) {
+        print(tuple);
+    }
+}
+```

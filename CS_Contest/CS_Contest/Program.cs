@@ -27,6 +27,7 @@ namespace CS_Contest {
     using ti3 = Tuple<int, int, int>;
     using ti2 = Tuple<int, int>;
     using tl3 = Tuple<long, long, long>;
+    using ti4 = Tuple<int,int,int,int>;
     internal class Program {
         private static void Main(string[] args) {
             var sw = new StreamWriter(OpenStandardOutput()) { AutoFlush = false };
@@ -37,42 +38,49 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                int N = NextInt(), K = NextInt();
-                var X = NextLongList();
+                int H = NextInt(), W = NextInt();
+                var box = new int[H, W];
+                H.REP(i => W.REP(j => {
+                    box[i, j] = NextInt();
+                }));
+                var used = new bool[H, W];
 
-                var minus = new Ll();
-                minus.AddRange(X.Where(x => x < 0));
-                minus = minus.Select(Abs).OrderBy(x=>x).ToList();
-                var plus = X.Where(x => x > 0).OrderBy(x => x).ToList();
+                var ans = new List<ti4>();
+                Action<ti4> print = (st) => { $"{st.Item1+1} {st.Item2+1} {st.Item3+1} {st.Item4+1}".WL(); };
+                Action<int, int> F = (y, x) => {
+                    if (!box[y, x].IsOdd()) return;
+                    if(x==W-1&&y==H-1) return;
 
+                    var nx = x == W - 1 ? x : x + 1;
+                    var ny = x == W - 1 ? y + 1 : y;
+                    ans.Add(y, x, ny, nx);
+                    box[ny, nx]++;
+                };
+                Action<int, int> F2 = (y, x) => {
+                    if (!box[y, x].IsOdd()) return;
+                    if (x == 0 && y == H - 1) return;
 
-                if (X.Contains(0)) K--;
+                    var nx = x == 0 ? x : x - 1;
+                    var ny = x == 0 ? y + 1 : y;
+                    ans.Add(y, x, ny, nx);
+                    box[ny, nx]++;
+                };
 
-                var ans = long.MaxValue;
-                var mc = minus.Count;
-                var pc = plus.Count;
+                for (var h = 0; h < H; h++) {
+                    if (h % 2 == 0)
+                        for (var w = 0; w < W; w++)
+                            F(h, w);
+                    else
+                        for (var w = W - 1; w >= 0; w--)
+                            F2(h, w);
+                }
 
-
-                (K+1).REP(k => {
-                    // minus側からk個選ぶ
-                    if (k > 0 && mc == 0) return;
-                    if (K - k > 0 && pc == 0) return;
-                    if (k > mc) return;
-                    if (K - k > pc) return;
-
-                    var m = k == 0 ? 0 : minus[k - 1];
-                    var p = K - k == 0 ? 0 : plus[K - k - 1];
-
-                    var x = (K - k > 0) && (k > 0) ? Min(m * 2 + p, p * 2 + m) : (m + p);
-
-                    ans = Min(ans, x);
-
-                });
-
-                ans.WL();
+                ans.Count.WL();
+                foreach (var tuple in ans) {
+                    print(tuple);
+                }
 
             }
-
 
         }
     }
@@ -325,6 +333,8 @@ namespace CS_Contest.Utils {
         public static bool IsOdd(this int @this) => @this % 2 == 1;
         public static bool IsOdd(this bint @this) => @this % 2 == 1;
 
+        public static void Add<T1, T2, T3, T4>(this List<Tuple<T1, T2, T3, T4>> @this, T1 t1, T2 t2, T3 t3, T4 t4) =>
+            @this.Add(Tuple.Create(t1, t2, t3, t4));
     }
 
 
