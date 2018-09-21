@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 using System.Text;
 using static System.Console;
 using static System.Math;
-
-//using CS_Contest.Graph;
 using CS_Contest.Loop;
 using CS_Contest.Utils;
 using static Nakov.IO.Cin;
@@ -38,51 +33,68 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                int H = NextInt(), W = NextInt();
-                var box = new int[H, W];
-                H.REP(i => W.REP(j => {
-                    box[i, j] = NextInt();
-                }));
-                var used = new bool[H, W];
+                const int size = 1000;
+                int N = NextInt(), M = NextInt();
+                
+                Func<int, int> rev = (k) => int.Parse($"{k}".Reverse().StringJoin());
+                var graph = new Li[size*size];
+                (size * size).REP(i => graph[i] = new Li());
 
-                var ans = new List<ti4>();
-                Action<ti4> print = (st) => { $"{st.Item1+1} {st.Item2+1} {st.Item3+1} {st.Item4+1}".WL(); };
-                Action<int, int> F = (y, x) => {
-                    if (!box[y, x].IsOdd()) return;
-                    if(x==W-1&&y==H-1) return;
+                var visited = Generate.Repeat(i => false, size * size);
 
-                    var nx = x == W - 1 ? x : x + 1;
-                    var ny = x == W - 1 ? y + 1 : y;
-                    ans.Add(y, x, ny, nx);
-                    box[ny, nx]++;
+
+
+                Func<int, int, int> V = (x, y) => x * 1000 + y;
+                Action<int> make = null;
+                make = (v) => {
+                    var x = v / 1000;
+                    var y = v % 1000;
+                    if (visited[v]) return;
+                    visited[v] = true;
+
+                    var nx = x;
+                    var ny = y;
+                    if (nx < ny) nx = rev(nx);
+                    else ny = rev(ny);
+                    if (nx < ny) ny -= nx;
+                    else nx -= ny;
+
+                    graph[V(nx, ny)].Add(v);
+                    make(V(nx, ny));
                 };
-                Action<int, int> F2 = (y, x) => {
-                    if (!box[y, x].IsOdd()) return;
-                    if (x == 0 && y == H - 1) return;
 
-                    var nx = x == 0 ? x : x - 1;
-                    var ny = x == 0 ? y + 1 : y;
-                    ans.Add(y, x, ny, nx);
-                    box[ny, nx]++;
+                var used = Generate.Repeat(i => false, size * size);
+                var ans = 0L;
+                Action<int> dfs = null;
+                dfs = (v) => {
+                    var x = v / 1000;
+                    var y = v % 1000;
+                    if (used[v]) return;
+                    used[v] = true;
+                    if (x <= N && y <= M && x > 0 && y > 0) ans++;
+
+                    foreach (var edge in graph[V(x,y)]) {
+                        var nx = edge / 1000;
+                        var ny = edge % 1000;
+                        dfs(V(nx, ny));
+                    }
                 };
 
-                for (var h = 0; h < H; h++) {
-                    if (h % 2 == 0)
-                        for (var w = 0; w < W; w++)
-                            F(h, w);
-                    else
-                        for (var w = W - 1; w >= 0; w--)
-                            F2(h, w);
+                for (var i = 1; i <= N; i++) {
+                    for (var j = 1; j <= M ; j++) {
+                        make(V(i, j));
+                    }
                 }
+                
+                for(var i = 1; i < size; i++) 
+                    foreach (var edge in graph[V(0,i)]) {
+                        dfs(edge);
+                    }
 
-                ans.Count.WL();
-                foreach (var tuple in ans) {
-                    print(tuple);
-                }
-
+                (N*M-ans).WL();
             }
-
         }
+
     }
 }
 namespace Nakov.IO {

@@ -1903,3 +1903,82 @@ public void Solve() {
     }
 }
 ```
+
+# Mujin Programming Challenge 2018 D うほょじご
+- なんだこの問題名
+- 正の整数`x`に対し、`rev(x)`を`x`を文字列的に判定して得られる数とする。
+- 以下の操作を無限に行う
+  - `x`,`y`のうちどちらかが0ならやめる
+  - `x<y`のとき`x`を`rev(x)`で、逆の場合は`y`を`rev(y)`で置き換える
+  - そこから`x<y`のとき`y`を`y-x`で、逆の場合、`x`を`x-y`で置き換える
+- 整数の組`(x<=N,y<=M)`であって、この操作が無限に続く`x,y`の個数を求める問題
+- 無限に続くものを数えるのは大変なので終了するものを数えて全体から引くことを考える
+  - 終了条件は`x,y`どちらかが0になることだが、操作を見ると`x=0`となるパターンしか存在しない
+- 組`(x,y)`を操作した後`(s,t)`という組み合わせになったとする
+- これが計算できたとき`(x,y)`から`(s,t)`への辺を張ったグラフができる
+- この辺を終了条件を考えて`(0,i=1~999)`から逆にたどっていき、`N`,`M`にそれぞれ収まる点を数える
+- この値を`N*M`から引けばAC
+- たぶん`O(NM)`
+```cs
+public void Solve() {
+    const int size = 1000;
+    int N = NextInt(), M = NextInt();
+                
+    Func<int, int> rev = (k) => int.Parse($"{k}".Reverse().StringJoin());
+    var graph = new Li[size*size];
+    (size * size).REP(i => graph[i] = new Li());
+
+    var visited = Generate.Repeat(i => false, size * size);
+
+
+
+    Func<int, int, int> V = (x, y) => x * 1000 + y;
+    Action<int> make = null;
+    make = (v) => {
+        var x = v / 1000;
+        var y = v % 1000;
+        if (visited[v]) return;
+        visited[v] = true;
+
+        var nx = x;
+        var ny = y;
+        if (nx < ny) nx = rev(nx);
+        else ny = rev(ny);
+        if (nx < ny) ny -= nx;
+        else nx -= ny;
+
+        graph[V(nx, ny)].Add(v);
+        make(V(nx, ny));
+    };
+
+    var used = Generate.Repeat(i => false, size * size);
+    var ans = 0L;
+    Action<int> dfs = null;
+    dfs = (v) => {
+        var x = v / 1000;
+        var y = v % 1000;
+        if (used[v]) return;
+        used[v] = true;
+        if (x <= N && y <= M && x > 0 && y > 0) ans++;
+
+        foreach (var edge in graph[V(x,y)]) {
+            var nx = edge / 1000;
+            var ny = edge % 1000;
+            dfs(V(nx, ny));
+        }
+    };
+
+    for (var i = 1; i <= N; i++) {
+        for (var j = 1; j <= M ; j++) {
+            make(V(i, j));
+        }
+    }
+                
+    for(var i = 1; i < size; i++) 
+        foreach (var edge in graph[V(0,i)]) {
+            dfs(edge);
+        }
+
+    (N*M-ans).WL();
+}
+```
