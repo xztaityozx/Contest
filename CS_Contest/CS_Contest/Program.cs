@@ -33,65 +33,22 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                const int size = 1000;
-                int N = NextInt(), M = NextInt();
-                
-                Func<int, int> rev = (k) => int.Parse($"{k}".Reverse().StringJoin());
-                var graph = new Li[size*size];
-                (size * size).REP(i => graph[i] = new Li());
-
-                var visited = Generate.Repeat(i => false, size * size);
-
-
-
-                Func<int, int, int> V = (x, y) => x * 1000 + y;
-                Action<int> make = null;
-                make = (v) => {
-                    var x = v / 1000;
-                    var y = v % 1000;
-                    if (visited[v]) return;
-                    visited[v] = true;
-
-                    var nx = x;
-                    var ny = y;
-                    if (nx < ny) nx = rev(nx);
-                    else ny = rev(ny);
-                    if (nx < ny) ny -= nx;
-                    else nx -= ny;
-
-                    graph[V(nx, ny)].Add(v);
-                    make(V(nx, ny));
-                };
-
-                var used = Generate.Repeat(i => false, size * size);
-                var ans = 0L;
-                Action<int> dfs = null;
-                dfs = (v) => {
-                    var x = v / 1000;
-                    var y = v % 1000;
-                    if (used[v]) return;
-                    used[v] = true;
-                    if (x <= N && y <= M && x > 0 && y > 0) ans++;
-
-                    foreach (var edge in graph[V(x,y)]) {
-                        var nx = edge / 1000;
-                        var ny = edge % 1000;
-                        dfs(V(nx, ny));
+                var S = ReadLine();
+                var idx = 0;
+                var st = new System.Collections.Generic.Stack<char>();
+                foreach (var c in S) {
+                    if(c=='*'||c=='+'||c=='/'||c=='-') st.Push(c);
+                    else if (c == ')') {
+                        ")".W();
+                        st.Pop();
+                    }else if (c == ',') {
+                        st.Peek().W();
                     }
-                };
-
-                for (var i = 1; i <= N; i++) {
-                    for (var j = 1; j <= M ; j++) {
-                        make(V(i, j));
+                    else {
+                        c.W();
                     }
                 }
-                
-                for(var i = 1; i < size; i++) 
-                    foreach (var edge in graph[V(0,i)]) {
-                        dfs(edge);
-                    }
-
-                (N*M-ans).WL();
+                "".WL();
             }
         }
 

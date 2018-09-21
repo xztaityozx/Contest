@@ -1982,3 +1982,29 @@ public void Solve() {
     (N*M-ans).WL();
 }
 ```
+
+# COLOCON 2018 Final D 異世界数式
+- 構文解析。400は嘘っぽい
+- `+(0,2)` を `(0+2)` に変換する問題
+- 演算子を`Stack`で管理して、`)`が来るたびに`Pop`、演算子が来るたびに`Push`すればOK
+- `O(|S|)`
+```cs
+public void Solve() {
+    var S = ReadLine();
+    var idx = 0;
+    var st = new System.Collections.Generic.Stack<char>();
+    foreach (var c in S) {
+        if(c=='*'||c=='+'||c=='/'||c=='-') st.Push(c);
+        else if (c == ')') {
+            ")".W();
+            st.Pop();
+        }else if (c == ',') {
+            st.Peek().W();
+        }
+        else {
+            c.W();
+        }
+    }
+    "".WL();
+}
+```
