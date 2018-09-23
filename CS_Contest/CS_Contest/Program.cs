@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using static System.Console;
 using static System.Math;
@@ -33,26 +34,10 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                var S = ReadLine();
-                var idx = 0;
-                var st = new System.Collections.Generic.Stack<char>();
-                foreach (var c in S) {
-                    if(c=='*'||c=='+'||c=='/'||c=='-') st.Push(c);
-                    else if (c == ')') {
-                        ")".W();
-                        st.Pop();
-                    }else if (c == ',') {
-                        st.Peek().W();
-                    }
-                    else {
-                        c.W();
-                    }
-                }
-                "".WL();
             }
         }
-
     }
+    
 }
 namespace Nakov.IO {
     using System;
@@ -304,6 +289,8 @@ namespace CS_Contest.Utils {
 
         public static void Add<T1, T2, T3, T4>(this List<Tuple<T1, T2, T3, T4>> @this, T1 t1, T2 t2, T3 t3, T4 t4) =>
             @this.Add(Tuple.Create(t1, t2, t3, t4));
+
+        public static bool IsKaibun(string s) => s == s.Reverse().StringJoin();
     }
 
 
