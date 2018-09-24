@@ -13,7 +13,6 @@ using CS_Contest.Loop;
 using CS_Contest.Utils;
 using static Nakov.IO.Cin;
 using static CS_Contest.IO.IO;
-using static CS_Contest.Utils.MyMath;
 
 
 namespace CS_Contest {
@@ -35,90 +34,7 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                int N = NextInt(), M = NextInt();
-                var mu=new MathUtils(100010);
-                mu.MakeFact();
-                var K = M;
-
-                var ans = 1L;
-                for (var i = 2; i * i <= M; i++) {
-                    var cnt = 0;
-                    while (K % i == 0) {
-                        K /= i;
-                        cnt++;
-                    }
-
-                    ans *= mu.Combination(N + cnt - 1, cnt);
-                    ans = MathUtils.Mod(ans);
-                }
-
-                if (K != 1) {
-                    ans *= mu.Combination(N, 1);
-                    ans = MathUtils.Mod(ans);
-                }
-
-                ans.WL();
-
-            }
-
-            public class MathUtils {
-                public long[] Factorial { get; set; }
-                public long[] Inverse { get; set; }
-                private int N { get; set; }
-
-                public MathUtils(int n = (int) 1e5 + 1) {
-                    N = n;
-                    Factorial = new long[N * 2];
-                    Inverse = new long[N * 2];
-                }
-
-                public void MakeFact() {
-                    Factorial[0] = Inverse[0] = 1;
-                    for (var i = 1; i < Factorial.Length; i++) {
-                        Factorial[i] = Mod(Factorial[i - 1] * i);
-                        Inverse[i] = ModPow(Factorial[i], ModValue - 2);
-                    }
-                }
-
-                public long Combination(long n, long k) {
-                    if (Factorial[0] == 0) MakeFact();
-                    if (n - k < 0) return 0;
-                    var rt = Factorial[n];
-                    rt *= Inverse[k];
-                    rt %= ModValue;
-                    rt *= Inverse[n - k];
-                    return Mod(rt);
-                }
-
-                public static long[,] CombinationTable(int n) {
-                    var rt = new long[n + 1, n + 1];
-                    for (var i = 0; i <= n; i++) {
-                        for (var j = 0; j <= i; j++) {
-                            if (j == 0 || i == j) rt[i, j] = 1L;
-                            else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
-                        }
-                    }
-
-                    return rt;
-                }
-
-                public static long ModValue = (long) 1e9 + 7;
-                public static long Mod(long x) => x % ModValue;
-                public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long) (1e9 + 5)));
-
-                public static long ModPow(long x, long n) {
-                    long tmp = 1;
-                    while (n != 0) {
-                        if (n % 2 == 1) {
-                            tmp = Mod(tmp * x);
-                        }
-
-                        x = Mod(x * x);
-                        n /= 2;
-                    }
-
-                    return tmp;
-                }
+                
             }
         }
     }
@@ -205,10 +121,18 @@ namespace Nakov.IO {
 namespace CS_Contest.Loop {
     [DebuggerStepThrough]
     public static class Loop {
-        public static void REP(this int n, Action<int> act) {
+        public static void Rep(this int n, Action<int> act) {
             for (var i = 0; i < n; i++) {
                 act(i);
             }
+        }
+
+        public static void Rep(this Tuple<int, int> n, Action<int> act) {
+            for (var i = n.Item1; i < n.Item2; i++) act(i);
+        }
+
+        public static void Rrep(this int n, Action<int> act) {
+            for (var i = n - 1; i >= 0; i--) act(i);
         }
 
         public static void ForeachWith<T>(this IEnumerable<T> ie, Action<int, T> act) {
@@ -219,14 +143,9 @@ namespace CS_Contest.Loop {
             }
         }
 
-        public static void Foreach<T>(this IEnumerable<T> ie, Action<T> act) {
-            foreach (var item in ie) {
-                act(item);
-            }
-        }
-
     }
 
+    [DebuggerStepThrough]
     public class Generate {
         public static IEnumerable<int> Seq(int e) => Seq(0, e, 1);
         public static IEnumerable<int> Seq(int s, int e) => Seq(s, e, 1);
@@ -238,6 +157,14 @@ namespace CS_Contest.Loop {
         }
         public static List<T> Repeat<T>(Func<int, T> result, int range) =>
             Enumerable.Range(0, range).Select(result).ToList();
+
+        public static T[,] MakeBox<T>(int H, int W, T def = default(T)) {
+            var rt = new T[H, W];
+            for (var i = 0; i < H; i++)
+            for (var j = 0; j < W; j++)
+                rt[i, j] = def;
+            return rt;
+        }
     }
 }
 
@@ -253,6 +180,8 @@ namespace CS_Contest.IO {
         public static Li NextIntList() => ReadLine().Split().Select(int.Parse).ToList();
         public static Li NextIntList(int n) => Enumerable.Repeat(0, n).Select(x => ReadLine()).Select(int.Parse).ToList();
         public static Ll NextLongList() => ReadLine().Split().Select(long.Parse).ToList();
+
+        public static string NextLine() => ReadLine();
 
         public static T Tee<T>(this T t, Func<T, string> formatter = null) {
             if (formatter == null) formatter = arg => arg.ToString();
@@ -273,6 +202,7 @@ namespace CS_Contest.IO {
             return rt;
         }
 
+        public static void YesNo(this bool @this) => (@this ? "Yes" : "No").WL();
     }
 
 
@@ -376,30 +306,25 @@ namespace CS_Contest.Utils {
             @this.Add(Tuple.Create(t1, t2, t3, t4));
 
         public static bool IsKaibun(string s) => s == s.Reverse().StringJoin();
+
+        public static T EMin<T>(params T[] a) where T : IComparable<T> => a.Min();
+        public static T EMax<T>(params T[] a) where T : IComparable<T> => a.Max();
     }
 
-
-
     public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
-        public Map() : base() { }
-        public Map(int capacity) : base(capacity) { }
+        private readonly TValue Default = default(TValue);
+
+        public Map(TValue def = default(TValue)) : base() {
+            Default = def;
+        }
 
         public new TValue this[TKey index] {
             get {
                 TValue v;
-                return TryGetValue(index, out v) ? v : base[index] = default(TValue);
+                return TryGetValue(index, out v) ? v : base[index] = Default;
             }
             set { base[index] = value; }
         }
     }
-
-    public static class MyMath {
-
-        public static T EMin<T>(params T[] a) where T : IComparable<T> => a.Min();
-        public static T EMax<T>(params T[] a) where T : IComparable<T> => a.Max();
-
-    }
-
-
 }
 

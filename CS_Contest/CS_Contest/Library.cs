@@ -442,11 +442,11 @@ namespace CS_Contest.Graph {
 
 		public void Run(int s) {
 			Distance = new Ll();
-			Size.REP(i => Distance.Add(Inf));
+			Size.Rep(i => Distance.Add(Inf));
 			Distance[s] = 0;
 			_negative = new bool[Size];
 
-			(Size - 1).REP(i => Size.REP(j => Adjacency[j].Count.REP(k =>
+			(Size - 1).Rep(i => Size.Rep(j => Adjacency[j].Count.Rep(k =>
 			{
 				var src = Adjacency[j][k];
 				if (Distance[src.To] > Distance[j] + src.Cost) Distance[src.To] = Distance[j] + src.Cost;
@@ -454,8 +454,8 @@ namespace CS_Contest.Graph {
 			)));
 
 			for (int i = 0; i < Size; i++) {
-				Size.REP(j => {
-					Adjacency[j].Count.REP(k => {
+				Size.Rep(j => {
+					Adjacency[j].Count.Rep(k => {
 						var src = Adjacency[j][k];
 						if (Distance[src.To] > Distance[j] + src.Cost) {
 							Distance[src.To] = Distance[j] + src.Cost;
@@ -487,7 +487,7 @@ namespace CS_Contest.Graph {
 		public CostGraph(int size) {
 			Size = size;
 			Adjacency = new List<List<Edge>>();
-			Size.REP(_ => Adjacency.Add(new List<Edge>()));
+			Size.Rep(_ => Adjacency.Add(new List<Edge>()));
 		}
 
 		public void Add(int s, int t, long c, bool dir = true) {
@@ -571,7 +571,7 @@ namespace CS_Contest.Graph {
 		public void Run(int s) {
 			PreviousNodeList = new int[Size];
 			Distance = new long[Size];
-			Size.REP(_ => Distance[_] = Inf);
+			Size.Rep(_ => Distance[_] = Inf);
 
 			var pq = new PriorityQueue<Edge>((x, y) => x.Cost.CompareTo(y.Cost));
 			Distance[s] = 0;
@@ -598,9 +598,9 @@ namespace CS_Contest.Graph {
 
 		public List<Ll> Run() {
 			var rt = new List<Ll>();
-			Size.REP(_ => rt.Add(new Ll()));
+			Size.Rep(_ => rt.Add(new Ll()));
 
-			Size.REP(i => Size.REP(k => rt[i].Add(i == k ? 0 : Inf)));
+			Size.Rep(i => Size.Rep(k => rt[i].Add(i == k ? 0 : Inf)));
 
 			Adjacency.ForeachWith((i, item) => {
 				foreach (var k in item) {
@@ -608,7 +608,7 @@ namespace CS_Contest.Graph {
 				}
 			});
 
-			Size.REP(i => Size.REP(j => Size.REP(k => {
+			Size.Rep(i => Size.Rep(j => Size.Rep(k => {
 				rt[j][k] = Min(rt[j][k], rt[j][i] + rt[i][k]);
 			})));
 
