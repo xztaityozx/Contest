@@ -2008,3 +2008,35 @@ public void Solve() {
     "".WL();
 }
 ```
+
+# ABC110 D Factorixation
+- 難しい400
+- [解説放送を見るとわかる](https://www.youtube.com/watch?v=gdQxKESnXKs)
+```cs
+public void Solve() {
+    int N = NextInt(), M = NextInt();
+    var mu=new MathUtils(100010);
+    mu.MakeFact();
+    var K = M;
+
+    var ans = 1L;
+    for (var i = 2; i * i <= M; i++) {
+        var cnt = 0;
+        while (K % i == 0) {
+            K /= i;
+            cnt++;
+        }
+
+        ans *= mu.Combination(N + cnt - 1, cnt);
+        ans = MathUtils.Mod(ans);
+    }
+
+    if (K != 1) {
+        ans *= mu.Combination(N, 1);
+        ans = MathUtils.Mod(ans);
+    }
+
+    ans.WL();
+
+}
+```

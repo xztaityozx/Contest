@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -34,6 +35,90 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
+                int N = NextInt(), M = NextInt();
+                var mu=new MathUtils(100010);
+                mu.MakeFact();
+                var K = M;
+
+                var ans = 1L;
+                for (var i = 2; i * i <= M; i++) {
+                    var cnt = 0;
+                    while (K % i == 0) {
+                        K /= i;
+                        cnt++;
+                    }
+
+                    ans *= mu.Combination(N + cnt - 1, cnt);
+                    ans = MathUtils.Mod(ans);
+                }
+
+                if (K != 1) {
+                    ans *= mu.Combination(N, 1);
+                    ans = MathUtils.Mod(ans);
+                }
+
+                ans.WL();
+
+            }
+
+            public class MathUtils {
+                public long[] Factorial { get; set; }
+                public long[] Inverse { get; set; }
+                private int N { get; set; }
+
+                public MathUtils(int n = (int) 1e5 + 1) {
+                    N = n;
+                    Factorial = new long[N * 2];
+                    Inverse = new long[N * 2];
+                }
+
+                public void MakeFact() {
+                    Factorial[0] = Inverse[0] = 1;
+                    for (var i = 1; i < Factorial.Length; i++) {
+                        Factorial[i] = Mod(Factorial[i - 1] * i);
+                        Inverse[i] = ModPow(Factorial[i], ModValue - 2);
+                    }
+                }
+
+                public long Combination(long n, long k) {
+                    if (Factorial[0] == 0) MakeFact();
+                    if (n - k < 0) return 0;
+                    var rt = Factorial[n];
+                    rt *= Inverse[k];
+                    rt %= ModValue;
+                    rt *= Inverse[n - k];
+                    return Mod(rt);
+                }
+
+                public static long[,] CombinationTable(int n) {
+                    var rt = new long[n + 1, n + 1];
+                    for (var i = 0; i <= n; i++) {
+                        for (var j = 0; j <= i; j++) {
+                            if (j == 0 || i == j) rt[i, j] = 1L;
+                            else rt[i, j] = (rt[i - 1, j - 1] + rt[i - 1, j]);
+                        }
+                    }
+
+                    return rt;
+                }
+
+                public static long ModValue = (long) 1e9 + 7;
+                public static long Mod(long x) => x % ModValue;
+                public static long DivMod(long x, long y) => Mod(x * ModPow(y, (long) (1e9 + 5)));
+
+                public static long ModPow(long x, long n) {
+                    long tmp = 1;
+                    while (n != 0) {
+                        if (n % 2 == 1) {
+                            tmp = Mod(tmp * x);
+                        }
+
+                        x = Mod(x * x);
+                        n /= 2;
+                    }
+
+                    return tmp;
+                }
             }
         }
     }
