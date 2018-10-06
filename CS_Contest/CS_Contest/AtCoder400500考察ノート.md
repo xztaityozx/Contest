@@ -2040,3 +2040,27 @@ public void Solve() {
 
 }
 ```
+
+# ABC112 D Partition
+- `N`個の数列の和が`M`になるとき．数列の最大公約数の最大値はいくつか求める問題
+- 最大公約数は`M`の約数であることが分かる．この約数を`K`とすると以下の条件が分かる
+  - `N*K<=M`
+- これを各`K`について確かめるだけでOK
+- `O(√M)`
+```cs
+public void Solve() {
+    //ABC112 D
+    var A = NextBigInteger();
+    var B = NextBigInteger();
+
+    var ans=new bint(0);
+    foreach (var bigInteger in B.DivisorList()) {
+        var s = B / bigInteger;
+        var t = bigInteger;
+
+        if (s * A <= B) ans = Utils.Utils.EMax(ans, s);
+        if (t * A <= B) ans = Utils.Utils.EMax(ans, t);
+    }
+    ans.WL();
+}
+```

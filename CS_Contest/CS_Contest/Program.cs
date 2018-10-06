@@ -34,8 +34,21 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                
+                //ABC112 D
+                var A = NextBigInteger();
+                var B = NextBigInteger();
+
+                var ans=new bint(0);
+                foreach (var bigInteger in B.DivisorList()) {
+                    var s = B / bigInteger;
+                    var t = bigInteger;
+
+                    if (s * A <= B) ans = Utils.Utils.EMax(ans, s);
+                    if (t * A <= B) ans = Utils.Utils.EMax(ans, t);
+                }
+                ans.WL();
             }
+
         }
     }
     
@@ -217,6 +230,12 @@ namespace CS_Contest.Utils {
     public static class Utils {
         public static bool AnyOf<T>(this T @this, params T[] these) where T : IComparable {
             return these.Contains(@this);
+        }
+
+        public static IEnumerable<BigInteger> DivisorList(this BigInteger @this){
+            for (BigInteger B = 1; B * B <= @this; B++)
+                if (@this % B == 0)
+                    yield return B;
         }
 
         public static bool Within(int x, int y, int lx, int ly) => !(x < 0 || x >= lx || y < 0 || y >= ly);
