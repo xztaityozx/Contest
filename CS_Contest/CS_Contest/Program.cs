@@ -34,19 +34,25 @@ namespace CS_Contest {
 
         public class Calc {
             public void Solve() {
-                //ABC112 D
-                var A = NextBigInteger();
-                var B = NextBigInteger();
+                var N = NextBigInteger();
+                var Z = NextBigInteger();
+                var list = new List<bint>();
+                for (bint i = 0; i < N; i++) list.Add(NextBigInteger());
+                var lcm = new bint(1);
+                lcm = list.Select(k => GCD(Z, k)).Aggregate(lcm, (current, bigInteger) => LCM(current, bigInteger));
+                lcm.WL();
+            }
+            public static BigInteger LCM(BigInteger m, BigInteger n) => m * (n / GCD(m, n));
 
-                var ans=new bint(0);
-                foreach (var bigInteger in B.DivisorList()) {
-                    var s = B / bigInteger;
-                    var t = bigInteger;
-
-                    if (s * A <= B) ans = Utils.Utils.EMax(ans, s);
-                    if (t * A <= B) ans = Utils.Utils.EMax(ans, t);
+            public static BigInteger GCD(BigInteger m, BigInteger n) {
+                BigInteger tmp;
+                if (m < n) { tmp = n; n = m; m = tmp; }
+                while (m % n != 0) {
+                    tmp = n;
+                    n = m % n;
+                    m = tmp;
                 }
-                ans.WL();
+                return n;
             }
 
         }
@@ -328,6 +334,8 @@ namespace CS_Contest.Utils {
 
         public static T EMin<T>(params T[] a) where T : IComparable<T> => a.Min();
         public static T EMax<T>(params T[] a) where T : IComparable<T> => a.Max();
+
+        
     }
 
     public class Map<TKey, TValue> : Dictionary<TKey, TValue> {
