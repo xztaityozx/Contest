@@ -2064,3 +2064,85 @@ public void Solve() {
     ans.WL();
 }
 ```
+
+# Tenka1 Programmer Contest 2018 C Align
+- 個数がNの数列を好きに並べ変えて隣り合う数値の差分の合計を最大化する問題
+- 差分を最大化するなら
+  - `大きい数字, 小さい数字, 大きい数字, 小さい数字....`と並べるのが良いのが分かる
+  - 特に一番小さい数字は左右に大きい数字を持ってくると差分が多く得られる
+    - `1 8 6`より`8 1 6`のが点数が大きい
+    - これは一番大きい数字も同じ
+  - なので答えの数列を得るには，真ん中に小さい数字，左右に大きい数字，つぎは小さい数字と並べる．もしくはその逆のどちらか
+  - これらを作って差分の和を求めたあとMaxをとればOK
+```cs
+public void Solve() {
+	var N = NextInt();
+	var B = new int[N];
+	var C = new int[N];
+
+	var dq1=new Deque<int>();
+	var dq2=new Deque<int>();
+	var box1 = new Li();
+	var box2 = new Li();
+
+	var A = NextIntList(N);
+	foreach (var item in A.OrderBy(x=>x)) {
+		dq1.PushBack(item);
+	}
+
+	foreach (var item in A.OrderByDescending(x=>x)) {
+		dq2.PushBack(item);
+	}
+
+	var idx = N / 2;
+	var diff = 1;
+	var dir = true;
+	box1.Add(dq1.PopFront());
+	box2.Add(dq2.PopFront());
+	while (dq1.Count != 0) {
+		if (dir) {
+			box1.Add(dq1.PopBack());
+			if(dq1.Count!=0) box1.Add(dq1.PopBack());
+			box2.Add(dq2.PopBack());
+			if (dq2.Count != 0) box2.Add(dq2.PopBack());
+		}
+		else {
+			box1.Add(dq1.PopFront());
+			if (dq1.Count != 0) box1.Add(dq1.PopFront());
+			box2.Add(dq2.PopFront());
+			if (dq2.Count != 0) box2.Add(dq2.PopFront());
+		}
+		dir = !dir;
+	}
+
+	dir = false;
+
+	foreach (var item in box1) {
+		B[idx] = item;
+		if (dir) idx += diff;
+		else idx -= diff;
+		dir = !dir;
+		diff++;
+	}
+
+	idx = N / 2;
+	diff = 1;
+	dir = false;
+	foreach (var item in box2) {
+		C[idx] = item;
+		if (dir) idx += diff;
+		else idx -= diff;
+		dir = !dir;
+		diff++;
+	}
+
+	var sumB = 0L;
+	var sumC = 0L;
+	for (var i = 0; i < N - 1; i++) {
+		sumB += Abs(B[i] - B[i + 1]);
+		sumC += Abs(C[i] - C[i + 1]);
+	}
+
+	Max(sumB,sumC).WL();
+}
+```

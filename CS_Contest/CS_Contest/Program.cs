@@ -33,28 +33,176 @@ namespace CS_Contest {
         }
 
         public class Calc {
-            public void Solve() {
-                var N = NextBigInteger();
-                var Z = NextBigInteger();
-                var list = new List<bint>();
-                for (bint i = 0; i < N; i++) list.Add(NextBigInteger());
-                var lcm = new bint(1);
-                lcm = list.Select(k => GCD(Z, k)).Aggregate(lcm, (current, bigInteger) => LCM(current, bigInteger));
-                lcm.WL();
-            }
-            public static BigInteger LCM(BigInteger m, BigInteger n) => m * (n / GCD(m, n));
+			public class Deque<T> 
+			{
+				private T[] buf;
+				private int offset, count, capacity;
+				public int Count => count;
 
-            public static BigInteger GCD(BigInteger m, BigInteger n) {
-                BigInteger tmp;
-                if (m < n) { tmp = n; n = m; m = tmp; }
-                while (m % n != 0) {
-                    tmp = n;
-                    n = m % n;
-                    m = tmp;
-                }
-                return n;
-            }
+				public Deque(int cap) {
+					buf = new T[capacity = cap];
+				}
 
+				public Deque() {
+					buf = new T[capacity = 16];
+				}
+
+				public T this[int index] {
+					get {
+						return buf[getIndex(index)];
+					}
+					set { buf[getIndex(index)] = value; }
+				}
+
+				private int getIndex(int index) {
+					if (index >= capacity)
+						throw new IndexOutOfRangeException("out of range");
+					var ret = index + offset;
+					if (ret >= capacity)
+						ret -= capacity;
+					return ret;
+				}
+
+				public void PushFront(T item) {
+					if (count == capacity) Extend();
+					if (--offset < 0) offset += buf.Length;
+					buf[offset] = item;
+					++count;
+				}
+
+				public T PopFront() {
+					if (count == 0)
+						throw new InvalidOperationException("collection is empty");
+					--count;
+					var ret = buf[offset++];
+					if (offset >= capacity) offset -= capacity;
+					return ret;
+				}
+
+				public void PushBack(T item) {
+					if (count == capacity) Extend();
+					var id = count++ + offset;
+					if (id >= capacity) id -= capacity;
+					buf[id] = item;
+				}
+
+				public T PopBack() {
+					if (count == 0)
+						throw new InvalidOperationException("collection is empty");
+					return buf[getIndex(--count)];
+				}
+
+				public void Insert(int index, T item) {
+					if (index > count) throw new IndexOutOfRangeException();
+					this.PushFront(item);
+					for (var i = 0; i < index; i++)
+						this[i] = this[i + 1];
+					this[index] = item;
+				}
+
+				public T RemoveAt(int index) {
+					if (index < 0 || index >= count) throw new IndexOutOfRangeException();
+					var ret = this[index];
+					for (var i = index; i > 0; i--)
+						this[i] = this[i - 1];
+					this.PopFront();
+					return ret;
+				}
+
+				private void Extend() {
+					var newBuffer = new T[capacity << 1];
+					if (offset > capacity - count) {
+						var len = buf.Length - offset;
+						Array.Copy(buf, offset, newBuffer, 0, len);
+						Array.Copy(buf, 0, newBuffer, len, count - len);
+					}
+					else Array.Copy(buf, offset, newBuffer, 0, count);
+					buf = newBuffer;
+					offset = 0;
+					capacity <<= 1;
+				}
+
+				public T[] Items//デバッグ時に中身を調べるためのプロパティ
+				{
+					get {
+						var a = new T[count];
+						for (var i = 0; i < count; i++)
+							a[i] = this[i];
+						return a;
+					}
+				}
+			}
+
+			public void Solve() {
+	            var N = NextInt();
+	            var B = new int[N];
+				var C = new int[N];
+
+				var dq1=new Deque<int>();
+				var dq2=new Deque<int>();
+				var box1 = new Li();
+				var box2 = new Li();
+
+				var A = NextIntList(N);
+				foreach (var item in A.OrderBy(x=>x)) {
+					dq1.PushBack(item);
+				}
+
+				foreach (var item in A.OrderByDescending(x=>x)) {
+					dq2.PushBack(item);
+				}
+
+				var idx = N / 2;
+				var diff = 1;
+				var dir = true;
+				box1.Add(dq1.PopFront());
+				box2.Add(dq2.PopFront());
+				while (dq1.Count != 0) {
+					if (dir) {
+						box1.Add(dq1.PopBack());
+						if(dq1.Count!=0) box1.Add(dq1.PopBack());
+						box2.Add(dq2.PopBack());
+						if (dq2.Count != 0) box2.Add(dq2.PopBack());
+					}
+					else {
+						box1.Add(dq1.PopFront());
+						if (dq1.Count != 0) box1.Add(dq1.PopFront());
+						box2.Add(dq2.PopFront());
+						if (dq2.Count != 0) box2.Add(dq2.PopFront());
+					}
+					dir = !dir;
+				}
+
+				dir = false;
+
+				foreach (var item in box1) {
+					B[idx] = item;
+					if (dir) idx += diff;
+					else idx -= diff;
+					dir = !dir;
+					diff++;
+				}
+
+				idx = N / 2;
+				diff = 1;
+				dir = false;
+				foreach (var item in box2) {
+					C[idx] = item;
+					if (dir) idx += diff;
+					else idx -= diff;
+					dir = !dir;
+					diff++;
+				}
+
+				var sumB = 0L;
+				var sumC = 0L;
+				for (var i = 0; i < N - 1; i++) {
+					sumB += Abs(B[i] - B[i + 1]);
+					sumC += Abs(C[i] - C[i + 1]);
+				}
+
+				Max(sumB,sumC).WL();
+			}
         }
     }
     
