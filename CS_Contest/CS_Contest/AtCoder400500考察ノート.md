@@ -2146,3 +2146,72 @@ public void Solve() {
 	Max(sumB,sumC).WL();
 }
 ```
+
+# Tenka1 Programmer Contest 2018 D Crossing
+- `{1..N}`という数列の部分集合の組を`{S1,S2,S3...Sk}`とするとき以下を満たすようなものはあるか
+  - 各要素はすべての組合わせてちょうど2つ
+  - 任意の2つの集合の積集合の要素は1つ
+- まずは`k`を適当に決めてみる
+  - `k=5`のとき
+  - 2つ目の条件から任意の二組に1つの数字が割り当てられるため，これを列挙してみる
+```
+{1,2} {1,3} {1,4} {1,5}
+{2,3} {2,4} {2,5}
+{3,4} {3,5}
+{4,5}
+```
+  - 条件2から，このペアそれぞれに1つの数字を割り当てるといいことが分かる．
+```
+{1,2}=A {1,3}=B {1,4}=C {1,5}=D
+{2,3}=E {2,4}=F {2,5}=G
+{3,4}=H {3,5}=I
+{4,5}=J
+```
+- ここで各集合に関係する数だけ取り出すと
+```
+S1={A,B,C,D}
+S2={A,E,F,G}
+S3={B,E,H,I}
+S4={C,F,H,J}
+S5={D,G,I,J}
+```
+- となり，求めたい集合が得られる．
+- これを得るにはペアの個数が`N`と一致することが1つ目の条件からわかる．ペアの個数は`kC2`個
+- よって
+  - `N=kC2`となる`k`がないときはNo
+  - あるときは上のように自動的に集合が決まる
+```cs
+public void Solve() {
+	var N = NextInt();
+	Func<int, int> checkFunc = (t) => {
+		int k;
+		for (k = 1; k * (k - 1) / 2 < t; k++) ;
+		if (k * (k - 1) / 2 == t) return k;
+		return -1;
+	};
+
+	var K = checkFunc(N);
+	if (K == -1) {
+		"No".WL();
+		return;
+	}
+
+	var ans = Generate.Repeat(i => new Li(), K);
+	var seq = Generate.Seq(1, N+1).ToArray();
+	var idx = 0;
+	for (var i = 0; i < K - 1; i++) {
+		for (var j = i + 1; j < K; j++) {
+			ans[i].Add(seq[idx]);
+			ans[j].Add(seq[idx]);
+			idx++;
+		}
+	}
+
+	"Yes".WL();
+	K.WL();
+	foreach (var item in ans) {
+		$"{item.Count} ".W();
+		item.JoinWL();
+	}
+}
+```
