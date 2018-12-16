@@ -2215,3 +2215,45 @@ public void Solve() {
 	}
 }
 ```
+
+# AGC029 B Powers of two
+- 600点だが体感500ぐらい
+- N個の数字を2つとってペアを作るとき，和が2^t^となるペアをできるだけ多く作る
+- 最大で何ペアできるか
+- N個の数のうち，最大の数xにyを足して2^t^になるときこの2^t^は，x< 2^t^ <= 2xとなる
+- この区間には高々1個しか2^t^がないため，yの値も1個に決まる
+- yが数列の中に残っていれば使ってペアを組む
+- これを繰り返す
+```cs
+public void Solve() {
+	var N = NextInt();
+	var A = NextLongList().OrderByDescending(x => x).ToArray();
+	var map = A.CountUp();
+
+	Func<long, long> next2PowFunc = (x) => {
+	    var rt = 1L;
+	    var idx = 1;
+	    while (rt <= x) rt = (long) Pow(2, idx++);
+	    return rt;
+	};
+
+	var sum = 0L;
+	foreach (var x in A) {
+	    if (map[x] == 0) continue;
+
+	    var next = next2PowFunc(x);
+	    if (next == x) continue;
+	    if (x > 2 * next) continue;
+	    var y = next - x;
+	    if (y == x && map[x] < 2) continue;
+	    if (map[y] == 0) continue;
+
+	    map[y]--;
+	    map[x]--;
+
+	    sum++;
+	}
+
+	sum.WL();
+}
+```

@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
 using static System.Console;
 using static System.Math;
 using CS_Contest.Loop;
@@ -34,41 +32,40 @@ namespace CS_Contest {
 
         public class Calc {
 	        public void Solve() {
-		        var N = NextInt();
-		        Func<int, int> checkFunc = (t) => {
-			        int k;
-			        for (k = 1; k * (k - 1) / 2 < t; k++) ;
-			        if (k * (k - 1) / 2 == t) return k;
-			        return -1;
-		        };
+	            var N = NextInt();
+	            var A = NextLongList().OrderByDescending(x => x).ToArray();
+	            var map = A.CountUp();
 
-		        var K = checkFunc(N);
-		        if (K == -1) {
-					"No".WL();
-					return;
-		        }
+	            Func<long, long> next2PowFunc = (x) => {
+	                var rt = 1L;
+	                var idx = 1;
+	                while (rt <= x) rt = (long) Pow(2, idx++);
+	                return rt;
+	            };
 
-		        var ans = Generate.Repeat(i => new Li(), K);
-		        var seq = Generate.Seq(1, N+1).ToArray();
-		        var idx = 0;
-		        for (var i = 0; i < K - 1; i++) {
-			        for (var j = i + 1; j < K; j++) {
-						ans[i].Add(seq[idx]);
-						ans[j].Add(seq[idx]);
-						idx++;
-			        }
-		        }
+	            var sum = 0L;
+	            foreach (var x in A) {
+	                if (map[x] == 0) continue;
 
-				"Yes".WL();
-				K.WL();
-				foreach (var item in ans) {
-					$"{item.Count} ".W();
-					item.JoinWL();
-				}
-			}
-        }
+	                var next = next2PowFunc(x);
+	                if (next == x) continue;
+	                if (x > 2 * next) continue;
+	                var y = next - x;
+	                if (y == x && map[x] < 2) continue;
+	                if (map[y] == 0) continue;
+
+	                map[y]--;
+	                map[x]--;
+
+	                sum++;
+	            }
+
+	            sum.WL();
+	        }
+
+		}
     }
-    
+
 }
 namespace Nakov.IO {
     using System;
@@ -206,6 +203,10 @@ namespace CS_Contest.IO {
         public static void WL(this object obj) => WriteLine(obj);
         public static void WL(this string obj) => WriteLine(obj);
         public static void WL<T>(this IEnumerable<T> list) => list.ToList().ForEach(x => x.WL());
+
+	    public static void DL(this object obj) => Error.WriteLine(obj);
+	    public static void DL(this string obj) => Error.WriteLine(obj);
+	    public static void DL<T>(this IEnumerable<T> @this) => @this.ToList().ForEach(x => x.DL());
 
         public static Li NextIntList() => ReadLine().Split().Select(int.Parse).ToList();
         public static Li NextIntList(int n) => Enumerable.Repeat(0, n).Select(x => ReadLine()).Select(int.Parse).ToList();
